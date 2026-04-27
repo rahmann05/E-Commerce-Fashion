@@ -1,0 +1,122 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  transition: background 0.3s ease, color 0.3s ease, border-bottom 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.navbarDefault {
+  background: rgba(245, 245, 243, 0.88);
+  color: #111;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.navbarScrolled {
+  background: rgba(245, 245, 243, 0.95);
+  color: #111;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.navbarTransparent {
+  background: transparent;
+  color: #fff;
+  border-bottom: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.mainNavbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  width: 100%;
+  position: relative;
+  z-index: 50;
+}
+
+.mainNavbarDark {
+  color: #111;
+}
+
+.mainNavbarLight {
+  color: #fff;
+}
+
+.navLinksGroup,
+.actionsGroup {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.navLink,
+.brand,
+.cartLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.navLink {
+  font-size: 0.9rem;
+  font-weight: 500;
+  position: relative;
+}
+
+.navLink::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: currentColor;
+  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+.navLink:hover {
+  color: inherit;
+}
+
+.brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.cartLink {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cartBadge {
+  background: #111;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 1rem;
+}
+
+@media (max-width: 768px) {
+  .mainNavbar {
+    padding: 1.2rem 1.5rem;
+    gap: 1rem;
+  }
+
+  .navLinksGroup,
+  .actionsGroup {
+    gap: 1rem;
+  }
+}

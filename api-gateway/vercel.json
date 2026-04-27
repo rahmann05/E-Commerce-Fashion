@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/storefront/(.*)",
+      "destination": "https://url-core-api-anda.vercel.app/api/$1"
+    },
+    {
+      "source": "/api/admin/storefront/(.*)",
+      "destination": "https://url-core-api-anda.vercel.app/api/admin/$1"
+    },
+    {
+      "source": "/api/admin/management/(.*)",
+      "destination": "https://url-admin-api-anda.vercel.app/api/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/health"
+    }
+  ]
+}

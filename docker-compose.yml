@@ -1,0 +1,48 @@
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - STOREFRONT_BACKEND_URL=http://core-commerce-api:3001
+      - ADMIN_BACKEND_URL=http://admin-management-api:4001
+      - STOREFRONT_URL=http://localhost:3000
+      - ADMIN_URL=http://localhost:4000
+    depends_on:
+      - core-commerce-api
+      - admin-management-api
+
+  core-commerce-api:
+    build: ./core-commerce-api
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_URL=${CORE_DATABASE_URL}
+      - DIRECT_URL=${CORE_DIRECT_URL}
+
+  admin-management-api:
+    build: ./admin-management-api
+    ports:
+      - "4001:4001"
+    environment:
+      - PORT=4001
+      - DATABASE_URL=${ADMIN_DATABASE_URL}
+      - DIRECT_URL=${ADMIN_DIRECT_URL}
+
+  storefront-web:
+    build: ./storefront-web
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/storefront
+
+  admin-dashboard:
+    build: ./admin-dashboard
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - API_BASE_URL=http://localhost:8000/api/admin
