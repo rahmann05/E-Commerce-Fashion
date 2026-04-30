@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+.svelte-kit
+.next
+.env
+.env.*
+!.env.example
+.gemini
