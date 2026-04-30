@@ -118,7 +118,7 @@ export async function getJeans(): Promise<CatalogueProduct[]> {
 export async function getCarouselImages(): Promise<string[]> {
   try {
     const products = await getProducts("all");
-    return products.flatMap(p => p.image).filter(Boolean);
+    return products.flatMap(p => p.image).filter((img): img is string => Boolean(img));
   } catch (err) {
     console.error("[API] getCarouselImages failed:", err);
     return [];
