@@ -6,7 +6,7 @@ const SESSION_COOKIE_NAME = "novure_uid";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: orderId } = await params;
 

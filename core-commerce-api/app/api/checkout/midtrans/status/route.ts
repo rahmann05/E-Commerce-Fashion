@@ -8,11 +8,13 @@ const snap = new (midtransClient as any).Snap({
   clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "",
 });
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id: orderId } = await params;
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const orderId = url.searchParams.get("orderId");
+
+  if (!orderId) {
+    return NextResponse.json({ success: false, error: "Missing orderId" }, { status: 400 });
+  }
 
   try {
     const statusResponse = await snap.transaction.status(orderId);
