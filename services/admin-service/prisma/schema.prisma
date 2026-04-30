@@ -12,6 +12,16 @@ enum AdminRole {
   STAFF
 }
 
+enum OrderStatus {
+  AWAITING_PAYMENT
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
 model AdminUser {
   id        String    @id @default(cuid())
   name      String
@@ -106,4 +116,116 @@ model FinancialTransaction {
   referenceId   String
   description   String?
   createdAt     DateTime @default(now())
+}
+
+model Customer {
+  id             String                 @id @default(cuid())
+  name           String?
+  email          String                 @unique
+  password       String
+  image          String?
+  phone          String?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  orders         Order[]
+  addresses      Address[]
+  cart           Cart?
+  notifications  CustomerNotification[]
+  vouchers       CustomerVoucher[]
+  paymentMethods SavedPaymentMethod[]
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  isPrimary  Boolean  @default(false)
+  line1      String
+  city       String
+  province   String
+}
+
+model Order {
+  id            String         @id @default(cuid())
+  customerId    String
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  totalAmount   Decimal        @db.Decimal(10, 2)
+  status        OrderStatus    @default(AWAITING_PAYMENT)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  items         OrderItem[]
+  returnRequest ReturnRequest?
+}
+
+model OrderItem {
+  id               String  @id @default(cuid())
+  orderId          String
+  order            Order   @relation(fields: [orderId], references: [id])
+  productId        String  // Reference to Supabase Product ID
+  productVariantId String? // Reference to Supabase ProductVariant ID
+  size             String?
+  quantity         Int
+  price            Decimal @db.Decimal(10, 2)
+}
+
+model ReturnRequest {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  reason      String
+  status      String   @default("PENDING")
+  images      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Cart {
+  id         String     @id @default(cuid())
+  customerId String     @unique
+  customer   Customer   @relation(fields: [customerId], references: [id])
+  items      CartItem[]
+}
+
+model CartItem {
+  id               String         @id @default(cuid())
+  cartId           String
+  cart             Cart           @relation(fields: [cartId], references: [id])
+  productId        String         // Reference to Supabase Product ID
+  productVariantId String         // Reference to Supabase ProductVariant ID
+  quantity         Int
+
+  @@unique([cartId, productVariantId])
+}
+
+model CustomerNotification {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  title      String
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model CustomerVoucher {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  voucherId  String   // Reference to Supabase Voucher ID
+  isUsed     Boolean  @default(false)
+  claimedAt  DateTime @default(now())
+
+  @@unique([customerId, voucherId])
+}
+
+model SavedPaymentMethod {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider   String
+  cardMask   String?
+  token      String
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }

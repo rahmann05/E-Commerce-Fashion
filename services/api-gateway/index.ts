@@ -89,10 +89,12 @@ const proxyOptions = (target: string) => ({
   }
 });
 
-// 1. Storefront Public API
-// In HPM v3, the mount path '/api/storefront' is stripped from req.url before proxying.
-// So '/api/storefront/products' → proxy gets '/products'.
-// We set target to include '/api' so it becomes 'http://localhost:3001/api/products'.
+// 1a. Storefront Transaction/Identity APIs -> Route to Admin Management API (Neon)
+app.use(['/api/storefront/auth', '/api/storefront/account', '/api/storefront/cart', '/api/storefront/checkout', '/api/storefront/orders'], createProxyMiddleware({
+  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/storefront`),
+}));
+
+// 1b. Storefront Catalog APIs -> Route to Core Commerce API (Supabase)
 app.use('/api/storefront', createProxyMiddleware({
   ...proxyOptions(`${STOREFRONT_BACKEND_URL}/api`),
 }));
