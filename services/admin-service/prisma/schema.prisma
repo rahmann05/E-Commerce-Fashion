@@ -39,7 +39,7 @@ model AdminUser {
 model AuditLog {
   id          String   @id @default(cuid())
   adminId     String
-  admin       AdminUser @relation(fields: [adminId], references: [id])
+  admin       AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
   action      String   // e.g., "CREATE_PRODUCT", "UPDATE_ORDER"
   resource    String   // e.g., "Product", "Order"
   resourceId  String
@@ -162,7 +162,7 @@ model Order {
 model OrderItem {
   id               String  @id @default(cuid())
   orderId          String
-  order            Order   @relation(fields: [orderId], references: [id])
+  order            Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId        String  // Reference to Supabase Product ID
   productVariantId String? // Reference to Supabase ProductVariant ID
   size             String?
@@ -191,7 +191,7 @@ model Cart {
 model CartItem {
   id               String         @id @default(cuid())
   cartId           String
-  cart             Cart           @relation(fields: [cartId], references: [id])
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productId        String         // Reference to Supabase Product ID
   productVariantId String         // Reference to Supabase ProductVariant ID
   quantity         Int
@@ -242,7 +242,7 @@ model ShippingCarrier {
 model ShippingTracking {
   id               String          @id @default(cuid())
   orderId          String          @unique
-  order            Order           @relation(fields: [orderId], references: [id])
+  order            Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   carrierId        String
   carrier          ShippingCarrier @relation(fields: [carrierId], references: [id])
   trackingNumber   String
