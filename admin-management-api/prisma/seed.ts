@@ -14,7 +14,7 @@ async function main() {
       role: 'SUPER_ADMIN',
     },
   });
-  console.log('✅ Super Admin created:', admin.email);
+  console.log('Super Admin created:', admin.email);
 }
 
 main()

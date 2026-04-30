@@ -1,12 +1,12 @@
 # Stage 1: Dependencies
-FROM node:22-alpine AS deps
+FROM node:24.15.0-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # Stage 2: Builder
-FROM node:22-alpine AS builder
+FROM node:24.15.0-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -25,13 +25,18 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=$NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
 
-RUN npx prisma generate
-RUN npm run build
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
+    NEXT_PUBLIC_SUPABASE_URL="https://dummy.supabase.co" \
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="dummy" \
+    NEXT_PUBLIC_MIDTRANS_CLIENT_KEY="dummy" \
+    npm run build
 
 # Stage 3: Runner
-FROM node:22-alpine AS runner
+FROM node:24.15.0-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 

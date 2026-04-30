@@ -29,6 +29,21 @@ app.use(cors({
 
 app.use(express.json());
 
+// Root Route
+app.get(['/', '/api'], (req, res) => {
+  res.json({
+    name: "Novure E-Commerce API Gateway",
+    version: "1.2.0",
+    status: "RUNNING",
+    endpoints: {
+      health: "/health",
+      storefront: "/api/storefront",
+      admin_management: "/api/admin/management",
+      admin_storefront: "/api/admin/storefront"
+    }
+  });
+});
+
 const STOREFRONT_BACKEND_URL = process.env.STOREFRONT_BACKEND_URL || 'http://core-commerce-api:3001';
 const ADMIN_BACKEND_URL = process.env.ADMIN_BACKEND_URL || 'http://admin-management-api:4001';
 
@@ -89,6 +104,19 @@ app.use('/api/admin/storefront', createProxyMiddleware({
 app.use('/api/admin/management', createProxyMiddleware({
   ...proxyOptions(`${ADMIN_BACKEND_URL}/api`),
 }));
+
+// Catch-all for unmatched /api routes
+app.use('/api', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `API Route ${req.method} ${req.url} not found`,
+    available_endpoints: {
+      storefront: "/api/storefront",
+      admin_management: "/api/admin/management",
+      admin_storefront: "/api/admin/storefront"
+    }
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 API Gateway v1.2 running at port ${PORT}`);
