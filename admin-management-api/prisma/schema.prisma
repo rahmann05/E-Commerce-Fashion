@@ -21,7 +21,9 @@ model AdminUser {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  auditLogs AuditLog[]
+  auditLogs     AuditLog[]
+  notifications AdminNotification[]
+  reports       ReportJob[]
 }
 
 model AuditLog {
@@ -42,21 +44,66 @@ model SystemConfig {
   updatedAt DateTime @updatedAt
 }
 
-model Banner {
+model AdminNotification {
   id        String   @id @default(cuid())
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id])
   title     String
-  imageUrl  String
-  link      String?
-  isActive  Boolean  @default(true)
-  priority  Int      @default(0)
+  message   String
+  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 
-model Voucher {
-  id          String    @id @default(cuid())
-  code        String    @unique
-  discountPct Int?
-  discountFix Decimal?  @db.Decimal(10, 2)
-  isActive    Boolean   @default(true)
-  expiresAt   DateTime?
+model ReportJob {
+  id        String   @id @default(cuid())
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+  type      String   // e.g., "SALES_REPORT"
+  status    String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  fileUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String?
+  email     String?
+  address   String?
+  orders    PurchaseOrder[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PurchaseOrder {
+  id          String   @id @default(cuid())
+  supplierId  String
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  status      String   @default("DRAFT") // DRAFT, SENT, COMPLETED, CANCELLED
+  totalAmount Decimal  @db.Decimal(10, 2)
+  items       PurchaseOrderItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PurchaseOrderItem {
+  id              String   @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productName     String   // Denormalized or linked if Admin DB knows product IDs
+  productId       String?  // Reference to Storefront DB Product ID
+  quantity        Int
+  unitPrice       Decimal  @db.Decimal(10, 2)
+}
+
+model FinancialTransaction {
+  id            String   @id @default(cuid())
+  type          String   // INCOME, EXPENSE, REFUND
+  amount        Decimal  @db.Decimal(10, 2)
+  status        String   @default("COMPLETED")
+  referenceType String   // ORDER, PURCHASE_ORDER
+  referenceId   String
+  description   String?
+  createdAt     DateTime @default(now())
 }
