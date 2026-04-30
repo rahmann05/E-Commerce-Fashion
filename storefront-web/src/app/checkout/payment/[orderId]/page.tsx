@@ -273,7 +273,7 @@ export default function PaymentStatusPage() {
                 </div>
                 <div style={{ fontSize: "0.85rem", color: "#444", lineHeight: 1.5 }}>
                    {/* Alamat sekarang terintegrasi dengan relasi address */}
-                   {localOrder.addresses?.[0]?.line1 || "No address provided"}
+                   {localOrder.address?.line1 || "No address provided"}
                 </div>
               </div>
             </div>
