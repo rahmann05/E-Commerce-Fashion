@@ -6,14 +6,14 @@ Arsitektur headless e-commerce yang modular, terukur, dan terisolasi.
 Sistem terdiri dari 5 layanan utama yang berkomunikasi melalui API Gateway:
 
 1.  **api-gateway (Port 8000)**: Single entry point. Mengelola CORS, routing, dan integrasi antar layanan.
-2.  **core-commerce-api (Port 3001)**: Headless Commerce Engine. Menangani katalog produk, keranjang, pesanan, dan autentikasi pelanggan. Menggunakan database **Neon (PostgreSQL)**.
-3.  **admin-management-api (Port 4001)**: Management Engine. Menangani data staf, audit log, dan konfigurasi sistem. Menggunakan database **Supabase (PostgreSQL)**.
+2.  **core-commerce-api (Port 3001)**: Headless Commerce Engine. Menangani katalog produk, keranjang, pesanan, dan autentikasi pelanggan. Menggunakan database **Supabase (PostgreSQL)**.
+3.  **admin-management-api (Port 4001)**: Management Engine. Menangani data staf, audit log, dan konfigurasi sistem. Menggunakan database **Neon (PostgreSQL)**.
 4.  **storefront-web (Port 3000)**: Consumer Frontend (Next.js). Antarmuka pelanggan yang mengonsumsi Core API via Gateway.
 5.  **admin-dashboard (Port 4000)**: Management Frontend (SvelteKit). Antarmuka admin yang mengonsumsi Admin & Core API via Gateway.
 
 ## Konfigurasi Database
-- **Neon**: Digunakan oleh `core-commerce-api` untuk isolasi data transaksional pelanggan yang ber-traffic tinggi.
-- **Supabase**: Digunakan oleh `admin-management-api` untuk data operasional internal dan fitur real-time admin.
+- **Supabase**: Digunakan oleh `core-commerce-api` untuk isolasi data transaksional pelanggan yang ber-traffic tinggi.
+- **Neon**: Digunakan oleh `admin-management-api` untuk data operasional internal dan fitur real-time admin.
 
 ## Cara Menjalankan (Development)
 Jalankan setiap layanan di terminal terpisah:

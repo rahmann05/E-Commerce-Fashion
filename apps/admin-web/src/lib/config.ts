@@ -6,8 +6,8 @@ export const STOREFRONT_URL = env.PUBLIC_STOREFRONT_URL || 'http://localhost:300
 // Gunakan localhost untuk dev, atau URL dari environment variable untuk produksi
 const GATEWAY_URL = env.PUBLIC_GATEWAY_URL || 'http://localhost:8000';
 
-// URL Gateway untuk data transaksional (Produk, Pesanan, Kategori - Neon)
+// URL Gateway untuk data transaksional (Produk, Pesanan, Kategori - Supabase)
 export const API_BASE_URL = `${GATEWAY_URL}/api/admin/storefront`;
 
-// URL Gateway untuk data operasional internal (Voucher, Banner, Staff - Supabase)
+// URL Gateway untuk data operasional internal (Voucher, Banner, Staff - Neon)
 export const INTERNAL_API_URL = `${GATEWAY_URL}/api/admin/management`;
