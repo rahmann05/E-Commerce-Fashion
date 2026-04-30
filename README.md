@@ -2,37 +2,37 @@
 
 Arsitektur headless e-commerce yang modular, terukur, dan terisolasi.
 
-## Layanan & Arsitektur
-Sistem terdiri dari 5 layanan utama yang berkomunikasi melalui API Gateway:
+## Layanan & Arsitektur (Unified Headless)
+Sistem menggunakan arsitektur dual-database untuk mengoptimalkan performa dan isolasi data:
 
-1.  **api-gateway (Port 8000)**: Single entry point. Mengelola CORS, routing, dan integrasi antar layanan.
-2.  **core-commerce-api (Port 3001)**: Headless Commerce Engine. Menangani katalog produk, keranjang, pesanan, dan autentikasi pelanggan. Menggunakan database **Supabase (PostgreSQL)**.
-3.  **admin-management-api (Port 4001)**: Management Engine. Menangani data staf, audit log, dan konfigurasi sistem. Menggunakan database **Neon (PostgreSQL)**.
-4.  **storefront-web (Port 3000)**: Consumer Frontend (Next.js). Antarmuka pelanggan yang mengonsumsi Core API via Gateway.
-5.  **admin-dashboard (Port 4000)**: Management Frontend (SvelteKit). Antarmuka admin yang mengonsumsi Admin & Core API via Gateway.
+1.  **api-gateway (Port 8000)**: Single entry point. Mengelola CORS dynamic, routing cerdas, dan proxying antar layanan.
+2.  **commerce-service (Port 3001)**: Catalog Engine (Supabase). Menangani Produk, Kategori, dan Review.
+3.  **admin-service (Port 4001)**: Transaction & Identity Engine (Neon). Menangani Customer, Order, Cart, dan Management Internal (Staff/Audit).
+4.  **storefront-web (Port 3000)**: Consumer Frontend (Next.js). Mengonsumsi data katalog dan transaksi via Gateway.
+5.  **admin-web (Port 4000)**: Management Dashboard (SvelteKit). Studio kontrol untuk katalog (Supabase) dan transaksi (Neon).
 
 ## Konfigurasi Database
-- **Supabase**: Digunakan oleh `core-commerce-api` untuk isolasi data transaksional pelanggan yang ber-traffic tinggi.
-- **Neon**: Digunakan oleh `admin-management-api` untuk data operasional internal dan fitur real-time admin.
+- **Supabase (PostgreSQL)**: Katalog produk (High Read, Low Write).
+- **Neon (PostgreSQL)**: Transaksi & Identitas (High Write, Consistent Read).
 
 ## Cara Menjalankan (Development)
 Jalankan setiap layanan di terminal terpisah:
 
 ```bash
 # 1. API Gateway
-cd api-gateway && npm run dev
+cd services/api-gateway && npm run dev
 
-# 2. Core API
-cd core-commerce-api && npm run dev
+# 2. Commerce Service
+cd services/commerce-service && npm run dev
 
-# 3. Admin API
-cd admin-management-api && npm run dev
+# 3. Admin Service
+cd services/admin-service && npm run dev
 
 # 4. Storefront
-cd storefront-web && npm run dev
+cd apps/storefront-web && npm run dev
 
 # 5. Admin Dashboard
-cd admin-dashboard && npm run dev
+cd apps/admin-web && npm run dev
 ```
 
 ## Persiapan Produksi / Hosting
