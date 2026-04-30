@@ -3,10 +3,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
 const prismaClientSingleton = () => {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is not defined in admin-management-api.");
-  }
+  const connectionString = process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/postgres";
 
   const pool = new pg.Pool({ connectionString });
   const adapter = new PrismaPg(pool);
