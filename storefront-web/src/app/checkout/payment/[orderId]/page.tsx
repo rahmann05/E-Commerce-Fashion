@@ -240,7 +240,7 @@ export default function PaymentStatusPage() {
 
           <div className="payment-amount-card">
             <div className="payment-amount-label">Total Pembayaran</div>
-            <div className="payment-amount-value">{formatPrice(status?.gross_amount || localOrder?.totalAmount)}</div>
+            <div className="payment-amount-value">{formatPrice(status?.gross_amount || localOrder?.total)}</div>
           </div>
 
           {status && (
