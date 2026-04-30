@@ -15,11 +15,6 @@ export async function GET(
         variants: true,
         reviews: {
           orderBy: { createdAt: "desc" },
-          include: {
-            customer: {
-              select: { name: true, image: true },
-            },
-          },
         },
       },
     });
@@ -37,8 +32,7 @@ export async function GET(
       comments: product.reviews.map(r => r.comment),
       details: product.reviews.map(r => ({
         id: r.id,
-        customerName: r.customer.name,
-        customerImage: r.customer.image,
+        customerId: r.customerId,
         date: r.createdAt
       }))
     };

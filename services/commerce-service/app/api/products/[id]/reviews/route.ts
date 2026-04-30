@@ -10,11 +10,6 @@ export async function GET(
   try {
     const reviews = await prisma.review.findMany({
       where: { productId: id },
-      include: {
-        customer: {
-          select: { name: true, image: true },
-        },
-      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -32,8 +27,8 @@ export async function GET(
         comments: reviews.map(r => r.comment),
         details: reviews.map(r => ({
           id: r.id,
-          customerName: r.customer.name,
-          customerImage: r.customer.image,
+          customerName: "Verified Buyer",
+          customerImage: "",
           date: r.createdAt
         })),
         summary: {

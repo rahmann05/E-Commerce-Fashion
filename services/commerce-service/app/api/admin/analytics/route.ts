@@ -10,54 +10,25 @@ export async function GET() {
 
   try {
     const [
-      totalRevenue,
-      orderCount,
-      customerCount,
-      revenueThisMonth,
-      revenuePrevMonth,
-      topProducts,
       categorySales,
-      dailyRevenue,
-      newCustomers
     ] = await Promise.all([
-      prisma.order.aggregate({ _sum: { totalAmount: true } }),
-      prisma.order.count(),
-      prisma.customer.count(),
-      prisma.order.aggregate({
-        where: { createdAt: { gte: startOfMonth } },
-        _sum: { totalAmount: true }
-      }),
-      prisma.order.aggregate({
-        where: { 
-          createdAt: { 
-            gte: startOfPrevMonth,
-            lte: endOfPrevMonth
-          } 
-        },
-        _sum: { totalAmount: true }
-      }),
-      prisma.orderItem.groupBy({
-        by: ['productId'],
-        _sum: { quantity: true, price: true },
-        orderBy: { _sum: { quantity: 'desc' } },
-        take: 5
-      }),
       prisma.product.findMany({
         select: {
           category: { select: { name: true } }
         }
-      }),
-      prisma.order.groupBy({
-        by: ['createdAt'],
-        where: { createdAt: { gte: thirtyDaysAgo } },
-        _sum: { totalAmount: true }
-      }),
-      prisma.customer.count({
-        where: { createdAt: { gte: startOfMonth } }
       })
     ]);
 
-    const currentRev = Number(totalRevenue._sum.totalAmount || 0);
+    // Metrics for these have moved to admin-service
+    const totalRevenue = { _sum: { totalAmount: 0 } };
+    const orderCount = 0;
+    const customerCount = 0;
+    const revenueThisMonth = { _sum: { totalAmount: 0 } };
+    const newCustomers = 0;
+    const topProducts: any[] = [];
+    const dailyRevenue: any[] = [];
+
+    const currentRev = 0;
     
     // Process Category Distribution
     const categoryMap = new Map<string, number>();
@@ -71,17 +42,17 @@ export async function GET() {
       success: true,
       data: {
         summary: {
-          totalRevenue: currentRev,
-          orderCount,
-          customerCount,
-          revenueThisMonth: Number(revenueThisMonth._sum.totalAmount || 0),
-          newCustomers
+          totalRevenue: 0,
+          orderCount: 0,
+          customerCount: 0,
+          revenueThisMonth: 0,
+          newCustomers: 0
         },
         categoryDistribution,
         topProducts,
         dailyData: dailyRevenue
       },
-      message: "Analytics data retrieved successfully"
+      message: "Analytics data retrieved successfully (Order/Customer metrics moved to admin-service)"
     });
   } catch (error: any) {
     console.error("ADMIN_ANALYTICS_ERROR", error);

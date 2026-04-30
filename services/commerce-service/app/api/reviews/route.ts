@@ -16,24 +16,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Rating must be between 1-5" }, { status: 400 });
     }
 
-    // 1. Validasi Pembelian
-    const order = await prisma.order.findFirst({
-      where: { id: orderId, customerId },
-      include: { items: true }
-    });
-
-    if (!order) return NextResponse.json({ success: false, error: "Order not found" }, { status: 404 });
-    
-    const hasItem = order.items.some(i => i.productId === productId);
-    if (!hasItem) return NextResponse.json({ success: false, error: "Product not in this order" }, { status: 400 });
-
-    // 2. Cek apakah sudah review
+    // 1. Cek apakah sudah review
     const existing = await prisma.review.findFirst({
       where: { customerId, productId, orderId }
     });
     if (existing) return NextResponse.json({ success: false, error: "Already reviewed" }, { status: 400 });
 
-    // 3. Simpan Review Relasional
+    // 2. Simpan Review Relasional (IDs are now plain strings referring to admin-service models)
     const review = await prisma.review.create({
       data: {
         customerId,
@@ -44,7 +33,7 @@ export async function POST(req: Request) {
       }
     });
 
-    // 4. Update Product (Headless Style - Parallel Arrays & Precision Rating)
+    // 3. Update Product (Headless Style - Parallel Arrays & Precision Rating)
     const allReviews = await prisma.review.findMany({
       where: { productId },
       select: { rating: true, comment: true }

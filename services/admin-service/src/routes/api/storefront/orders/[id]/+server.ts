@@ -1,0 +1,43 @@
+import { json } from '@sveltejs/kit';
+import { prisma } from '@infrastructure/database/prisma';
+import { cartService } from '@application/services/cart.service';
+
+const SESSION_COOKIE_NAME = 'novure_uid';
+
+export async function GET({ params, cookies }) {
+  try {
+    const customerId = cookies.get(SESSION_COOKIE_NAME);
+    if (!customerId) return json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
+    const order = await prisma.order.findUnique({
+      where: { 
+        id: params.id,
+        customerId
+      },
+      include: {
+        items: true
+      }
+    });
+
+    if (!order) return json({ success: false, error: 'Order not found' }, { status: 404 });
+
+    // Hydrate items with product data
+    const hydratedItems = await Promise.all(
+      order.items.map(async (item) => {
+        const product = await cartService.fetchProduct(item.productId);
+        return {
+          ...item,
+          product
+        };
+      })
+    );
+
+    return json({
+      success: true,
+      data: { ...order, items: hydratedItems },
+      message: 'Order details retrieved'
+    });
+  } catch (error: any) {
+    return json({ success: false, error: error.message }, { status: 500 });
+  }
+}

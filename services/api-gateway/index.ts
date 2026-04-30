@@ -94,16 +94,19 @@ app.use(['/api/storefront/auth', '/api/storefront/account', '/api/storefront/car
   ...proxyOptions(`${ADMIN_BACKEND_URL}/api/storefront`),
 }));
 
-// 1b. Storefront Catalog APIs -> Route to Core Commerce API (Supabase)
+// 1b. Admin Transactional APIs (Orders/Customers/Analytics) -> Route to Admin Management API (Neon)
+app.use(['/api/admin/storefront/orders', '/api/admin/storefront/customers', '/api/admin/storefront/analytics'], createProxyMiddleware({
+  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/admin/storefront`),
+}));
+// 1c. Storefront Catalog APIs -> Route to Core Commerce API (Supabase)
 app.use('/api/storefront', createProxyMiddleware({
   ...proxyOptions(`${STOREFRONT_BACKEND_URL}/api`),
 }));
 
-// 2. Admin Transactional API (Redirects to Core API's admin routes)
+// 2. Admin Catalog APIs (Products/Categories - Redirects to Core API)
 app.use('/api/admin/storefront', createProxyMiddleware({
   ...proxyOptions(`${STOREFRONT_BACKEND_URL}/api/admin`),
 }));
-
 // 3. Admin Management API (Redirects to Management API for internal stuff)
 app.use('/api/admin/management', createProxyMiddleware({
   ...proxyOptions(`${ADMIN_BACKEND_URL}/api`),
