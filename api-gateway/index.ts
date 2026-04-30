@@ -11,7 +11,9 @@ const PORT = process.env.PORT || 8000;
 
 const allowedOrigins = [
   process.env.STOREFRONT_URL || 'http://localhost:3000',
-  process.env.ADMIN_URL || 'http://localhost:4000'
+  process.env.ADMIN_URL || 'http://localhost:4000',
+  'http://storefront-web:3000',
+  'http://admin-dashboard:4000'
 ];
 
 app.use(cors({
@@ -27,8 +29,8 @@ app.use(cors({
 
 app.use(express.json());
 
-const STOREFRONT_BACKEND_URL = process.env.STOREFRONT_BACKEND_URL || 'http://localhost:3001';
-const ADMIN_BACKEND_URL = process.env.ADMIN_BACKEND_URL || 'http://localhost:4001';
+const STOREFRONT_BACKEND_URL = process.env.STOREFRONT_BACKEND_URL || 'http://core-commerce-api:3001';
+const ADMIN_BACKEND_URL = process.env.ADMIN_BACKEND_URL || 'http://admin-management-api:4001';
 
 // Deep Health Check
 app.get('/health', async (req, res) => {

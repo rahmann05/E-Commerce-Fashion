@@ -1,9 +1,19 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 import "dotenv/config";
 
 const prismaClientSingleton = () => {
-  console.log("🔌 Initializing Prisma Client with DATABASE_URL:", process.env.DATABASE_URL?.split('@')[1] || "UNDEFINED");
-  return new PrismaClient();
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not defined");
+  }
+  
+  console.log("🔌 Initializing Prisma Client with DATABASE_URL:", connectionString.split('@')[1] || "HIDDEN");
+  
+  const pool = new pg.Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
 };
 
 declare global {

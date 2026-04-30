@@ -1,8 +1,9 @@
 services:
   api-gateway:
-    build: ./api-gateway
+    build:
+      context: ./api-gateway
     ports:
-      - "8000:8000"
+      - "${GATEWAY_PORT:-8000}:8000"
     environment:
       - PORT=8000
       - STOREFRONT_BACKEND_URL=http://core-commerce-api:3001
@@ -14,16 +15,27 @@ services:
       - admin-management-api
 
   core-commerce-api:
-    build: ./core-commerce-api
+    build:
+      context: ./core-commerce-api
+      args:
+        - DATABASE_URL=${CORE_DATABASE_URL}
+        - DIRECT_URL=${CORE_DIRECT_URL}
+        - NEXT_PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${PUBLIC_SUPABASE_ANON_KEY}
     ports:
       - "3001:3001"
     environment:
       - PORT=3001
       - DATABASE_URL=${CORE_DATABASE_URL}
       - DIRECT_URL=${CORE_DIRECT_URL}
+      - NEXT_PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${PUBLIC_SUPABASE_ANON_KEY}
 
   admin-management-api:
-    build: ./admin-management-api
+    build:
+      context: ./admin-management-api
+      args:
+        - DATABASE_URL=${ADMIN_DATABASE_URL}
     ports:
       - "4001:4001"
     environment:
@@ -32,17 +44,27 @@ services:
       - DIRECT_URL=${ADMIN_DIRECT_URL}
 
   storefront-web:
-    build: ./storefront-web
+    build:
+      context: ./storefront-web
+      args:
+        - NEXT_PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_API_URL=http://localhost:8000/api/storefront
+        - NEXT_PUBLIC_GATEWAY_URL=http://api-gateway:8000
     ports:
-      - "3000:3000"
+      - "${STOREFRONT_PORT:-3000}:3000"
     environment:
       - PORT=3000
+      - NEXT_PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_GATEWAY_URL=http://api-gateway:8000
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api/storefront
+      - INTERNAL_API_URL=http://api-gateway:8000/api/storefront
 
   admin-dashboard:
-    build: ./admin-dashboard
+    build:
+      context: ./admin-dashboard
     ports:
-      - "4000:4000"
+      - "${ADMIN_DASHBOARD_PORT:-4000}:4000"
     environment:
       - PORT=4000
-      - API_BASE_URL=http://localhost:8000/api/admin
+      - PUBLIC_GATEWAY_URL=http://localhost:8000
+      - API_BASE_URL=http://api-gateway:8000/api/admin

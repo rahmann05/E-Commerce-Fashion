@@ -13,7 +13,16 @@ import { getImageUrl } from "@/frontend/lib/image-utils";
 
 export type CategoryFilter = "all" | "tees" | "jeans" | "accessories" | "outerwear" | "editorial";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+// Use NEXT_PUBLIC_API_URL if available (client/server), otherwise fallback for server-side internal networking
+const getApiBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    return process.env.NEXT_PUBLIC_API_URL || "/api";
+  }
+  // Server-side: prefer internal networking if specified, otherwise fallback
+  return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://api-gateway:8000/api/storefront";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const PRODUCT_COLOR_MAP: Record<string, string> = {
   "tees1.png": "#e8e8e8",
