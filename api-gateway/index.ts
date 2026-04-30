@@ -71,23 +71,21 @@ const proxyOptions = (target: string) => ({
 });
 
 // 1. Storefront Public API
+// In HPM v3, the mount path '/api/storefront' is stripped from req.url before proxying.
+// So '/api/storefront/products' → proxy gets '/products'.
+// We set target to include '/api' so it becomes 'http://localhost:3001/api/products'.
 app.use('/api/storefront', createProxyMiddleware({
-  ...proxyOptions(STOREFRONT_BACKEND_URL),
-  pathRewrite: { '^/api/storefront': '/api' },
+  ...proxyOptions(`${STOREFRONT_BACKEND_URL}/api`),
 }));
 
 // 2. Admin Transactional API (Redirects to Core API's admin routes)
-// Handles: /api/admin/products, /api/admin/categories, /api/admin/orders, /api/admin/analytics
 app.use('/api/admin/storefront', createProxyMiddleware({
-  ...proxyOptions(STOREFRONT_BACKEND_URL),
-  pathRewrite: { '^/api/admin/storefront': '/api/admin' },
+  ...proxyOptions(`${STOREFRONT_BACKEND_URL}/api/admin`),
 }));
 
 // 3. Admin Management API (Redirects to Management API for internal stuff)
-// Handles: /api/admin/management (Vouchers, Banners, Staff)
 app.use('/api/admin/management', createProxyMiddleware({
-  ...proxyOptions(ADMIN_BACKEND_URL),
-  pathRewrite: { '^/api/admin/management': '/api' },
+  ...proxyOptions(`${ADMIN_BACKEND_URL}/api`),
 }));
 
 app.listen(PORT, () => {

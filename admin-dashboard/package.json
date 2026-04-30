@@ -25,6 +25,9 @@
 	},
 	"dependencies": {
 		"@prisma/config": "^7.8.0",
+		"@supabase/ssr": "^0.10.2",
+		"@supabase/supabase-js": "^2.105.1",
+		"@sveltejs/adapter-node": "^5.5.4",
 		"dotenv": "^17.4.2"
 	},
 	"prisma": {

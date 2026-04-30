@@ -104,7 +104,6 @@ export default function CursorTrail({ containerRef }: CursorTrailProps) {
                 zIndex: 10,
                 pointerEvents: "none",
                 filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.4))",
-                mixBlendMode: "lighten",
               }}
             >
               <Image src={getImageUrl(clothing.src)} alt="" fill style={{ objectFit: "contain" }} sizes="(max-width: 768px) 100vw, 20vw" />

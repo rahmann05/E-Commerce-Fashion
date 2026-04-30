@@ -38,6 +38,7 @@ export default function CatalogueClient({ initialProducts }: Props) {
       jeans:       initialProducts.filter((p) => p.category === "jeans").length,
       outerwear:   initialProducts.filter((p) => p.category === "outerwear").length,
       accessories: initialProducts.filter((p) => p.category === "accessories").length,
+      editorial:   initialProducts.filter((p) => p.category === "editorial").length,
     };
     return c;
   }, [initialProducts]);

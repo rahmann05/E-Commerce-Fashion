@@ -11,9 +11,9 @@ import { getImageUrl } from "@/frontend/lib/image-utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type CategoryFilter = "all" | "tees" | "jeans" | "accessories" | "outerwear";
+export type CategoryFilter = "all" | "tees" | "jeans" | "accessories" | "outerwear" | "editorial";
 
-const API_BASE_URL = "http://localhost:8000/api/storefront";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -26,10 +26,10 @@ function rowToProduct(
   const images = row.images || [];
   const variants = row.variants || [];
 
-  const categoryName = (row.category?.name || "tees").toLowerCase();
-  const category = (["tees", "jeans", "accessories", "outerwear"].includes(categoryName)
+  const categoryName = (row.category?.name || "editorial").toLowerCase();
+  const category = (["tees", "jeans", "accessories", "outerwear", "editorial"].includes(categoryName)
     ? categoryName
-    : "tees") as CatalogueProduct["category"];
+    : "editorial") as CatalogueProduct["category"];
 
   return {
     id: row.id,
@@ -69,12 +69,12 @@ export async function getProducts(
   category: CategoryFilter = "all"
 ): Promise<CatalogueProduct[]> {
   try {
-    const url = new URL(`${API_BASE_URL}/products`);
+    let urlString = `${API_BASE_URL}/products`;
     if (category !== "all") {
-      url.searchParams.set("category", category);
+      urlString += `?category=${category}`;
     }
 
-    const res = await fetch(url.toString(), { cache: "no-store" });
+    const res = await fetch(urlString, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to fetch products");
     
     const result = await res.json();
@@ -94,7 +94,8 @@ export async function getProductById(
   id: string
 ): Promise<CatalogueProduct | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/products/${id}`, { cache: "no-store" });
+    const urlString = `${API_BASE_URL}/products/${id}`;
+    const res = await fetch(urlString, { cache: "no-store" });
     if (!res.ok) return null;
     
     const result = await res.json();

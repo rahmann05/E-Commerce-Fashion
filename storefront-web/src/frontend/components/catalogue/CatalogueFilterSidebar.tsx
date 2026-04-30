@@ -19,6 +19,7 @@ const CATEGORIES: { key: CategoryFilter; label: string }[] = [
   { key: "jeans",      label: "Denim"        },
   { key: "outerwear",  label: "Outerwear"    },
   { key: "accessories",label: "Accessories"  },
+  { key: "editorial",  label: "Editorial"    },
 ];
 
 const SORT_OPTIONS: { key: "default" | "asc" | "desc"; label: string }[] = [

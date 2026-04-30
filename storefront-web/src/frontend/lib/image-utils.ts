@@ -3,9 +3,15 @@
  * Utility for handling image URLs, especially for Supabase Storage.
  */
 
-const SUPABASE_PROJECT_ID = "ghdadhlyhzdkrjlurifj";
-const SUPABASE_STORAGE_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public`;
-const BUCKET_NAME = "product";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+if (!SUPABASE_URL) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn("NEXT_PUBLIC_SUPABASE_URL is missing in storefront-web");
+  }
+}
+
+const BUCKET_NAME = "products";
 
 /**
  * Transforms a local path or filename into a full Supabase Storage URL.
@@ -15,7 +21,7 @@ const BUCKET_NAME = "product";
  * @returns The full Supabase Storage URL
  */
 export function getImageUrl(path: string | null | undefined): string {
-  if (!path) return "/images/placeholder.png"; // Fallback if no path provided
+  if (!path) return "/images/placeholder.png";
 
   // If it's already an absolute URL, return it
   if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -27,15 +33,11 @@ export function getImageUrl(path: string | null | undefined): string {
     return path;
   }
 
-  // Remove leading slash if present
-  let cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  // Clean up path: strip leading slash and 'images/' prefix
+  // Static data uses '/images/tees1.png' but bucket stores 'tees1.png' at root
+  let cleanPath = path;
+  if (cleanPath.startsWith("/")) cleanPath = cleanPath.slice(1);
+  if (cleanPath.startsWith("images/")) cleanPath = cleanPath.slice(7);
 
-  // If the path contains 'images/', we might want to strip it if the bucket doesn't have it
-  // But for now, we'll assume the structure was preserved or the user wants it mapped.
-  // Common pattern: local /images/tees1.png -> bucket products/tees1.png
-  if (cleanPath.startsWith("images/")) {
-    cleanPath = cleanPath.replace("images/", "");
-  }
-
-  return `${SUPABASE_STORAGE_URL}/${BUCKET_NAME}/${cleanPath}`;
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${cleanPath}`;
 }
