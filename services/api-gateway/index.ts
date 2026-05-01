@@ -103,7 +103,8 @@ app.use(createProxyMiddleware({
     '/api/storefront/auth', 
     '/api/storefront/account', 
     '/api/storefront/cart', 
-    '/api/storefront/checkout', 
+    '/api/storefront/checkout',
+    '/api/storefront/checkout/midtrans/notification',
     '/api/storefront/orders'
   ],
   ...proxyOptions(ADMIN_BACKEND_URL)
