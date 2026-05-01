@@ -112,6 +112,15 @@ app.use('/api/admin/management', createProxyMiddleware({
   ...proxyOptions(`${ADMIN_BACKEND_URL}/api`),
 }));
 
+// 4. Logistics & Shipping APIs
+app.use(['/api/storefront/shipping'], createProxyMiddleware({
+  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/storefront/shipping`),
+}));
+
+app.use(['/api/admin/management/shipping'], createProxyMiddleware({
+  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/admin/management/shipping`),
+}));
+
 // Catch-all for unmatched /api routes
 app.use('/api', (req, res) => {
   res.status(404).json({
