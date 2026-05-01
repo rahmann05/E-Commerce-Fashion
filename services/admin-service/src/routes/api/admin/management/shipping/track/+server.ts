@@ -3,7 +3,19 @@ import { prisma } from '@infrastructure/database/prisma';
 
 export async function POST({ request }) {
   try {
-    const { orderId, carrierId, trackingNumber, estimatedArrival } = await request.json();
+    const body = await request.json();
+    const { orderId, carrierId, trackingNumber, estimatedArrival } = body;
+
+    // Input Validation
+    if (!orderId || typeof orderId !== 'string') {
+      return json({ success: false, error: 'Valid orderId is required' }, { status: 400 });
+    }
+    if (!carrierId || typeof carrierId !== 'string') {
+      return json({ success: false, error: 'Valid carrierId is required' }, { status: 400 });
+    }
+    if (!trackingNumber || typeof trackingNumber !== 'string') {
+      return json({ success: false, error: 'Valid trackingNumber is required' }, { status: 400 });
+    }
 
     const tracking = await prisma.$transaction(async (tx) => {
       // 1. Create tracking record
@@ -33,6 +45,7 @@ export async function POST({ request }) {
 
     return json({ success: true, data: tracking });
   } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+    console.error('SHIPPING_TRACK_INIT_ERROR', error);
+    return json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }

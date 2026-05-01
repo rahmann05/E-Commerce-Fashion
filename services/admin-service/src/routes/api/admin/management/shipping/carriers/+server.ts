@@ -6,6 +6,7 @@ export async function GET() {
     const carriers = await prisma.shippingCarrier.findMany({ where: { isActive: true } });
     return json({ success: true, data: carriers });
   } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+    console.error('SHIPPING_CARRIERS_GET_ERROR', error);
+    return json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }
