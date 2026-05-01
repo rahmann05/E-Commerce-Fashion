@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { prisma } from '../src/lib/server/db';
-import { hashPassword } from '../src/backend/auth/password';
+import { prisma } from '../src/infrastructure/database/prisma';
+import { hashPassword } from '../src/application/auth/password';
 
 async function main() {
   const password = await hashPassword('admin123');
@@ -15,6 +15,20 @@ async function main() {
     },
   });
   console.log('Super Admin created:', admin.email);
+
+  // Add standard Indonesian carriers
+  await prisma.shippingCarrier.createMany({
+    data: [
+      { name: "JNE (Jalur Nugraha Ekakurir)", code: "JNE" },
+      { name: "J&T Express", code: "JNT" },
+      { name: "SiCepat Ekspres", code: "SICEPAT" },
+      { name: "Shopee Express", code: "SPX" },
+      { name: "GoSend", code: "GOSEND" },
+      { name: "GrabExpress", code: "GRAB" }
+    ],
+    skipDuplicates: true
+  });
+  console.log('Shipping carriers seeded');
 }
 
 main()
