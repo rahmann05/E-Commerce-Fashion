@@ -63,7 +63,7 @@
     </thead>
     <tbody style="font-size: 0.9rem;">
       {#each data.recentOrders as order}
-        <tr style="border-top: 1px solid #f9f9f9; cursor: pointer;" onclick={() => window.location.href=`/orders/${order.id}`}>
+        <tr style="border-top: 1px solid #f9f9f9; cursor: pointer;" onclick={() => goto(`/orders/${order.id}`)}>
           <td style="padding: 1.5rem 2.5rem;">
             <div style="font-weight: 700;">#{order.id.slice(-6).toUpperCase()}</div>
             <div style="font-size: 0.75rem; color: #888; margin-top: 0.3rem;">{new Date(order.createdAt).toLocaleDateString()}</div>
@@ -73,6 +73,10 @@
           <td style="padding: 1.5rem 2.5rem;">
             <span class="status-pill {getStatusClass(order.status)}">{order.status.replace('_', ' ')}</span>
           </td>
+        </tr>
+      {:else}
+        <tr>
+          <td colspan="4" style="text-align: center; padding: 3rem; color: #888; font-weight: 500;">No recent transactions found.</td>
         </tr>
       {/each}
     </tbody>

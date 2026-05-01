@@ -1,14 +1,21 @@
 import { API_BASE_URL } from '$lib/config';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ fetch }) => {
-  const [analyticsRes, ordersRes] = await Promise.all([
-    fetch(`${API_BASE_URL}/analytics`),
-    fetch(`${API_BASE_URL}/orders?limit=5`) // Assuming backend supports limit, else we slice in UI
-  ]);
+const safeFetch = async (promise: Promise<Response>) => {
+  try {
+    const res = await promise;
+    return res.ok ? await res.json() : { data: null };
+  } catch (e) {
+    console.error("Fetch error:", e);
+    return { data: null };
+  }
+};
 
-  const analytics = analyticsRes.ok ? await analyticsRes.json() : { data: null };
-  const orders = ordersRes.ok ? await ordersRes.json() : { data: [] };
+export const load: PageServerLoad = async ({ fetch }) => {
+  const [analytics, orders] = await Promise.all([
+    safeFetch(fetch(`${API_BASE_URL}/analytics`)),
+    safeFetch(fetch(`${API_BASE_URL}/orders?limit=5`))
+  ]);
 
   return {
     analytics: analytics.data || {
