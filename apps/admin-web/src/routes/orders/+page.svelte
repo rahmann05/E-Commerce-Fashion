@@ -1,92 +1,63 @@
 <script lang="ts">
-	let { data } = $props();
-	
-	const orders = $derived(data.orders);
+  import { goto } from '$app/navigation';
+  let { data } = $props();
+  let searchQuery = $state('');
 
-	function getStatusClass(status: string) {
-		return status.toLowerCase().replace('_', '');
-	}
+  function formatCurrency(amount: number) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+  }
+
+  function getStatusClass(status: string) {
+    if (['SHIPPED', 'DELIVERED'].includes(status)) return 'success';
+    if (['CANCELLED', 'RETURNED', 'REFUNDED'].includes(status)) return 'cancelled';
+    return 'pending';
+  }
+
+  let filteredOrders = $derived(
+    data.orders.filter(o => 
+      o.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (o.customer?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
 </script>
 
-<div class="studio-section" style="margin-bottom: 2rem;">
-	<div style="display: flex; justify-content: space-between; align-items: flex-end;">
-		<div>
-			<h1 class="editorial-title">Orders</h1>
-			<p class="editorial-subtitle" style="margin-top: 1rem;">Managing the commerce flow of the Novure ecosystem.</p>
-		</div>
-		<div style="display: flex; gap: 2rem; align-items: center;">
-			<form method="GET" style="position: relative;">
-				<input 
-					type="text" 
-					name="q" 
-					placeholder="Search orders..." 
-					value={data.query}
-					class="input-control" 
-					style="padding: 1rem 1.5rem; width: 300px; border-radius: 999px; background: var(--surface-soft);"
-				/>
-			</form>
-		</div>
-	</div>
-
-	<!-- Status Tabs -->
-	<div style="display: flex; gap: 3rem; margin-top: 4rem; padding-bottom: 1rem; overflow-x: auto;">
-		<a href="/orders" class="nav-item active" style="font-size: 0.75rem; text-decoration: none; padding-bottom: 1.5rem;">All Volume</a>
-		<a href="/orders?status=PROCESSING" class="nav-item" style="font-size: 0.75rem; text-decoration: none; padding-bottom: 1.5rem;">Fulfillment</a>
-		<a href="/orders?status=SHIPPED" class="nav-item" style="font-size: 0.75rem; text-decoration: none; padding-bottom: 1.5rem;">Transit</a>
-		<a href="/orders?status=DELIVERED" class="nav-item" style="font-size: 0.75rem; text-decoration: none; padding-bottom: 1.5rem;">Completed</a>
-	</div>
+<div class="hero-header" style="margin-bottom: 2rem;">
+  <h1 class="editorial-title">Transactions</h1>
+  <p class="editorial-subtitle">Complete history of all payments and orders.</p>
 </div>
 
-<div class="studio-section" style="padding: 0; overflow: hidden;">
-	<table style="width: 100%; border-collapse: collapse;">
-		<thead>
-			<tr style="background: #fafafa; border-bottom: 1px solid var(--border-soft);">
-				<th style="padding: 2rem 3rem; text-align: left; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.15em;">Identifier</th>
-				<th style="padding: 2rem 3rem; text-align: left; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.15em;">Customer</th>
-				<th style="padding: 2rem 3rem; text-align: left; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.15em;">Condition</th>
-				<th style="padding: 2rem 3rem; text-align: right; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.15em;">Value</th>
-				<th style="padding: 2rem 3rem; text-align: right; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.15em;">Action</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each orders as order}
-				<tr class="order-row" style="border-bottom: 1px solid var(--border-soft); transition: background 0.3s ease;">
-					<td style="padding: 2.5rem 3rem;">
-						<div style="font-weight: 900; font-size: 1rem; letter-spacing: -0.02em;">#{order.id.slice(-6).toUpperCase()}</div>
-						<div style="font-size: 0.7rem; color: #aaa; font-weight: 700; margin-top: 0.4rem;">{new Date(order.createdAt).toLocaleDateString()}</div>
-					</td>
-					<td style="padding: 2.5rem 3rem;">
-						<div style="font-weight: 800; font-size: 0.95rem;">{order.user?.name || 'Private Client'}</div>
-						<div style="font-size: 0.7rem; color: #aaa; font-weight: 700; margin-top: 0.4rem;">{order.user?.email}</div>
-					</td>
-					<td style="padding: 2.5rem 3rem;">
-						<span class="status-pill {getStatusClass(order.status)}">
-							{order.status.replace('_', ' ')}
-						</span>
-					</td>
-					<td style="padding: 2.5rem 3rem; text-align: right;">
-						<div style="font-weight: 900; font-size: 1.1rem; letter-spacing: -0.02em;">Rp {Number(order.totalAmount).toLocaleString()}</div>
-						<div style="font-size: 0.65rem; font-weight: 800; color: #ccc; text-transform: uppercase; margin-top: 0.4rem;">Gross Total</div>
-					</td>
-					<td style="padding: 2.5rem 3rem; text-align: right;">
-						<a href="/orders/{order.id}" class="btn-studio-secondary" style="padding: 0.7rem 1.5rem; font-size: 0.65rem;">
-							Manage
-						</a>
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
+<div style="background: #fff; border-radius: 1.2rem; border: 1px solid #f0f0f0; overflow: hidden;">
+  <div style="padding: 2rem 2.5rem; border-bottom: 1px solid #f0f0f0; display: flex; gap: 1rem;">
+    <input type="text" bind:value={searchQuery} placeholder="Search Order ID or Customer Name..." style="padding: 0.8rem 1.5rem; border-radius: 999px; border: 1px solid #eee; background: #fafafa; font-size: 0.9rem; flex: 1; font-family: inherit;" />
+  </div>
+  
+  <table style="width: 100%; text-align: left; border-collapse: collapse;">
+    <thead>
+      <tr style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em;">
+        <th style="padding: 1.5rem 2.5rem; font-weight: 700;">Order ID</th>
+        <th style="padding: 1.5rem 2.5rem; font-weight: 700;">Customer</th>
+        <th style="padding: 1.5rem 2.5rem; font-weight: 700; text-align: right;">Gross Amount</th>
+        <th style="padding: 1.5rem 2.5rem; font-weight: 700;">Status</th>
+      </tr>
+    </thead>
+    <tbody style="font-size: 0.9rem;">
+      {#each filteredOrders as order}
+        <tr style="border-top: 1px solid #f9f9f9; cursor: pointer; transition: background 0.2s;" onmouseover={e => e.currentTarget.style.background='#fcfcfc'} onmouseout={e => e.currentTarget.style.background='transparent'} onclick={() => goto(`/orders/${order.id}`)}>
+          <td style="padding: 1.5rem 2.5rem;">
+            <div style="font-weight: 700;">#{order.id.slice(-6).toUpperCase()}</div>
+            <div style="font-size: 0.75rem; color: #888; margin-top: 0.3rem;">{new Date(order.createdAt).toLocaleString()}</div>
+          </td>
+          <td style="padding: 1.5rem 2.5rem; font-weight: 500;">{order.customer?.name || 'Guest'}</td>
+          <td style="padding: 1.5rem 2.5rem; font-weight: 800; text-align: right;">{formatCurrency(order.totalAmount)}</td>
+          <td style="padding: 1.5rem 2.5rem;">
+            <span class="status-pill {getStatusClass(order.status)}">{order.status.replace('_', ' ')}</span>
+          </td>
+        </tr>
+      {:else}
+        <tr>
+          <td colspan="4" style="padding: 3rem; text-align: center; color: #888; font-weight: 500;">No transactions found.</td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
 </div>
-
-{#if orders.length === 0}
-	<div class="studio-section" style="text-align: center; padding: 10rem 0; opacity: 0.1;">
-		<h2 style="font-size: 4rem; font-weight: 900;">Zero Volume</h2>
-	</div>
-{/if}
-
-<style>
-	.order-row:hover {
-		background: #fdfdfd;
-	}
-</style>
