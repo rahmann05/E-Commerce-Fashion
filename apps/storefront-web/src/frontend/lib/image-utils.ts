@@ -21,40 +21,25 @@ const BUCKET_NAME = "products";
  * @returns The full Supabase Storage URL
  */
 export function getImageUrl(path: string | null | undefined): string {
-  // 1. Fallback for empty paths
   if (!path) return "/images/placeholder.png";
 
-  // 2. Absolute URLs — return as-is (e.g. from Supabase getPublicUrl or external links)
-  if (path.startsWith("http://") || path.startsWith("https://")) {
+  // If it's already an absolute URL or data URI, return it
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) {
     return path;
   }
 
-  // 3. Data URIs — return as-is
-  if (path.startsWith("data:")) {
-    return path;
-  }
+  // Clean up path: strip leading slash and 'images/' prefix
+  let cleanPath = path;
+  if (cleanPath.startsWith("/")) cleanPath = cleanPath.slice(1);
+  if (cleanPath.startsWith("images/")) cleanPath = cleanPath.slice(7);
 
-  // 4. Local paths — if it starts with '/', it's in the public/ folder
-  if (path.startsWith("/")) {
-    return path;
-  }
-
-  // 5. Supabase Storage paths
-  // If no Supabase URL is set, we fallback to a local image if possible, 
-  // otherwise return a reliable placeholder.
+  // If SUPABASE_URL is missing, fallback to local /images/ path
   if (!SUPABASE_URL) {
-    return `/images/${path}`;
+    return `/images/${cleanPath}`;
   }
 
-  // Determine if it's a seeded image or an uploaded one
-  // Uploaded images via Admin usually have a UUID-like name or are in folders.
-  // Seeded images are like 'tees1.png'.
+  // Ensure no trailing slash on SUPABASE_URL
+  const baseUrl = SUPABASE_URL.endsWith("/") ? SUPABASE_URL.slice(0, -1) : SUPABASE_URL;
   
-  // NOTE: If the image is not found in Supabase, the browser will show a broken icon.
-  // To improve UX, we could use an 'onError' handler in the component, 
-  // but here we just ensure the URL is correctly formatted.
-  
-  const cleanPath = path.startsWith("./") ? path.slice(2) : path;
-  
-  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${cleanPath}`;
+  return `${baseUrl}/storage/v1/object/public/${BUCKET_NAME}/${cleanPath}`;
 }

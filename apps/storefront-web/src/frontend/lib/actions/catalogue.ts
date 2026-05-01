@@ -154,7 +154,11 @@ export async function getJeans(): Promise<CatalogueProduct[]> {
 export async function getCarouselImages(): Promise<string[]> {
   try {
     const products = await getProducts("all");
-    return products.flatMap(p => p.image).filter((img): img is string => Boolean(img));
+    // Only show tees and jeans in ScienceSection marquee as requested
+    const filtered = products.filter(p => 
+      p.category === "tees" || p.category === "jeans"
+    );
+    return filtered.flatMap(p => p.image).filter((img): img is string => Boolean(img));
   } catch (err) {
     console.error("[API] getCarouselImages failed:", err);
     return [];
