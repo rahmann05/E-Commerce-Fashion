@@ -29,8 +29,6 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
-
 // Root Route
 app.get(['/', '/api'], (req, res) => {
   res.json({
@@ -130,12 +128,14 @@ app.use(createProxyMiddleware({
 // 5. Storefront Catalog APIs -> Route to Core Commerce API (Supabase)
 app.use(createProxyMiddleware({
   pathFilter: '/api/storefront',
+  pathRewrite: { '^/api/storefront': '/api' },
   ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
 
 // 6. Admin Catalog APIs (Products/Categories - Redirects to Core API)
 app.use(createProxyMiddleware({
   pathFilter: '/api/admin/storefront',
+  pathRewrite: { '^/api/admin/storefront': '/api/admin' },
   ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
 
