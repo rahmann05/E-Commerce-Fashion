@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { data } = $props();
+  let { data, form } = $props();
   import { enhance } from '$app/forms';
 
   function formatCurrency(amount: number) {
@@ -103,7 +103,7 @@
 
         <!-- Timeline -->
         <div style="position: relative; padding-left: 1.5rem; border-left: 2px solid #eee;">
-          {#each data.tracking.logs as log}
+          {#each (data.tracking?.logs || []) as log}
             <div style="position: relative; margin-bottom: 1.5rem;">
               <div style="position: absolute; left: -1.8rem; top: 4px; width: 12px; height: 12px; background: {log.status === 'DELIVERED' ? '#15803d' : '#000'}; border-radius: 50%; border: 2px solid #fff;"></div>
               <div style="font-weight: 800; font-size: 0.9rem;">{log.status.replace(/_/g, ' ')}</div>
@@ -117,4 +117,5 @@
       {/if}
     </div>
   </div>
+{/if} </div>
 {/if}
