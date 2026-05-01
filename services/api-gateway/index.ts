@@ -90,40 +90,53 @@ const proxyOptions = (target: string) => ({
 });
 
 // --- Proxy Routing Configuration ---
-// Note: Routes are matched in order. Most specific paths must come first.
+// Note: We use pathFilter to ensure full paths are preserved when proxying.
+// Plain strings act as prefix matches in HPM v3.
 
 // 1. Logistics & Shipping APIs (Route to Admin Management API)
-app.use(['/api/storefront/shipping'], createProxyMiddleware({
-  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/storefront/shipping`),
-}));
-
-app.use(['/api/admin/management/shipping'], createProxyMiddleware({
-  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/admin/management/shipping`),
+app.use(createProxyMiddleware({
+  pathFilter: ['/api/storefront/shipping', '/api/admin/management/shipping'],
+  ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
 // 2. Storefront Transaction/Identity APIs -> Route to Admin Management API (Neon)
-app.use(['/api/storefront/auth', '/api/storefront/account', '/api/storefront/cart', '/api/storefront/checkout', '/api/storefront/orders'], createProxyMiddleware({
-  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/storefront`),
+app.use(createProxyMiddleware({
+  pathFilter: [
+    '/api/storefront/auth', 
+    '/api/storefront/account', 
+    '/api/storefront/cart', 
+    '/api/storefront/checkout', 
+    '/api/storefront/orders'
+  ],
+  ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
 // 3. Admin Transactional APIs (Orders/Customers/Analytics) -> Route to Admin Management API (Neon)
-app.use(['/api/admin/storefront/orders', '/api/admin/storefront/customers', '/api/admin/storefront/analytics'], createProxyMiddleware({
-  ...proxyOptions(`${ADMIN_BACKEND_URL}/api/admin/storefront`),
+app.use(createProxyMiddleware({
+  pathFilter: [
+    '/api/admin/storefront/orders', 
+    '/api/admin/storefront/customers', 
+    '/api/admin/storefront/analytics'
+  ],
+  ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
 // 4. Admin Management API (Internal stuff like Staff, Audit)
-app.use('/api/admin/management', createProxyMiddleware({
-  ...proxyOptions(`${ADMIN_BACKEND_URL}/api`),
+app.use(createProxyMiddleware({
+  pathFilter: '/api/admin/management',
+  ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
 // 5. Storefront Catalog APIs -> Route to Core Commerce API (Supabase)
-app.use('/api/storefront', createProxyMiddleware({
-  ...proxyOptions(`${STOREFRONT_BACKEND_URL}/api`),
+app.use(createProxyMiddleware({
+  pathFilter: '/api/storefront',
+  ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
 
 // 6. Admin Catalog APIs (Products/Categories - Redirects to Core API)
-app.use('/api/admin/storefront', createProxyMiddleware({
-  ...proxyOptions(`${STOREFRONT_BACKEND_URL}/api/admin`),
+app.use(createProxyMiddleware({
+  pathFilter: '/api/admin/storefront',
+  ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
 
 // Catch-all for unmatched /api routes
