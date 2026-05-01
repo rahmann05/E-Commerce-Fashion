@@ -1,6 +1,9 @@
 <script lang="ts">
 	let { data } = $props();
 	import { enhance } from '$app/forms';
+	import UploadImage from '$lib/components/UploadImage.svelte';
+
+	let imageUrl = $state(data.product.imageUrl || '');
 
 	function getImageUrl(url: string) {
 		if (!url) return '';
@@ -107,6 +110,16 @@
 							Active in Store
 						</label>
 					</div>
+				</div>
+
+				<div class="input-group">
+					<UploadImage 
+						bucket="products" 
+						folder="items" 
+						initialImage={imageUrl}
+						onUpload={(url) => imageUrl = url} 
+					/>
+					<input type="hidden" name="imageUrl" value={imageUrl} />
 				</div>
 
 				<div style="margin-top: 4rem; display: flex; flex-direction: column; gap: 1rem;">

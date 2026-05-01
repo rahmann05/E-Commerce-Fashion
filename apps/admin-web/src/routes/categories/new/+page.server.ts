@@ -6,13 +6,19 @@ export const actions: Actions = {
 	default: async ({ request, fetch }) => {
 		const data = await request.formData();
 		const name = data.get('name') as string;
+		const description = data.get('description') as string;
+		const image = data.get('image') as string;
 
 		if (!name) return fail(400, { message: 'Name is required' });
 
 		const res = await fetch(`${API_BASE_URL}/categories`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name })
+			body: JSON.stringify({ 
+				name,
+				description,
+				image
+			})
 		});
 
 		const result = await res.json();

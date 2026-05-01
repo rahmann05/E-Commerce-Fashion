@@ -2,6 +2,7 @@
 	let { data } = $props();
 	import { enhance } from '$app/forms';
 	import { STOREFRONT_URL } from '$lib/config';
+	import UploadImage from '$lib/components/UploadImage.svelte';
 
 	let imageUrl = $state('');
 
@@ -89,20 +90,12 @@
 				</div>
 
 				<div class="input-group">
-					<label class="input-label" for="imageUrl">Image URL</label>
-					<input 
-						type="text" 
-						id="imageUrl" 
-						name="imageUrl" 
-						class="input-control" 
-						placeholder="/images/product-name.png"
-						bind:value={imageUrl}
+					<UploadImage 
+						bucket="products" 
+						folder="items" 
+						onUpload={(url) => imageUrl = url} 
 					/>
-					{#if imageUrl}
-						<div style="margin-top: 1rem; width: 100%; aspect-ratio: 4/5; background: #f8f8f8; border-radius: 1rem; overflow: hidden; border: 1px solid #f0f0f0;">
-							<img src={imageUrl.startsWith('http') ? imageUrl : `${STOREFRONT_URL}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`} alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" />
-						</div>
-					{/if}
+					<input type="hidden" name="imageUrl" value={imageUrl} />
 				</div>
 
 				<div style="margin-top: 4rem; display: flex; flex-direction: column; gap: 1rem;">

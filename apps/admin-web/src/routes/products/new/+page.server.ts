@@ -19,6 +19,7 @@ export const actions: Actions = {
 		const sizeOptions = data.getAll('sizeOptions') as string[];
 		const sizeStocks = data.getAll('sizeStocks').map(s => parseInt(s as string));
 		const categoryId = data.get('categoryId') as string;
+		const imageUrl = data.get('imageUrl') as string;
 
 		const totalStock = sizeStocks.reduce((acc, curr) => acc + curr, 0);
 		const slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
@@ -31,6 +32,7 @@ export const actions: Actions = {
 				slug,
 				description,
 				price,
+				imageUrl,
 				stock: totalStock,
 				sizeOptions,
 				sizeStocks,

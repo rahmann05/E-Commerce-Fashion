@@ -31,6 +31,7 @@ export const actions: Actions = {
 		const sizeStocks = data.getAll('sizeStocks').map(s => parseInt(s as string));
 		const categoryId = data.get('categoryId') as string;
 		const inStock = data.get('inStock') === 'on';
+		const imageUrl = data.get('imageUrl') as string;
 
 		const totalStock = sizeStocks.reduce((acc, curr) => acc + curr, 0);
 
@@ -41,6 +42,7 @@ export const actions: Actions = {
 				name,
 				description,
 				price,
+				imageUrl,
 				stock: totalStock,
 				sizeOptions,
 				sizeStocks,
