@@ -8,7 +8,7 @@ export default defineConfig({
   },
   datasource: {
     url: process.env.DATABASE_URL,
-    // @ts-ignore
+    // @ts-expect-error - Prisma config type doesn't support directUrl property
     directUrl: process.env.DIRECT_URL,
   },
 });

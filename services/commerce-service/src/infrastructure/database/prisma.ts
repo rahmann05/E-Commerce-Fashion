@@ -4,15 +4,23 @@ import pg from "pg";
 import "dotenv/config";
 
 const prismaClientSingleton = () => {
-  const connectionString = process.env.DATABASE_URL;
+  let connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is not defined");
   }
   
-  console.log("🔌 Initializing Prisma Client with DATABASE_URL:", connectionString.split('@')[1] || "HIDDEN");
+  // Safeguard: Auto-correct common Supabase connection typos (e.g., postgrees -> postgres)
+  // Check both database name and protocol segments
+  if (connectionString.includes('postgrees')) {
+    console.warn("⚠️ CRITICAL: Detected typo 'postgrees' in DATABASE_URL. Force-correcting to 'postgres'...");
+    connectionString = connectionString.split('postgrees').join('postgres');
+  }
+  
+  console.log("🔌 Initializing Prisma Client with DATABASE_URL (Cleaned):", connectionString.split('@')[1] || "HIDDEN");
   
   const pool = new pg.Pool({ connectionString });
   const adapter = new PrismaPg(pool);
+
   return new PrismaClient({ adapter });
 };
 
@@ -25,3 +33,4 @@ const prisma = globalThis.prisma ?? prismaClientSingleton();
 export default prisma;
 
 if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
+

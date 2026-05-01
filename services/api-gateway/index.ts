@@ -33,7 +33,7 @@ app.use(cors({
 app.get(['/', '/api'], (req, res) => {
   res.json({
     name: "Novure E-Commerce API Gateway",
-    version: "1.2.0",
+    version: "1.2.1",
     status: "RUNNING",
     endpoints: {
       health: "/health",
@@ -44,8 +44,8 @@ app.get(['/', '/api'], (req, res) => {
   });
 });
 
-const STOREFRONT_BACKEND_URL = process.env.STOREFRONT_BACKEND_URL || 'http://core-commerce-api:3001';
-const ADMIN_BACKEND_URL = process.env.ADMIN_BACKEND_URL || 'http://admin-management-api:4001';
+const STOREFRONT_BACKEND_URL = process.env.STOREFRONT_BACKEND_URL || 'http://commerce-service:3001';
+const ADMIN_BACKEND_URL = process.env.ADMIN_BACKEND_URL || 'http://admin-service:4001';
 
 // Deep Health Check
 app.get('/health', async (req, res) => {
@@ -80,6 +80,8 @@ const proxyOptions = (target: string) => ({
     if (req.headers.cookie) {
       proxyReq.setHeader('cookie', req.headers.cookie);
     }
+    // Add debug log to see where requests are going
+    console.log(`[Proxy] ${req.method} ${req.url} -> ${target}${proxyReq.path}`);
   },
   onError: (err: any, req: any, res: any) => {
     console.error(`Proxy Error (${target}):`, err);
@@ -87,61 +89,63 @@ const proxyOptions = (target: string) => ({
   }
 });
 
-// --- Proxy Routing Configuration ---
-// Note: We use pathFilter to ensure full paths are preserved when proxying.
-// Plain strings act as prefix matches in HPM v3.
+// --- Proxy Routing Configuration (Order Matters!) ---
 
-// 1. Logistics & Shipping APIs (Route to Admin Management API)
+// 1. Logistics & Shipping APIs -> Admin Service (Neon)
 app.use(createProxyMiddleware({
   pathFilter: ['/api/storefront/shipping', '/api/admin/management/shipping'],
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 2. Storefront Transaction/Identity APIs -> Route to Admin Management API (Neon)
+// 2. Midtrans Notification (Special handling to ensure it hits Admin Service)
+app.use(createProxyMiddleware({
+  pathFilter: '/api/storefront/checkout/midtrans/notification',
+  ...proxyOptions(ADMIN_BACKEND_URL)
+}));
+
+// 3. Storefront Transaction/Identity APIs -> Admin Service (Neon)
 app.use(createProxyMiddleware({
   pathFilter: [
     '/api/storefront/auth', 
     '/api/storefront/account', 
     '/api/storefront/cart', 
     '/api/storefront/checkout',
-    '/api/storefront/checkout/midtrans/notification',
     '/api/storefront/orders'
   ],
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 3. Admin Transactional APIs (Orders/Customers/Analytics) -> Route to Admin Management API (Neon)
+// 4. Admin Analytics & Management -> Admin Service (Neon)
 app.use(createProxyMiddleware({
   pathFilter: [
     '/api/admin/storefront/orders', 
     '/api/admin/storefront/customers', 
-    '/api/admin/storefront/analytics'
+    '/api/admin/storefront/analytics',
+    '/api/admin/management'
   ],
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 4. Admin Management API (Internal stuff like Staff, Audit)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/admin/management',
-  ...proxyOptions(ADMIN_BACKEND_URL)
-}));
-
-// 5. Storefront Catalog APIs -> Route to Core Commerce API (Supabase)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/storefront',
-  pathRewrite: { '^/api/storefront': '/api' },
-  ...proxyOptions(STOREFRONT_BACKEND_URL)
-}));
-
-// 6. Admin Catalog APIs (Products/Categories - Redirects to Core API)
+// 5. Admin Catalog APIs (Products/Categories) -> Core Commerce API (Supabase)
+// Re-maps /api/admin/storefront/products -> /api/admin/products
 app.use(createProxyMiddleware({
   pathFilter: '/api/admin/storefront',
   pathRewrite: { '^/api/admin/storefront': '/api/admin' },
   ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
 
+// 6. Storefront Catalog APIs (Default Catalog) -> Core Commerce API (Supabase)
+// Re-maps /api/storefront/products -> /api/products
+app.use(createProxyMiddleware({
+  pathFilter: '/api/storefront',
+  pathRewrite: { '^/api/storefront': '/api' },
+  ...proxyOptions(STOREFRONT_BACKEND_URL)
+}));
+
 // Catch-all for unmatched /api routes
-app.use('/api', (req, res) => {  res.status(404).json({
+app.use('/api', (req, res) => {
+  console.warn(`[Gateway] Unmatched API Route: ${req.method} ${req.url}`);
+  res.status(404).json({
     success: false,
     message: `API Route ${req.method} ${req.url} not found`,
     available_endpoints: {
@@ -153,5 +157,5 @@ app.use('/api', (req, res) => {  res.status(404).json({
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 API Gateway v1.2 running at port ${PORT}`);
+  console.log(`🚀 API Gateway v1.2.1 running at port ${PORT}`);
 });

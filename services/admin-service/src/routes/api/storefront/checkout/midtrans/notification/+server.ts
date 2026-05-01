@@ -2,10 +2,11 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { prisma } from '@infrastructure/database/prisma';
 import crypto from 'crypto';
-import { MIDTRANS_SERVER_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
+    const MIDTRANS_SERVER_KEY = env.MIDTRANS_SERVER_KEY || '';
     const body = await request.json();
     const { 
       order_id, 

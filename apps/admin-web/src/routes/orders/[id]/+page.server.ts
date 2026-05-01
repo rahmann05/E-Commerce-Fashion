@@ -1,9 +1,6 @@
-import { API_BASE_URL, INTERNAL_API_URL } from '$lib/config';
-import { env } from '$env/dynamic/public';
+import { API_BASE_URL, INTERNAL_API_URL, PUBLIC_API_URL } from '$lib/config';
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
-
-const GATEWAY_URL = env.PUBLIC_GATEWAY_URL || 'http://localhost:8000';
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
   let orderData = null;
@@ -20,7 +17,7 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
     if (carriersRes.ok) carriersData = await carriersRes.json();
 
     if (orderData?.data?.status && ['SHIPPED', 'DELIVERED'].includes(orderData.data.status)) {
-      const trackRes = await fetch(`${GATEWAY_URL}/api/storefront/shipping/track/${params.id}`);
+      const trackRes = await fetch(`${PUBLIC_API_URL}/shipping/track/${params.id}`);
       if (trackRes.ok) {
         const trackData = await trackRes.json();
         tracking = trackData.data;

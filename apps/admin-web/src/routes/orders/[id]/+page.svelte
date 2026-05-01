@@ -114,8 +114,7 @@
             </div>
           {/each}
         </div>
-      {/if}
-    </div>
-  </div>
-{/if} </div>
-{/if}
+        {/if}
+        </div>
+        </div>
+        {/if}

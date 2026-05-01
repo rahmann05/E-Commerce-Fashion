@@ -25,12 +25,9 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=$NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
 
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
-    NEXT_PUBLIC_SUPABASE_URL="https://dummy.supabase.co" \
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="dummy" \
-    NEXT_PUBLIC_MIDTRANS_CLIENT_KEY="dummy" \
-    npm run build
+# Ensure fresh prisma generation and build
+RUN npx prisma generate
+RUN npm run build
 
 # Stage 3: Runner
 FROM node:24.15.0-alpine AS runner

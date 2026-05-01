@@ -10,16 +10,36 @@ FROM node:24.15.0-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npm run build
+
+# ARGs for build time
+ARG DATABASE_URL
+ARG MIDTRANS_SERVER_KEY
+ARG MIDTRANS_IS_PRODUCTION
+ARG NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+
+# Set them as ENV for build process
+ENV DATABASE_URL=$DATABASE_URL
+ENV MIDTRANS_SERVER_KEY=$MIDTRANS_SERVER_KEY
+ENV MIDTRANS_IS_PRODUCTION=$MIDTRANS_IS_PRODUCTION
+ENV NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=$NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+
+RUN npx prisma generate
+RUN npm run build
 
 # Stage 3: Production Dependencies
 FROM node:24.15.0-alpine AS prod-deps
 WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
+
+ARG DATABASE_URL
+ARG DIRECT_URL
+ENV DATABASE_URL=$DATABASE_URL
+ENV DIRECT_URL=$DIRECT_URL
+
 RUN npm ci --omit=dev && npm cache clean --force
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
+RUN npx prisma generate
 
 # Stage 4: Runner
 FROM node:24.15.0-alpine AS runner

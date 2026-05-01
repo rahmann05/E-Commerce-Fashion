@@ -40,8 +40,12 @@ const PRODUCT_COLOR_MAP: Record<string, string> = {
   "jeans6.png": "#0f172a",
   "outerwear1.png": "#1a1a1a",
   "outerwear2.png": "#2d2d2d",
+  "outerwear3.png": "#556b2f",
+  "outerwear4.png": "#16213e",
+  "outerwear5.png": "#6b4423",
   "accessories1.png": "#111111",
   "accessories2.png": "#1a1a1a",
+  "accessories3.png": "#c0c0c0",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -51,7 +55,7 @@ function rowToProduct(
 ): CatalogueProduct {
   const options = row.sizeOptions || [];
   const stocks = row.sizeStocks || [];
-  const images = row.images || [];
+  const images = row.image || [];
   const primaryImage = images[0] || "";
   const fallbackColor = PRODUCT_COLOR_MAP[primaryImage] ? [PRODUCT_COLOR_MAP[primaryImage]] : ["#111"];
   const colors = row.colors && row.colors.length > 0 ? row.colors : fallbackColor;
@@ -107,7 +111,7 @@ export async function getProducts(
 
     const res = await fetch(urlString, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to fetch products");
-    
+
     const result = await res.json();
     if (!result.success) throw new Error(result.error || "Failed to fetch products");
 
@@ -128,7 +132,7 @@ export async function getProductById(
     const urlString = `${API_BASE_URL}/products/${id}`;
     const res = await fetch(urlString, { cache: "no-store" });
     if (!res.ok) return null;
-    
+
     const result = await res.json();
     if (!result.success) return null;
 

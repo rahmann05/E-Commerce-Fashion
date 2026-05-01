@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import UploadImage from '$lib/components/UploadImage.svelte';
+	import { env } from '$env/dynamic/public';
 	
 	let { data } = $props();
 	let imageUrl = $state(data.category.image || '');
@@ -8,25 +9,24 @@
 	let searchQuery = $state('');
 
 	const filteredProducts = $derived(
-		data.allProducts.filter((p: any) => 
-			p.categoryId !== data.category.id && 
+		data.allProducts.filter((p: any) =>
+			p.categoryId !== data.category.id &&
 			p.name.toLowerCase().includes(searchQuery.toLowerCase())
 		)
 	);
 
-
 	function getImageUrl(url: string | null) {
 		if (!url) return '';
 		if (url.startsWith('http')) return url;
-		
-		const SUPABASE_STORAGE_URL = 'https://ghdadhlyhzdkrjlurifj.supabase.co/storage/v1/object/public';
-		const BUCKET_NAME = 'product';
-		
+
+		const SUPABASE_URL = env.PUBLIC_SUPABASE_URL;
+		const BUCKET_NAME = 'products';
+
 		let cleanPath = url.startsWith('/') ? url.slice(1) : url;
 		if (cleanPath.startsWith('images/')) {
 			cleanPath = cleanPath.replace('images/', '');
 		}
-		return `${SUPABASE_STORAGE_URL}/${BUCKET_NAME}/${cleanPath}`;
+		return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${cleanPath}`;
 	}
 </script>
 

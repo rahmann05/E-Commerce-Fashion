@@ -1,15 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-// Use environment variables for Supabase connection
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Missing Supabase environment variables in Core API");
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import prisma from "@/infrastructure/database/prisma";
+import type { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -23,14 +14,18 @@ export async function GET(request: Request) {
 
     if (categoryName && categoryName !== "all" && !resolvedCategoryId) {
       const mappedName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
-      const { data: categories } = await supabase
-        .from("Category")
-        .select("id")
-        .ilike("name", mappedName)
-        .limit(1);
+      const category = await prisma.category.findFirst({
+        where: {
+          name: {
+            mode: 'insensitive',
+            equals: mappedName
+          }
+        },
+        select: { id: true }
+      });
 
-      if (categories && categories.length > 0) {
-        resolvedCategoryId = categories[0].id;
+      if (category) {
+        resolvedCategoryId = category.id;
       } else {
         // Category not found — return empty
         return NextResponse.json({
@@ -42,28 +37,32 @@ export async function GET(request: Request) {
     }
 
     // Build the product query
-    let supabaseQuery = supabase
-      .from("Product")
-      .select(`
-        *,
-        category:Category(name)
-      `)
-      .eq("inStock", true);
+    const where: Prisma.ProductWhereInput = {
+      stock: { gt: 0 }
+    };
 
     if (resolvedCategoryId) {
-      supabaseQuery = supabaseQuery.eq("categoryId", resolvedCategoryId);
+      where.categoryId = resolvedCategoryId;
     }
 
     if (query) {
-      supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
+      where.OR = [
+        { name: { contains: query, mode: 'insensitive' } },
+        { description: { contains: query, mode: 'insensitive' } }
+      ];
     }
 
-    const { data: products, error } = await supabaseQuery.order("createdAt", { ascending: false });
-
-    if (error) {
-      console.error("SUPABASE_QUERY_ERROR", error);
-      throw error;
-    }
+    const products = await prisma.product.findMany({
+      where,
+      include: {
+        category: {
+          select: { name: true }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
 
     return NextResponse.json({
       success: true,

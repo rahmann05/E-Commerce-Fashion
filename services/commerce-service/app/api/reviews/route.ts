@@ -40,7 +40,6 @@ export async function POST(req: Request) {
     });
 
     const ratings = allReviews.map(r => r.rating);
-    const comments = allReviews.map(r => r.comment || "");
     const totalRating = ratings.reduce((acc, curr) => acc + curr, 0);
     const averageRating = totalRating / ratings.length;
 
