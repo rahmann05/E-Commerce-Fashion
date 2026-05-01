@@ -48,8 +48,7 @@ export async function POST(req: Request) {
       where: { id: productId },
       data: { 
         rating: averageRating,
-        reviewRatings: ratings,
-        reviewComments: comments
+        totalReviews: allReviews.length
       }
     });
 
@@ -61,8 +60,8 @@ export async function POST(req: Request) {
       },
       message: "Review submitted successfully" 
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[API] Submit Review Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

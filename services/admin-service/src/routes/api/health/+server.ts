@@ -9,12 +9,12 @@ export const GET: RequestHandler = async () => {
 			database: "CONNECTED",
 			timestamp: new Date().toISOString()
 		});
-	} catch (error: any) {
+	} catch (error) {
 		console.error("Admin Health Check Error:", error);
 		return json({
 			status: "UNHEALTHY",
 			database: "DISCONNECTED",
-			error: error.message
+			error: (error as Error).message
 		}, { status: 503 });
 	}
 };

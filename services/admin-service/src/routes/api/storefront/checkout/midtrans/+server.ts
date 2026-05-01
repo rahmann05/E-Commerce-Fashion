@@ -3,6 +3,7 @@ import { prisma } from '@infrastructure/database/prisma';
 import midtransClient from 'midtrans-client';
 import { cartService } from '@application/services/cart.service';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const snap = new (midtransClient as any).Snap({
   isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
   serverKey: process.env.MIDTRANS_SERVER_KEY || '',
@@ -105,8 +106,8 @@ export async function POST({ cookies }) {
       },
       message: 'Transaksi berhasil dibuat.'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[API] Checkout error:', error);
-    return json({ success: false, error: error.message || 'Gagal memproses transaksi.' }, { status: 500 });
+    return json({ success: false, error: (error as Error).message || 'Gagal memproses transaksi.' }, { status: 500 });
   }
 }

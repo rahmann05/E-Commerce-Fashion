@@ -19,29 +19,30 @@ export async function GET(req: Request) {
       orderBy: { createdAt: "desc" }
     });
     return NextResponse.json({ success: true, data: products });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const data = await req.json();
+    
+    const slug = data.slug || data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
     const product = await prisma.product.create({
       data: {
         name: data.name,
-        slug: data.slug,
+        slug,
         description: data.description,
         price: data.price,
         stock: data.stock,
-        sizeOptions: data.sizeOptions,
-        sizeStocks: data.sizeStocks,
         categoryId: data.categoryId,
-        images: data.images || []
+        image: data.images || []
       }
     });
     return NextResponse.json({ success: true, data: product }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

@@ -72,22 +72,22 @@ export async function GET() {
 
     // Fetch product names for top products
     const productsRes = await fetch(`${COMMERCE_API_URL}/products`).then(res => res.json()).catch(() => ({ data: [] }));
-    const productMap = new Map((productsRes.data || []).map((p: any) => [p.id, p.name]));
+    const productMap = new Map((productsRes.data || []).map((p: { id: string; name: string }) => [p.id, p.name]));
 
-    const topProducts = topProductsRaw.map((p: any) => ({
+    const topProducts = topProductsRaw.map((p) => ({
       productId: p.productId,
       name: productMap.get(p.productId) || 'Unknown Product',
       quantity: p._sum.quantity,
       revenue: Number(p._sum.price)
     }));
 
-    const geographicDistribution = geographicDistributionRaw.map((r: any) => ({
+    const geographicDistribution = geographicDistributionRaw.map((r) => ({
       province: r.province,
       count: r._count._all
     }));
 
     // Daily Data alignment (ensure 30 items)
-    const dailyMap = new Map(dailyRevenueRaw.map((d: any) => [d.createdAt.toISOString().split('T')[0], Number(d._sum.totalAmount)]));
+    const dailyMap = new Map(dailyRevenueRaw.map((d) => [d.createdAt.toISOString().split('T')[0], Number(d._sum.totalAmount)]));
     const dailyData = Array.from({ length: 30 }, (_, i) => {
       const d = new Date(now.getTime() - (29 - i) * 24 * 60 * 60 * 1000);
       return dailyMap.get(d.toISOString().split('T')[0]) || 0;
@@ -117,8 +117,8 @@ export async function GET() {
       },
       message: "Analytics data unified from Neon and Supabase"
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("ADMIN_ANALYTICS_ERROR", error);
-    return json({ success: false, error: error.message }, { status: 500 });
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

@@ -19,7 +19,7 @@ export const GET: RequestHandler = async ({ params }) => {
     }
 
     return json({ success: true, data: tracking });
-  } catch (error: any) {
+  } catch (error) {
     console.error('SHIPPING_TRACK_GET_ERROR', error);
     return json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }

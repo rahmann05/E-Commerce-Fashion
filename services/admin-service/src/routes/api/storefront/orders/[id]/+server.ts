@@ -37,7 +37,7 @@ export async function GET({ params, cookies }) {
       data: { ...order, items: hydratedItems },
       message: 'Order details retrieved'
     });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

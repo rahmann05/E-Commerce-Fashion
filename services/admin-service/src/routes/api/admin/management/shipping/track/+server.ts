@@ -44,7 +44,7 @@ export async function POST({ request }) {
     });
 
     return json({ success: true, data: tracking });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('SHIPPING_TRACK_INIT_ERROR', error);
     return json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }

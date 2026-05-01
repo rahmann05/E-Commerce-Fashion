@@ -37,8 +37,8 @@ export async function GET(
         }
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[API] Product reviews error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

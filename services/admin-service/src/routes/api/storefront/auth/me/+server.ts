@@ -17,15 +17,16 @@ export async function GET({ cookies }) {
             return json({ success: false, data: null, message: 'Customer not found' }, { status: 404 });
         }
 
-        const { password: _, ...customerData } = customer;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: _password, ...customerData } = customer;
 
         return json({
             success: true,
             data: customerData,
             message: 'User retrieved successfully'
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Me error:', error);
-        return json({ success: false, data: null, message: error.message || 'Internal server error' }, { status: 500 });
+        return json({ success: false, data: null, message: (error as Error).message || 'Internal server error' }, { status: 500 });
     }
 }

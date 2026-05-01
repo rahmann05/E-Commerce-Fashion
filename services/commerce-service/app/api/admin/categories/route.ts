@@ -13,24 +13,26 @@ export async function GET() {
       success: true,
       data: categories
     });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const { name, description, image } = await req.json();
+    const { name, image } = await req.json();
     if (!name) return NextResponse.json({ success: false, error: "Name is required" }, { status: 400 });
 
+    const slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
     const category = await prisma.category.create({
-      data: { name, image }
+      data: { name, slug, image }
     });
     return NextResponse.json({
       success: true,
       data: category
     }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

@@ -30,8 +30,8 @@ export async function GET({ params }) {
       data: { ...order, items: hydratedItems },
       message: 'Order details retrieved'
     });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
 
@@ -49,7 +49,7 @@ export async function PATCH({ params, request }) {
       data: updatedOrder,
       message: `Order status updated to ${status}`
     });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

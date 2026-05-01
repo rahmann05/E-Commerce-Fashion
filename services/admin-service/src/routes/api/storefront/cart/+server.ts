@@ -1,9 +1,9 @@
-import { json } from '@sveltejs/kit';
+import { json, type Cookies } from '@sveltejs/kit';
 import { cartService } from '@application/services/cart.service';
 
 const SESSION_COOKIE_NAME = 'novure_uid';
 
-function getCustomerId(cookies: any) {
+function getCustomerId(cookies: Cookies) {
   return cookies.get(SESSION_COOKIE_NAME);
 }
 
@@ -34,8 +34,8 @@ export async function GET({ cookies }) {
       data: { ...cart, items: hydratedItems },
       message: 'Cart retrieved'
     });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
 
@@ -47,8 +47,8 @@ export async function POST({ request, cookies }) {
     const { productId, variantId, quantity } = await request.json();
     await cartService.addToCart(customerId, productId, variantId, quantity);
     return json({ success: true, message: 'Item added to cart' });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 400 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 400 });
   }
 }
 
@@ -60,8 +60,8 @@ export async function PUT({ request, cookies }) {
     const { itemId, quantity } = await request.json();
     await cartService.updateQuantity(customerId, itemId, quantity);
     return json({ success: true, message: 'Cart updated' });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 400 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 400 });
   }
 }
 
@@ -74,8 +74,8 @@ export async function DELETE({ url, cookies }) {
     if (!itemId) throw new Error("Item ID is required");
     await cartService.removeFromCart(customerId, itemId);
     return json({ success: true, message: 'Item removed from cart' });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 400 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 400 });
   }
 }
 
@@ -86,7 +86,7 @@ export async function PATCH({ cookies }) {
   try {
     await cartService.clearCart(customerId);
     return json({ success: true, message: 'Cart cleared' });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

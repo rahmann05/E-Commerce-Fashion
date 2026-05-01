@@ -9,8 +9,8 @@ export async function POST({ cookies }) {
             data: null,
             message: 'Logout successful'
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Logout error:', error);
-        return json({ success: false, data: null, message: error.message || 'Internal server error' }, { status: 500 });
+        return json({ success: false, data: null, message: (error as Error).message || 'Internal server error' }, { status: 500 });
     }
 }

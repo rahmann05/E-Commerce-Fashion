@@ -2,12 +2,6 @@ import { NextResponse } from "next/server";
 import prisma from "@infrastructure/database/prisma";
 
 export async function GET() {
-  const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
   try {
     const [
       categorySales,
@@ -20,19 +14,12 @@ export async function GET() {
     ]);
 
     // Metrics for these have moved to admin-service
-    const totalRevenue = { _sum: { totalAmount: 0 } };
-    const orderCount = 0;
-    const customerCount = 0;
-    const revenueThisMonth = { _sum: { totalAmount: 0 } };
-    const newCustomers = 0;
-    const topProducts: any[] = [];
-    const dailyRevenue: any[] = [];
+    const topProducts: unknown[] = [];
+    const dailyRevenue: unknown[] = [];
 
-    const currentRev = 0;
-    
     // Process Category Distribution
     const categoryMap = new Map<string, number>();
-    categorySales.forEach((p: any) => {
+    categorySales.forEach((p) => {
       const cat = p.category?.name || 'Uncategorized';
       categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
     });
@@ -54,8 +41,8 @@ export async function GET() {
       },
       message: "Analytics data retrieved successfully (Order/Customer metrics moved to admin-service)"
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("ADMIN_ANALYTICS_ERROR", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

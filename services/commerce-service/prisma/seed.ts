@@ -34,7 +34,7 @@ async function main() {
       { name: "Editorial", slug: "editorial", image: "model1.jpg" },
     ];
 
-    const createdCategories: any = {};
+    const createdCategories: Record<string, { id: string }> = {};
     for (const cat of categories) {
       createdCategories[cat.slug] = await prisma.category.create({ data: cat });
     }

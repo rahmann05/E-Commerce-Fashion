@@ -15,8 +15,8 @@ export async function GET(
     });
     if (!category) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
     return NextResponse.json({ success: true, data: category });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
 
@@ -26,14 +26,20 @@ export async function PATCH(
 ) {
   const { id } = await params;
   try {
-    const { name, description, image } = await request.json();
+    const { name, image } = await request.json();
+    
+    const data: { name?: string; image?: string; slug?: string } = { name, image };
+    if (name) {
+      data.slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    }
+
     const updated = await prisma.category.update({
       where: { id },
-      data: { name, image }
+      data
     });
     return NextResponse.json({ success: true, data: updated });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
 
@@ -48,7 +54,7 @@ export async function DELETE(
     
     await prisma.category.delete({ where: { id } });
     return NextResponse.json({ success: true, message: "Deleted" });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

@@ -23,7 +23,7 @@ export async function GET({ cookies }) {
       data: orders,
       message: 'Orders retrieved'
     });
-  } catch (error: any) {
-    return json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
