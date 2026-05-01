@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { prisma } from '@infrastructure/database/prisma';
 import crypto from 'crypto';
+import { MIDTRANS_SERVER_KEY } from '$env/static/private';
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
@@ -14,12 +15,15 @@ export const POST: RequestHandler = async ({ request }) => {
       transaction_status 
     } = body;
 
-    // 1. Verify Signature
-    // Midtrans signature requires exact string values for order_id, status_code, and gross_amount
-    const serverKey = process.env.MIDTRANS_SERVER_KEY || '';
+    // 1. Basic Validation
+    if (!order_id || !signature_key) {
+      return json({ success: false, message: 'Invalid payload' }, { status: 400 });
+    }
+
+    // 2. Verify Signature
     const hashed = crypto
       .createHash('sha512')
-      .update(`${order_id}${status_code}${gross_amount}${serverKey}`)
+      .update(`${order_id}${status_code}${gross_amount}${MIDTRANS_SERVER_KEY}`)
       .digest('hex');
 
     if (hashed !== signature_key) {
@@ -27,8 +31,23 @@ export const POST: RequestHandler = async ({ request }) => {
       return json({ success: false, message: 'Invalid signature' }, { status: 403 });
     }
 
-    // 2. Map status
-    // OrderStatus enum: AWAITING_PAYMENT, PROCESSING, SHIPPED, DELIVERED, CANCELLED, RETURNED, REFUNDED
+    // 3. Find Order and protect state
+    const order = await prisma.order.findUnique({
+      where: { id: order_id }
+    });
+
+    if (!order) {
+      console.error('MIDTRANS_ORDER_NOT_FOUND', { order_id });
+      return json({ success: true, message: 'Order not found, acknowledgment sent' }); // Ack to stop retries
+    }
+
+    // Protection: Don't revert status if already SHIPPED, DELIVERED, or CANCELLED
+    const finalStatuses = ['SHIPPED', 'DELIVERED', 'CANCELLED'];
+    if (finalStatuses.includes(order.status)) {
+      return json({ success: true, message: `Order already in final state: ${order.status}` });
+    }
+
+    // 4. Map status
     let orderStatus: 'PROCESSING' | 'CANCELLED' | 'AWAITING_PAYMENT' = 'AWAITING_PAYMENT';
     
     if (transaction_status === 'settlement' || transaction_status === 'capture') {
@@ -37,8 +56,8 @@ export const POST: RequestHandler = async ({ request }) => {
       orderStatus = 'CANCELLED';
     }
 
-    // 3. Update Order
-    if (orderStatus !== 'AWAITING_PAYMENT') {
+    // 5. Update Order
+    if (orderStatus !== 'AWAITING_PAYMENT' && orderStatus !== order.status) {
       await prisma.order.update({
         where: { id: order_id },
         data: { status: orderStatus }
@@ -47,7 +66,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     return json({ success: true, message: 'Notification processed' });
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('MIDTRANS_WEBHOOK_ERROR', error);
     return json({ success: false, message: 'Internal Server Error' }, { status: 500 });
   }
