@@ -4,20 +4,6 @@
 	import UploadImage from '$lib/components/UploadImage.svelte';
 
 	let imageUrl = $state(data.product.imageUrl || '');
-
-	function getImageUrl(url: string) {
-		if (!url) return '';
-		if (url.startsWith('http')) return url;
-		
-		const SUPABASE_STORAGE_URL = 'https://ghdadhlyhzdkrjlurifj.supabase.co/storage/v1/object/public';
-		const BUCKET_NAME = 'product';
-		
-		let cleanPath = url.startsWith('/') ? url.slice(1) : url;
-		if (cleanPath.startsWith('images/')) {
-			cleanPath = cleanPath.replace('images/', '');
-		}
-		return `${SUPABASE_STORAGE_URL}/${BUCKET_NAME}/${cleanPath}`;
-	}
 </script>
 
 <div class="hero-header">

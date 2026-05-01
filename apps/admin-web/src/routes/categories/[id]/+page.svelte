@@ -1,15 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import UploadImage from '$lib/components/UploadImage.svelte';
 	
 	let { data } = $props();
 	let imageUrl = $state(data.category.image || '');
 	let isModalOpen = $state(false);
 	let searchQuery = $state('');
-
-	// Default image logic: use first product image if category image is null
-	let previewImage = $derived(
-		imageUrl || (data.category.products[0]?.images[0] || '')
-	);
 
 	const filteredProducts = $derived(
 		data.allProducts.filter((p: any) => 
@@ -106,31 +102,13 @@
 
 			<div class="form-sidebar-section">
 				<div class="input-group">
-					<label class="input-label" for="image">Cover Image Path/URL</label>
-					<input 
-						type="text" 
-						id="image" 
-						name="image" 
-						class="input-control" 
-						bind:value={imageUrl}
-						placeholder="Auto-filled from product if empty"
+					<UploadImage 
+						bucket="products" 
+						folder="categories" 
+						initialImage={imageUrl}
+						onUpload={(url) => imageUrl = url} 
 					/>
-				</div>
-
-				<div style="margin-top: 2rem; padding: 1rem; background: #fdfdfd; border: 1px solid #f0f0f0; border-radius: 1rem;">
-					<div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #ccc; margin-bottom: 1rem;">
-						{imageUrl ? 'Manual Override Preview' : 'Default Collection Image'}
-					</div>
-					<div style="width: 100%; height: 200px; background: #f8f8f8; border-radius: 0.5rem; overflow: hidden; position: relative;">
-						{#if previewImage}
-							<img src={getImageUrl(previewImage)} alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" />
-							{#if !imageUrl}
-								<div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase;">Product #1 Image</div>
-							{/if}
-						{:else}
-							<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #eee; font-size: 2rem;">IMAGE</div>
-						{/if}
-					</div>
+					<input type="hidden" name="image" value={imageUrl} />
 				</div>
 
 				<div style="margin-top: 4rem; display: flex; flex-direction: column; gap: 1rem;">
