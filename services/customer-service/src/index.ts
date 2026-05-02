@@ -14,10 +14,10 @@ app.use('/api/storefront/auth', authRoutes);
 app.use('/api/storefront/account', accountRoutes);
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'UP', service: 'customer-api-service' });
+  res.json({ status: 'UP', service: 'customer-service' });
 });
 
 const PORT = process.env.PORT || 4002;
 app.listen(PORT, () => {
-  console.log(`🚀 Customer API Service running on port ${PORT}`);
+  console.log(`🚀 Customer Service running on port ${PORT}`);
 });

@@ -46,7 +46,7 @@ app.get(['/', '/api'], (req, res) => {
 
 const STOREFRONT_BACKEND_URL = process.env.STOREFRONT_BACKEND_URL || 'http://commerce-service:3001';
 const ADMIN_BACKEND_URL = process.env.ADMIN_BACKEND_URL || 'http://admin-service:4001';
-const CUSTOMER_BACKEND_URL = process.env.CUSTOMER_BACKEND_URL || 'http://customer-api-service:4002';
+const CUSTOMER_BACKEND_URL = process.env.CUSTOMER_BACKEND_URL || 'http://customer-service:4002';
 
 // Deep Health Check
 app.get('/health', async (req, res) => {
@@ -106,7 +106,7 @@ app.use(createProxyMiddleware({
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 3. Storefront Transaction/Identity APIs -> Customer API Service
+// 3. Storefront Transaction/Identity APIs -> Customer Service
 app.use(createProxyMiddleware({
   pathFilter: [
     '/api/storefront/auth', 

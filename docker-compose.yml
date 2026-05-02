@@ -8,7 +8,7 @@ services:
       - PORT=8000
       - STOREFRONT_BACKEND_URL=http://commerce-service:3001
       - ADMIN_BACKEND_URL=http://admin-service:4001
-      - CUSTOMER_BACKEND_URL=http://customer-api-service:4002
+      - CUSTOMER_BACKEND_URL=http://customer-service:4002
       - STOREFRONT_URL=${STOREFRONT_PROD_URL:-http://localhost:3000}
       - ADMIN_URL=${ADMIN_PROD_URL:-http://localhost:4000}
       - GATEWAY_PROD_URL=${GATEWAY_PROD_URL}
@@ -18,7 +18,7 @@ services:
     depends_on:
       - commerce-service
       - admin-service
-      - customer-api-service
+      - customer-service
 
   commerce-service:
     build:
@@ -57,9 +57,9 @@ services:
       - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
       - JWT_SECRET=novure-super-secret-key-2026
 
-  customer-api-service:
+  customer-service:
     build:
-      context: ./services/customer-api-service
+      context: ./services/customer-service
     ports:
       - "4002:4002"
     environment:
