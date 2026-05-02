@@ -43,7 +43,7 @@ services:
       args:
         - DATABASE_URL=${ADMIN_DATABASE_URL}
         - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
-        - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION}
+        - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}
         - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
     ports:
       - "4001:4001"
@@ -52,7 +52,7 @@ services:
       - DATABASE_URL=${ADMIN_DATABASE_URL}
       - DIRECT_URL=${ADMIN_DIRECT_URL}
       - COMMERCE_API_URL=http://commerce-service:3001/api/admin
-      - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION}
+      - MIDTRANS_IS_PRODUCTION=false
       - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
       - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
       - JWT_SECRET=novure-super-secret-key-2026
@@ -65,6 +65,11 @@ services:
     environment:
       - DATABASE_URL=${ADMIN_DATABASE_URL}
       - JWT_SECRET=novure-super-secret-key-2026
+      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
+      - MIDTRANS_IS_PRODUCTION=false
+      - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+      - COMMERCE_SERVICE_URL=http://commerce-service:3001
+      - INTERNAL_API_URL=http://api-gateway:8000/api/admin/storefront
 
   storefront-web:
     build:

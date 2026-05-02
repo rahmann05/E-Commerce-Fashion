@@ -23,14 +23,18 @@ const BUCKET_NAME = "products";
 export function getImageUrl(path: string | null | undefined): string {
   if (!path) return "";
 
-  // If it's already an absolute URL or data URI, return it
-  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) {
+  // If it's already an absolute URL, data URI, or a root-relative local path, return it
+  if (
+    path.startsWith("http://") || 
+    path.startsWith("https://") || 
+    path.startsWith("data:") ||
+    path.startsWith("/")
+  ) {
     return path;
   }
 
-  // Clean up path: strip leading slash and 'images/' prefix
+  // Clean up path: strip 'images/' prefix if it exists but is not root-relative
   let cleanPath = path;
-  if (cleanPath.startsWith("/")) cleanPath = cleanPath.slice(1);
   if (cleanPath.startsWith("images/")) cleanPath = cleanPath.slice(7);
 
   // If SUPABASE_URL is missing, we must NOT fallback to local. Return empty.

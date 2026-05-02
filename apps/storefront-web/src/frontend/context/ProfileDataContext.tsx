@@ -46,12 +46,13 @@ export interface ProfileOrderItem {
   quantity: number;
   unitPrice: number;
   imageUrl: string;
+  product?: any;
 }
 
 export interface ProfileOrder {
   id: string;
   createdAt: string;
-  status: ProfileOrderStatus;
+  status: ProfileOrderStatus | string;
   total: number;
   shipping: number;
   items: ProfileOrderItem[];

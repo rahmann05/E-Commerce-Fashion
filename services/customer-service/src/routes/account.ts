@@ -6,6 +6,21 @@ const router = Router();
 
 router.use(authenticateJWT);
 
+// Internal URL for Commerce Service to fetch product data directly
+const COMMERCE_SERVICE_URL = process.env.COMMERCE_SERVICE_URL || 'http://commerce-service:3001';
+
+async function fetchProduct(productId: string) {
+  try {
+    const res = await fetch(`${COMMERCE_SERVICE_URL}/api/products/${productId}`);
+    if (!res.ok) return null;
+    const json = await res.json() as any;
+    return json.data;
+  } catch (err) {
+    console.error(`Error fetching product ${productId}:`, err);
+    return null;
+  }
+}
+
 router.get('/', async (req: AuthRequest, res) => {
   const customerId = req.user!.id;
   const customer = await prisma.customer.findUnique({
@@ -17,8 +32,33 @@ router.get('/', async (req: AuthRequest, res) => {
 
   const orders = await prisma.order.findMany({
     where: { customerId },
+    orderBy: { createdAt: 'desc' },
     include: { items: true }
   });
+
+  // Map and Hydrate orders for frontend consistency
+  const mappedOrders = await Promise.all(orders.map(async (o) => {
+    const primaryItem = o.items[0];
+    let hydratedItem: any = primaryItem ? { ...primaryItem } : null;
+    
+    if (primaryItem) {
+        const product = await fetchProduct(primaryItem.productId);
+        if (product) {
+          hydratedItem.name = product.name;
+          hydratedItem.imageUrl = product.imageUrl || (product.image && product.image[0]) || (product.images && product.images[0]) || '/images/about/model1.png';
+        } else {
+          hydratedItem.name = 'Pesanan';
+          hydratedItem.imageUrl = '/images/about/model1.png';
+        }
+        hydratedItem.unitPrice = Number(primaryItem.price);
+    }
+
+    return {
+      ...o,
+      total: Number(o.totalAmount),
+      items: hydratedItem ? [hydratedItem, ...o.items.slice(1)] : []
+    };
+  }));
 
   res.json({
     success: true,
@@ -26,7 +66,7 @@ router.get('/', async (req: AuthRequest, res) => {
       phone: customer.phone,
       addresses: customer.addresses,
       paymentMethods: customer.paymentMethods,
-      orders,
+      orders: mappedOrders,
       wishlist: [], vouchers: [], notifications: []
     }
   });

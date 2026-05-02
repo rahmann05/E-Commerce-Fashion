@@ -57,22 +57,33 @@ async function main() {
   ];
 
   for (const p of products) {
+    let sizes = ["S", "M", "L", "XL"]; // Default
+    
+    if (p.categoryId === createdCategories.jeans.id) {
+      sizes = ["28", "30", "32", "34", "36"];
+    } else if (p.categoryId === createdCategories.accessories.id) {
+      sizes = ["One Size"];
+    }
+
+    const stockPerSize = Math.floor(p.stock / sizes.length);
+
     const createdProduct = await prisma.product.create({
       data: {
         ...p,
+        sizeOptions: sizes,
+        sizeStocks: sizes.map(() => stockPerSize),
         variants: {
-          create: [
-            {
-              sku: `${p.slug.toUpperCase()}-001`,
-              name: "Standard",
-              stock: p.stock,
-              price: p.price,
-            }
-          ]
-        }
+          create: sizes.map((size) => ({
+            sku: `${p.slug.toUpperCase()}-${size.replace(/\s+/g, "-")}`,
+            name: `${p.name} - ${size}`,
+            size: size,
+            stock: stockPerSize,
+            price: p.price,
+          })),
+        },
       },
     });
-    console.log(`Created product: ${createdProduct.name}`);
+    console.log(`Created product with polymorphic sizes: ${createdProduct.name} (${sizes.join(', ')})`);
   }
 
   console.log("Seed finished successfully.");

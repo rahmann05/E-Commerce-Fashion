@@ -72,6 +72,15 @@ router.post('/midtrans', authenticateJWT, async (req: AuthRequest, res) => {
     res.json({ success: true, data: chargeResponse });
   } catch (error: any) {
     console.error('[Midtrans] Charge Error:', error.message);
+    
+    // Specific handling for 402: Payment channel not activated
+    if (error.message.includes('402') || (error.ApiResponse && error.ApiResponse.status_code === '402')) {
+        return res.status(402).json({ 
+            success: false, 
+            error: 'Metode pembayaran ini belum diaktifkan di Dashboard Midtrans Anda. Silakan aktifkan di Settings > Payment Methods.' 
+        });
+    }
+    
     res.status(500).json({ success: false, error: error.message || 'Failed to initiate payment' });
   }
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -63,49 +63,30 @@ export default function ProductDetailModal({ product, onClose }: Props) {
 
   const sizeOptions =
     variants.length > 0
-      ? Array.from(new Set(variants.map((v) => v.size)))
-      : product?.sizes
-        ? product.sizes.includes(" - ")
-          ? expandSizeRange(product.sizes)
-          : product.sizes.split(",").map((s) => s.trim())
-        : [];
+      ? Array.from(new Set(variants.map((v) => v.size).filter((s): s is string => !!s)))
+      : [];
 
   const colorOptions =
     hasVariantColors
       ? Array.from(new Set(variants.map((v) => v.color).filter((c): c is string => !!c)))
-      : (((product?.colors || []) || []) || []);
+      : (product?.colors || []);
 
   const stockBySize: Record<string, number> = sizeOptions.reduce((acc, size) => {
-    if (variants.length === 0) {
-      acc[size] = 0;
-      return acc;
-    }
     acc[size] = variants
       .filter((v) => v.size === size)
       .reduce((sum, v) => sum + v.stock, 0);
     return acc;
   }, {} as Record<string, number>);
 
-  const selectedVariant =
-    variants.length === 0
-      ? null
-      : variants.find((v) => {
-          const sizeMatch = selectedSize ? v.size === selectedSize : true;
-          const colorMatch = hasVariantColors && selectedColor ? v.color === selectedColor : true;
-          return sizeMatch && colorMatch && v.stock > 0;
-        }) ??
-        variants.find((v) => {
-          const sizeMatch = selectedSize ? v.size === selectedSize : true;
-          return sizeMatch && v.stock > 0;
-        }) ??
-        variants.find((v) => v.stock > 0) ??
-        null;
+  const selectedVariant = useMemo(() => {
+    if (!selectedSize) return null;
+    return variants.find((v) => v.size === selectedSize) || null;
+  }, [variants, selectedSize]);
 
   const selectedVariantStock = selectedVariant?.stock ?? 0;
 
   async function handleAdd() {
     if (!user) {
-      // Not logged in — send to login, return here afterwards
       onClose();
       router.push("/login?redirect=/catalogue");
       return;
@@ -113,8 +94,13 @@ export default function ProductDetailModal({ product, onClose }: Props) {
 
     if (!product) return;
 
-    if (!selectedVariant) {
-      setAddError("Stok varian tidak tersedia. Pilih ukuran/warna lain.");
+    if (!selectedSize) {
+      setAddError("Silakan pilih ukuran terlebih dahulu.");
+      return;
+    }
+
+    if (!selectedVariant || selectedVariantStock <= 0) {
+      setAddError("Maaf, stok untuk ukuran ini sedang habis.");
       return;
     }
 

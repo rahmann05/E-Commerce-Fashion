@@ -35,7 +35,7 @@ async function fetchProduct(productId: string) {
 router.get('/', async (req: AuthRequest, res) => {
   try {
     const customerId = req.user!.id;
-    
+
     let cart = await prisma.cart.findUnique({
       where: { customerId },
       include: { items: true },
@@ -175,35 +175,35 @@ router.put('/', async (req: AuthRequest, res) => {
 
 // DELETE /api/storefront/cart/:itemId - Remove item from cart
 router.delete('/:itemId', async (req: AuthRequest, res) => {
-    try {
-      const customerId = req.user!.id;
-      const itemId = req.params.itemId as string;
-  
-      const cart = await prisma.cart.findUnique({ where: { customerId } });
-      if (!cart) return res.status(404).json({ success: false, error: 'Cart not found' });
-  
-      await prisma.cartItem.delete({
-        where: { id: itemId, cartId: cart.id },
-      });
-  
-      const updatedCart = await prisma.cart.findUnique({
-        where: { id: cart.id },
-        include: { items: true },
-      });
+  try {
+    const customerId = req.user!.id;
+    const itemId = req.params.itemId as string;
 
-      const hydratedItems = await Promise.all(
-        updatedCart!.items.map(async (item: any) => {
-          const product = await fetchProduct(item.productId);
-          const variant = product?.variants?.find((v: any) => v.id === item.productVariantId);
-          return { ...item, product, variant };
-        })
-      );
-  
-      res.json({ success: true, data: { ...updatedCart, items: hydratedItems } });
-    } catch (error: any) {
-      console.error('[Cart] DELETE Error:', error.message);
-      res.status(500).json({ success: false, error: 'Failed to remove item' });
-    }
+    const cart = await prisma.cart.findUnique({ where: { customerId } });
+    if (!cart) return res.status(404).json({ success: false, error: 'Cart not found' });
+
+    await prisma.cartItem.delete({
+      where: { id: itemId, cartId: cart.id },
+    });
+
+    const updatedCart = await prisma.cart.findUnique({
+      where: { id: cart.id },
+      include: { items: true },
+    });
+
+    const hydratedItems = await Promise.all(
+      updatedCart!.items.map(async (item: any) => {
+        const product = await fetchProduct(item.productId);
+        const variant = product?.variants?.find((v: any) => v.id === item.productVariantId);
+        return { ...item, product, variant };
+      })
+    );
+
+    res.json({ success: true, data: { ...updatedCart, items: hydratedItems } });
+  } catch (error: any) {
+    console.error('[Cart] DELETE Error:', error.message);
+    res.status(500).json({ success: false, error: 'Failed to remove item' });
+  }
 });
 
 // PATCH /api/storefront/cart - Clear cart

@@ -115,9 +115,34 @@ export default function ProfileOrderCard({ order }: ProfileOrderCardProps) {
         <span className={`profile-order-status status-${order.status}`}>
           {STATUS_LABELS[order.status] || order.status}
         </span>
+        {order.status === "AWAITING_PAYMENT" && (
+          <Link 
+            href={`/catalogue/cart/pembayaran/status/${order.id}`}
+            className="repay-btn"
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            style={{
+              marginTop: "0.5rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              color: "#fff",
+              background: "#111",
+              padding: "0.5rem 1rem",
+              borderRadius: "999px",
+              textDecoration: "none",
+              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
+            }}
+          >
+            <CreditCard size={14} />
+            Bayar Sekarang
+          </Link>
+        )}
         {order.status === "awaiting_payment" && (
           <Link 
-            href={`/checkout/payment/${order.id}`}
+            href={`/catalogue/cart/pembayaran/status/${order.id}`}
             className="repay-btn"
             onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}

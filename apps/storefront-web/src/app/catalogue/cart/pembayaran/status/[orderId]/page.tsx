@@ -3,11 +3,13 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { CheckCircle2, Clock, ArrowLeft, RefreshCw, CreditCard } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useProfileData } from "@/context/ProfileDataContext";
 import { useAuth } from "@/context/AuthContext";
+import { getImageUrl } from "@/lib/image-utils";
 import "./style.css";
 
 // Payment method mapping
@@ -281,13 +283,37 @@ export default function PaymentStatusPage() {
 
           {localOrder && (
             <div className="payment-address-section">
+              <h3 style={{ fontSize: "1rem", fontWeight: "700", marginBottom: "1rem", borderBottom: "1px solid #eee", paddingBottom: "0.5rem" }}>Rincian Pesanan</h3>
+              <div className="payment-products-list" style={{ marginBottom: "2rem" }}>
+                {localOrder.items.map((item) => {
+                  const productImg = getImageUrl(item.product?.imageUrl || (item.product?.image && item.product.image[0]) || (item.product?.images && item.product.images[0])) || '/images/about/model1.png';
+                  return (
+                    <div key={item.productId} style={{ display: "flex", gap: "1rem", padding: "0.75rem 0", borderBottom: "1px solid #f9f9f9" }}>
+                      <div style={{ width: 48, height: 56, borderRadius: 4, overflow: "hidden", position: "relative", backgroundColor: "#f5f5f5" }}>
+                        {productImg ? (
+                          <Image src={productImg} alt={item.name} fill style={{ objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.5rem" }}>No Image</div>
+                        )}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.2rem" }}>{item.name}</p>
+                        <p style={{ fontSize: "0.75rem", color: "#666" }}>{item.size} · {item.color} · {item.quantity}x</p>
+                      </div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 600 }}>
+                        {formatPrice(item.unitPrice * item.quantity)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
               <h3>Alamat Pengiriman</h3>
               <div className="payment-address-card">
                 <div style={{ fontWeight: "700", marginBottom: "0.4rem" }}>
                   {user?.name} | {user?.phone || "-"}
                 </div>
                 <div style={{ fontSize: "0.85rem", color: "#444", lineHeight: 1.5 }}>
-                   {/* Alamat sekarang terintegrasi dengan relasi address */}
                    {localOrder.address?.line1 || "No address provided"}
                 </div>
               </div>
@@ -346,7 +372,7 @@ export default function PaymentStatusPage() {
                   {loading ? "Mengecek..." : "Saya Sudah Bayar"}
                 </button>
                 <Link href="/profile?tab=orders" className="btn-secondary">
-                  Lihat Daftar Pesanan
+                  Kembali ke Pesanan
                 </Link>
               </>
             ) : !status || (!status.transaction_status && status.method !== "snap") ? (

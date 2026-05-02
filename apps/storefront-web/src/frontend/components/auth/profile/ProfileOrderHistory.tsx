@@ -7,6 +7,7 @@
 
 import ProfileOrderCard from "./ProfileOrderCard";
 import type { ProfileOrder } from "@/context/ProfileDataContext";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface ProfileOrderHistoryProps {
   orders: ProfileOrder[];
@@ -36,9 +37,9 @@ export default function ProfileOrderHistory({ orders }: ProfileOrderHistoryProps
               }),
               productName: primaryItem?.name ?? "Pesanan",
               details: primaryItem
-                ? `Size: ${primaryItem.size} · Color: ${primaryItem.color} · Qty: ${primaryItem.quantity}`
+                ? `Size: ${primaryItem.size || "All Size"} · Color: ${primaryItem.color || "Default"} · Qty: ${primaryItem.quantity}`
                 : "Rincian produk tidak tersedia",
-              imageUrl: primaryItem?.imageUrl ?? "/images/model1.jpg",
+              imageUrl: getImageUrl(primaryItem?.imageUrl) || "/images/about/model1.png",
               total: formatPrice(order.total),
               status: order.status as any,
               productId: primaryItem?.productId
