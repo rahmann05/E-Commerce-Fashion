@@ -94,19 +94,25 @@ const proxyOptions = (target: string) => ({
 
 // --- Proxy Routing Configuration (Order Matters!) ---
 
-// 1. Logistics & Shipping APIs -> Admin Service (Neon)
+// 1. Storefront Shipping API -> Customer Service
 app.use(createProxyMiddleware({
-  pathFilter: ['/api/storefront/shipping', '/api/admin/management/shipping'],
+  pathFilter: '/api/storefront/shipping',
+  ...proxyOptions(CUSTOMER_BACKEND_URL)
+}));
+
+// 2. Admin Shipping APIs -> Admin Service (Neon)
+app.use(createProxyMiddleware({
+  pathFilter: '/api/admin/management/shipping',
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 2. Midtrans Notification (Special handling to ensure it hits Admin Service)
+// 3. Midtrans Notification (Special handling to ensure it hits Admin Service)
 app.use(createProxyMiddleware({
   pathFilter: '/api/storefront/checkout/midtrans/notification',
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 3. Storefront Transaction/Identity APIs -> Customer Service
+// 4. Storefront Transaction/Identity APIs -> Customer Service
 app.use(createProxyMiddleware({
   pathFilter: [
     '/api/storefront/auth', 
