@@ -50,7 +50,7 @@ router.get('/', async (req: AuthRequest, res) => {
 router.get('/:id', async (req: AuthRequest, res) => {
   try {
     const customerId = req.user!.id;
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
 
     const order = await prisma.order.findUnique({
       where: { 
@@ -66,7 +66,7 @@ router.get('/:id', async (req: AuthRequest, res) => {
 
     // Hydrate items with product data
     const hydratedItems = await Promise.all(
-      order.items.map(async (item) => {
+      order.items.map(async (item: any) => {
         const product = await fetchProduct(item.productId);
         return {
           ...item,

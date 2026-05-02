@@ -17,7 +17,7 @@ app.use('/api/storefront/account', accountRoutes);
 app.use('/api/storefront/orders', orderRoutes);
 app.use('/api/storefront/shipping', shippingRoutes);
 
-app.get('/health', (req, res) => {
+app.get(['/health', '/api/health'], (req, res) => {
   res.json({ status: 'UP', service: 'customer-service' });
 });
 

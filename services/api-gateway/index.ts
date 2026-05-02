@@ -50,18 +50,22 @@ const CUSTOMER_BACKEND_URL = process.env.CUSTOMER_BACKEND_URL || 'http://custome
 
 // Deep Health Check
 app.get('/health', async (req, res) => {
-  const checkService = async (url: string) => {
+  const checkService = async (name: string, url: string) => {
     try {
       const response = await fetch(`${url}/api/health`).catch(() => fetch(`${url}/health`));
+      if (!response.ok) {
+        console.error(`[Health] Service ${name} at ${url} returned ${response.status}`);
+      }
       return response.ok ? 'HEALTHY' : 'UNHEALTHY';
-    } catch {
+    } catch (err: any) {
+      console.error(`[Health] Service ${name} at ${url} is unreachable:`, err.message);
       return 'UNREACHABLE';
     }
   };
 
-  const storefrontStatus = await checkService(STOREFRONT_BACKEND_URL);
-  const adminStatus = await checkService(ADMIN_BACKEND_URL);
-  const customerStatus = await checkService(CUSTOMER_BACKEND_URL);
+  const storefrontStatus = await checkService('storefront', STOREFRONT_BACKEND_URL);
+  const adminStatus = await checkService('admin', ADMIN_BACKEND_URL);
+  const customerStatus = await checkService('customer', CUSTOMER_BACKEND_URL);
 
   const isHealthy = storefrontStatus === 'HEALTHY' && adminStatus === 'HEALTHY' && customerStatus === 'HEALTHY';
 
