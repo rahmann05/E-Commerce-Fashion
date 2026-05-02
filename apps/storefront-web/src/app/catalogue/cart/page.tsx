@@ -88,7 +88,7 @@ export default function CartPage() {
                     {/* Product Image */}
                     <div className="cart-item-image">
                       <Image 
-                        src={getImageUrl(item.product.imageUrl || item.product.image || (item.product.images && item.product.images[0]))} 
+                        src={getImageUrl(item.product.imageUrl || (item.product.image && item.product.image[0]) || (item.product.images && item.product.images[0]))} 
                         alt={item.product.name} 
                         fill 
                         style={{ objectFit: "cover" }} 
@@ -99,9 +99,9 @@ export default function CartPage() {
                     <div className="cart-item-details">
                       <div className="cart-item-header">
                         <div className="cart-item-info-group">
-                          <Link href={`/catalogue/${item.productId}`} className="cart-item-name">{item.product.name}</Link>
+                          <Link href={`/catalogue/${item.productId}`} className="cart-item-name">{item.product?.name || "Produk"}</Link>
                           <div className="cart-item-meta">
-                            {item.variant.size} · {item.variant.color || "Default"}
+                            {item.variant?.size || "All Size"} · {item.variant?.color || "Default"}
                           </div>
                         </div>
                         <button
@@ -140,13 +140,13 @@ export default function CartPage() {
                         <div className="cart-item-price">
                           <AnimatePresence mode="wait">
                             <motion.span
-                              key={getActualPrice(item.product.price) * item.quantity}
+                              key={getActualPrice(item.product?.price) * item.quantity}
                               initial={{ opacity: 0, y: -5 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: 5 }}
                               transition={{ duration: 0.2 }}
                             >
-                              Rp {formatPrice(getActualPrice(item.product.price) * item.quantity)}
+                              Rp {formatPrice(getActualPrice(item.product?.price) * item.quantity)}
                             </motion.span>
                           </AnimatePresence>
                         </div>
@@ -199,10 +199,10 @@ export default function CartPage() {
                   type="button"
                   onClick={() => {
                     if (!user) {
-                      router.push("/login?redirect=/cart");
+                      router.push("/login?redirect=/catalogue/cart");
                       return;
                     }
-                    router.push("/checkout");
+                    router.push("/catalogue/cart/pembayaran");
                   }}
                 >
                   <span>Lanjutkan ke Pembayaran</span>
@@ -211,7 +211,7 @@ export default function CartPage() {
 
                 {!user && (
                   <p className="cart-login-hint">
-                    Anda perlu <Link href="/login?redirect=/cart" className="cart-login-link">Masuk</Link> untuk melakukan checkout.
+                    Anda perlu <Link href="/login?redirect=/catalogue/cart" className="cart-login-link">Masuk</Link> untuk melakukan checkout.
                   </p>
                 )}
               </div>

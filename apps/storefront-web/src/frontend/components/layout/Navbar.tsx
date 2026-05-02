@@ -81,7 +81,7 @@ function CartLink() {
   const { totalItems } = useCart();
 
   return (
-    <Link href="/cart" className={styles.cartLink}>
+    <Link href="/catalogue/cart" className={styles.cartLink}>
       Cart
       {totalItems > 0 && (
         <span className={styles.cartBadge}>

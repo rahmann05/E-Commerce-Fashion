@@ -40,6 +40,10 @@ interface MidtransStatus {
   method?: string;
 }
 
+const getApiBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
+};
+
 export default function PaymentStatusPage() {
   const params = useParams();
   const { user } = useAuth();
@@ -61,12 +65,17 @@ export default function PaymentStatusPage() {
     
     setLoading(true);
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
       const methodKey = forcedMethod || new URLSearchParams(window.location.search).get("method") || "bca_va";
       const methodObj = PAYMENT_METHODS[methodKey];
 
-      const res = await fetch("/api/checkout/midtrans", {
+      const res = await fetch(`${getApiBaseUrl()}/checkout/midtrans`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
+        credentials: "include",
         body: JSON.stringify({
           order_id: orderId,
           payment_type: methodObj?.midtransId,
@@ -97,7 +106,13 @@ export default function PaymentStatusPage() {
     if (!isRetry) setLoading(true);
 
     try {
-      const res = await fetch(`/api/checkout/midtrans/status?orderId=${orderId}`);
+      const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
+      const res = await fetch(`${getApiBaseUrl()}/checkout/midtrans/status?orderId=${orderId}`, {
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
+        credentials: "include"
+      });
       const result = await res.json();
 
       if (result.success) {

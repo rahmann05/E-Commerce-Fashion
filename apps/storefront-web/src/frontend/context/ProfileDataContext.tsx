@@ -321,7 +321,8 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       if (!user) return { success: false, message: "User belum login." };
       const next = await callMutation("createOrder", payload);
       if (!next) return { success: false, message: "Gagal membuat pesanan." };
-      return { success: true, orderId: next.orders[0]?.id };
+      // Return orderId from the first order (backend returns array)
+      return { success: true, orderId: next.orders && next.orders[0]?.id };
     },
     [user, callMutation]
   );

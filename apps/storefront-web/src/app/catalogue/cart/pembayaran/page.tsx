@@ -10,6 +10,7 @@ import Footer from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useProfileData } from "@/context/ProfileDataContext";
+import { getImageUrl } from "@/lib/image-utils";
 import "./style.css";
 
 interface CourierOption {
@@ -95,7 +96,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (!user) {
-      router.replace("/login?redirect=/checkout");
+      router.replace("/login?redirect=/catalogue/cart/pembayaran");
     }
   }, [router, user]);
 
@@ -138,9 +139,14 @@ export default function CheckoutPage() {
       }
 
       try {
-        const res = await fetch("/api/shipping", {
+        const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
+        const res = await fetch("http://localhost:8000/api/storefront/shipping", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+          },
+          credentials: "include",
           body: JSON.stringify({
             lat: selectedAddress.latitude,
             lng: selectedAddress.longitude,
@@ -237,7 +243,7 @@ export default function CheckoutPage() {
   };
 
   const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + normalizePrice(item.product.price) * item.quantity, 0),
+    () => items.reduce((sum, item) => sum + normalizePrice(item.product?.price || 0) * item.quantity, 0),
     [items]
   );
 
@@ -290,7 +296,10 @@ export default function CheckoutPage() {
       // Clear cart after successful order creation
       await clearCart();
       
-      router.push(`/checkout/payment/${result.orderId}?method=${methodKey}`);
+      router.push(`/catalogue/cart/pembayaran/status/${result.orderId}?method=${methodKey}`);
+    } catch (err) {
+      console.error("Checkout submission error:", err);
+      setError("Gagal membuat pesanan. Silakan coba lagi.");
     } finally {
       setIsSubmitting(false);
     }
@@ -513,30 +522,28 @@ export default function CheckoutPage() {
                 <p className="checkout-address-text">Keranjang kosong.</p>
               ) : (
                 items.map((item) => {
-                  const unit = normalizePrice(item.product.price);
+                  const unit = normalizePrice(item.product?.price || 0);
+                  const productImg = getImageUrl(item.product?.imageUrl || (item.product?.image && item.product.image[0]) || (item.product?.images && item.product.images[0]));
+                  
                   return (
                     <div key={item.id} className="checkout-product-row">
                       <div className="checkout-product-info">
                         <div className="checkout-product-img-wrap">
-                          {(() => {
-                            const src = item.product.imageUrl || 
-                                        item.product.image || 
-                                        (item.product.images && item.product.images.length > 0 ? item.product.images[0] : null) || 
-                                        "/images/placeholder.png";
-                            return (
-                              <Image
-                                src={src}
-                                alt={item.product.name}
-                                fill
-                                className="checkout-product-img"
-                              />
-                            );
-                          })()}
+                          {productImg ? (
+                            <Image
+                              src={productImg}
+                              alt={item.product?.name || "Produk"}
+                              fill
+                              className="checkout-product-img"
+                            />
+                          ) : (
+                             <div className="checkout-product-img-placeholder" />
+                          )}
                         </div>
                         <div className="checkout-product-meta">
-                          <p>{item.product.name}</p>
+                          <p>{item.product?.name || "Loading..."}</p>
                           <p className="variant">
-                            {item.variant.size} · {item.variant.color || "Default"}
+                            {item.variant?.size || "All Size"} · {item.variant?.color || "Default"}
                           </p>
                         </div>
                       </div>

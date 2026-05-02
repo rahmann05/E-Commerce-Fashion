@@ -14,6 +14,8 @@ const config = {
 		csrf: {
 			checkOrigin: false,
 		},
+		// Allow cross-origin requests from these locations
+		// Note: checkOrigin: false already bypasses this, but keeping it for future-proofing
 		alias: {
 			'@domain': './src/domain',
 			'@application': './src/application',

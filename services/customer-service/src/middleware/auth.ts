@@ -9,9 +9,16 @@ export interface AuthRequest extends Request {
 
 export function authenticateJWT(req: AuthRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
+  let token = null;
+
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    token = authHeader.split(' ')[1];
+  } else if (req.cookies && req.cookies.novure_jwt) {
+    token = req.cookies.novure_jwt;
+  }
+
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
       if (err) return res.status(403).json({ success: false, error: 'Invalid token' });
       req.user = decoded as { id: string; role: string };
       next();

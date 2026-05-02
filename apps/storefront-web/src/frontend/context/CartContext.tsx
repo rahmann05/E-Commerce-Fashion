@@ -40,12 +40,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
 
+  const getApiBaseUrl = () => {
+    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
+  };
+
   useEffect(() => {
     let mounted = true;
     const initCart = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/cart");
+        const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
+        const res = await fetch(`${getApiBaseUrl()}/cart`, {
+          headers: {
+            ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+          },
+        });
         if (res.ok && mounted) {
           const result = await res.json();
           setItems(result.data?.items || []);
@@ -64,10 +73,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      const res = await fetch("/api/cart", {
+      const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
+      const res = await fetch(`${getApiBaseUrl()}/cart`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product.id, variantId, quantity }),
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ productId: product.id, productVariantId: variantId, quantity }),
       });
       
       const result = await res.json();
@@ -86,8 +99,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      const res = await fetch(`/api/cart?itemId=${itemId}`, {
+      const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
+      const res = await fetch(`${getApiBaseUrl()}/cart/${itemId}`, {
         method: "DELETE",
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
       });
       const result = await res.json();
       if (!res.ok || !result.success) throw new Error(result.error || "Failed to remove item");
@@ -104,9 +121,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      const res = await fetch("/api/cart", {
+      const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
+      const res = await fetch(`${getApiBaseUrl()}/cart`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ itemId, quantity }),
       });
       const result = await res.json();
@@ -127,8 +148,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      const res = await fetch("/api/cart", {
+      const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
+      const res = await fetch(`${getApiBaseUrl()}/cart`, {
         method: "PATCH",
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
       });
       const result = await res.json();
       if (!res.ok || !result.success) throw new Error(result.error || "Failed to clear cart");

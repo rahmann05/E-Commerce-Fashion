@@ -103,7 +103,7 @@ export default function EssentializedSection() {
           </Link>
           <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
             <Link href="/profile" style={{ color: "inherit" }}>Profile</Link>
-            <Link href="/cart" style={{ color: "inherit" }}>Cart</Link>
+            <Link href="/catalogue/cart" style={{ color: "inherit" }}>Cart</Link>
           </div>
         </div>
       </motion.div>

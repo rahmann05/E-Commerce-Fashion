@@ -9,31 +9,37 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+// Request Logger Middleware
+app.use((req, res, next) => {
+  console.log(`[Gateway] ${new Date().toISOString()} ${req.method} ${req.url}`);
+  next();
+});
+
 const allowedOrigins = [
   process.env.STOREFRONT_PROD_URL,
   process.env.ADMIN_PROD_URL,
   process.env.STOREFRONT_URL || 'http://localhost:3000',
   process.env.ADMIN_URL || 'http://localhost:4000',
   'http://storefront-web:3000',
-  'http://admin-dashboard:4000'
+  'http://admin-dashboard:4000',
+  'http://localhost:3000',
+  'http://localhost:4000'
 ].filter(Boolean) as string[];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
 
 // Root Route
 app.get(['/', '/api'], (req, res) => {
   res.json({
     name: "Novure E-Commerce API Gateway",
-    version: "1.2.1",
+    version: "1.2.3",
     status: "RUNNING",
     endpoints: {
       health: "/health",
@@ -83,76 +89,60 @@ app.get('/health', async (req, res) => {
 const proxyOptions = (target: string) => ({
   target,
   changeOrigin: true,
-  onProxyReq: (proxyReq: any, req: any) => {
-    if (req.headers.cookie) {
-      proxyReq.setHeader('cookie', req.headers.cookie);
+  on: {
+    proxyReq: (proxyReq: any, req: any) => {
+      if (req.headers.cookie) {
+        proxyReq.setHeader('cookie', req.headers.cookie);
+      }
+      console.log(`[Proxy] ${req.method} ${req.url} -> ${target}${proxyReq.path}`);
+    },
+    error: (err: any, req: any, res: any) => {
+      console.error(`Proxy Error (${target}):`, err);
+      res.status(502).json({ success: false, error: 'Bad Gateway' });
     }
-    // Add debug log to see where requests are going
-    console.log(`[Proxy] ${req.method} ${req.url} -> ${target}${proxyReq.path}`);
-  },
-  onError: (err: any, req: any, res: any) => {
-    console.error(`Proxy Error (${target}):`, err);
-    res.status(502).json({ success: false, error: 'Bad Gateway' });
   }
 });
 
-// --- Proxy Routing Configuration (Order Matters!) ---
+// --- Proxy Routing Configuration (Ordered by Specificity) ---
 
-// 1. Storefront Shipping API -> Customer Service
-app.use(createProxyMiddleware({
-  pathFilter: '/api/storefront/shipping',
-  ...proxyOptions(CUSTOMER_BACKEND_URL)
-}));
-
-// 2. Admin Shipping APIs -> Admin Service (Neon)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/admin/management/shipping',
-  ...proxyOptions(ADMIN_BACKEND_URL)
-}));
-
-// 3. Midtrans Notification (Special handling to ensure it hits Admin Service)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/storefront/checkout/midtrans/notification',
-  ...proxyOptions(ADMIN_BACKEND_URL)
-}));
-
-// 4. Storefront Transaction/Identity APIs -> Customer Service
+// 1. Customer Service Proxy (No path rewrite needed as paths match perfectly)
 app.use(createProxyMiddleware({
   pathFilter: [
-    '/api/storefront/auth', 
-    '/api/storefront/account', 
-    '/api/storefront/cart', 
-    '/api/storefront/checkout',
-    '/api/storefront/orders'
+    '/api/storefront/auth/**',
+    '/api/storefront/account/**',
+    '/api/storefront/cart/**',
+    '/api/storefront/checkout/**',
+    '/api/storefront/orders/**',
+    '/api/storefront/shipping/**'
   ],
   ...proxyOptions(CUSTOMER_BACKEND_URL)
 }));
 
-// 4. Admin Analytics & Management -> Admin Service (Neon)
+// 2. Admin Service Proxy (Neon Dashboard Logic)
 app.use(createProxyMiddleware({
   pathFilter: [
-    '/api/admin/storefront/orders', 
-    '/api/admin/storefront/customers', 
-    '/api/admin/storefront/analytics',
-    '/api/admin/management'
+    '/api/admin/management/**',
+    '/api/admin/storefront/orders/**',
+    '/api/admin/storefront/customers/**',
+    '/api/admin/storefront/analytics/**'
   ],
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 6. Admin Catalog APIs (Products/Categories) -> Core Commerce API (Supabase)
-// Re-maps /api/admin/storefront/products -> /api/admin/products
+// 3. Catalog Admin Proxy (Supabase)
+// /api/admin/storefront/products -> /api/admin/products
 app.use(createProxyMiddleware({
-  pathFilter: '/api/admin/storefront',
-  pathRewrite: { '^/api/admin/storefront': '/api/admin' },
-  ...proxyOptions(STOREFRONT_BACKEND_URL)
+  pathFilter: '/api/admin/storefront/**',
+  ...proxyOptions(STOREFRONT_BACKEND_URL),
+  pathRewrite: { '^/api/admin/storefront': '/api/admin' }
 }));
 
-// 7. Storefront Catalog APIs (Default Catalog) -> Core Commerce API (Supabase)
-// Re-maps /api/storefront/products -> /api/products
+// 4. Catalog Storefront Proxy (Supabase - Products/Categories)
+// /api/storefront/products -> /api/products
 app.use(createProxyMiddleware({
-  pathFilter: '/api/storefront',
-  pathRewrite: { '^/api/storefront': '/api' },
-  ...proxyOptions(STOREFRONT_BACKEND_URL)
+  pathFilter: '/api/storefront/**',
+  ...proxyOptions(STOREFRONT_BACKEND_URL),
+  pathRewrite: { '^/api/storefront': '/api' }
 }));
 
 // Catch-all for unmatched /api routes
@@ -160,15 +150,10 @@ app.use('/api', (req, res) => {
   console.warn(`[Gateway] Unmatched API Route: ${req.method} ${req.url}`);
   res.status(404).json({
     success: false,
-    message: `API Route ${req.method} ${req.url} not found`,
-    available_endpoints: {
-      storefront: "/api/storefront",
-      admin_management: "/api/admin/management",
-      admin_storefront: "/api/admin/storefront"
-    }
+    message: `API Route ${req.method} ${req.url} not found`
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 API Gateway v1.2.1 running at port ${PORT}`);
+  console.log(`🚀 API Gateway v1.2.3 running at port ${PORT}`);
 });
