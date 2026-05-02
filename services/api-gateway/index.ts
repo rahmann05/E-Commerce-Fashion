@@ -46,6 +46,7 @@ app.get(['/', '/api'], (req, res) => {
 
 const STOREFRONT_BACKEND_URL = process.env.STOREFRONT_BACKEND_URL || 'http://commerce-service:3001';
 const ADMIN_BACKEND_URL = process.env.ADMIN_BACKEND_URL || 'http://admin-service:4001';
+const CUSTOMER_BACKEND_URL = process.env.CUSTOMER_BACKEND_URL || 'http://customer-api-service:4002';
 
 // Deep Health Check
 app.get('/health', async (req, res) => {
@@ -60,15 +61,17 @@ app.get('/health', async (req, res) => {
 
   const storefrontStatus = await checkService(STOREFRONT_BACKEND_URL);
   const adminStatus = await checkService(ADMIN_BACKEND_URL);
+  const customerStatus = await checkService(CUSTOMER_BACKEND_URL);
 
-  const isHealthy = storefrontStatus === 'HEALTHY' && adminStatus === 'HEALTHY';
+  const isHealthy = storefrontStatus === 'HEALTHY' && adminStatus === 'HEALTHY' && customerStatus === 'HEALTHY';
 
   res.status(isHealthy ? 200 : 503).json({ 
     status: isHealthy ? 'UP' : 'DEGRADED', 
     timestamp: new Date().toISOString(),
     services: { 
       storefront: storefrontStatus, 
-      admin: adminStatus 
+      admin: adminStatus,
+      customer: customerStatus
     } 
   });
 });
@@ -103,19 +106,24 @@ app.use(createProxyMiddleware({
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 3. Storefront Transaction/Identity APIs -> Admin Service (Neon)
+// 3. Storefront Transaction/Identity APIs -> Customer API Service
 app.use(createProxyMiddleware({
   pathFilter: [
     '/api/storefront/auth', 
     '/api/storefront/account', 
     '/api/storefront/cart', 
-    '/api/storefront/checkout',
-    '/api/storefront/orders'
+    '/api/storefront/checkout'
   ],
+  ...proxyOptions(CUSTOMER_BACKEND_URL)
+}));
+
+// 4. Storefront Orders -> Admin Service (Neon)
+app.use(createProxyMiddleware({
+  pathFilter: '/api/storefront/orders',
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 4. Admin Analytics & Management -> Admin Service (Neon)
+// 5. Admin Analytics & Management -> Admin Service (Neon)
 app.use(createProxyMiddleware({
   pathFilter: [
     '/api/admin/storefront/orders', 
@@ -126,7 +134,7 @@ app.use(createProxyMiddleware({
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
-// 5. Admin Catalog APIs (Products/Categories) -> Core Commerce API (Supabase)
+// 6. Admin Catalog APIs (Products/Categories) -> Core Commerce API (Supabase)
 // Re-maps /api/admin/storefront/products -> /api/admin/products
 app.use(createProxyMiddleware({
   pathFilter: '/api/admin/storefront',
@@ -134,7 +142,7 @@ app.use(createProxyMiddleware({
   ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
 
-// 6. Storefront Catalog APIs (Default Catalog) -> Core Commerce API (Supabase)
+// 7. Storefront Catalog APIs (Default Catalog) -> Core Commerce API (Supabase)
 // Re-maps /api/storefront/products -> /api/products
 app.use(createProxyMiddleware({
   pathFilter: '/api/storefront',
