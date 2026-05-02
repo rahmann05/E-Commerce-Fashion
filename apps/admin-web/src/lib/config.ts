@@ -1,16 +1,24 @@
 import { env } from '$env/dynamic/public';
+import { browser } from '$app/environment';
 
 // URL Storefront untuk preview gambar atau link produk
 export const STOREFRONT_URL = env.PUBLIC_STOREFRONT_URL || 'http://localhost:3000';
 
-// Gunakan localhost untuk dev, atau URL dari environment variable untuk produksi
+// URL Utama Gateway (untuk browser)
 export const GATEWAY_URL = env.PUBLIC_GATEWAY_URL || 'http://localhost:8000';
+
+// Sisi Server (Docker) harus menggunakan nama service agar bisa saling terhubung
+const INTERNAL_GATEWAY = 'http://api-gateway:8000';
 
 // URL Gateway untuk data publik storefront
 export const PUBLIC_API_URL = `${GATEWAY_URL}/api/storefront`;
 
-// URL Gateway untuk data transaksional (Produk, Pesanan, Kategori - Supabase)
-export const API_BASE_URL = `${GATEWAY_URL}/api/admin/storefront`;
+// URL Gateway untuk data transaksional (Produk, Pesanan, dsb)
+export const API_BASE_URL = browser 
+    ? `${GATEWAY_URL}/api/admin/storefront` 
+    : `${INTERNAL_GATEWAY}/api/admin/storefront`;
 
-// URL Gateway untuk data operasional internal (Voucher, Banner, Staff - Neon)
-export const INTERNAL_API_URL = `${GATEWAY_URL}/api/admin/management`;
+// URL untuk data operasional internal (Auth, Voucher, dsb)
+export const INTERNAL_API_URL = browser 
+    ? `${GATEWAY_URL}/api/admin/management` 
+    : `${INTERNAL_GATEWAY}/api/admin/management`;

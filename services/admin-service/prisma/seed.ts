@@ -6,7 +6,7 @@ async function main() {
   const password = await hashPassword('admin123');
   const admin = await prisma.adminUser.upsert({
     where: { email: 'admin@novure.com' },
-    update: {},
+    update: { password },
     create: {
       email: 'admin@novure.com',
       name: 'Super Admin',
@@ -15,6 +15,18 @@ async function main() {
     },
   });
   console.log('Super Admin created:', admin.email);
+  
+  const adminAlt = await prisma.adminUser.upsert({
+    where: { email: 'admin@gmail.com' },
+    update: { password },
+    create: {
+      email: 'admin@gmail.com',
+      name: 'Admin Alternative',
+      password: password,
+      role: 'SUPER_ADMIN',
+    },
+  });
+  console.log('Alternative Admin created:', adminAlt.email);
 
   // Add standard Indonesian carriers
   await prisma.shippingCarrier.createMany({

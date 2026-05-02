@@ -1,27 +1,33 @@
 <script lang="ts">
   import '../app.css';
   import { page } from '$app/stores';
+  import { enhance } from '$app/forms';
   
   const mode = import.meta.env?.MODE || 'PRODUCTION';
 </script>
 
-<nav class="noveru-navbar">
-  <a href="/" class="nav-brand">
-    NOVURE <span class="nav-brand-highlight">WORKSPACE</span>
-  </a>
-  <div class="nav-links">
-    <a href="/" class="nav-link" class:active={$page.url.pathname === '/'}>Overview</a>
-    <a href="/orders" class="nav-link" class:active={$page.url.pathname.startsWith('/orders')}>Transactions</a>
-    <a href="/products" class="nav-link" class:active={$page.url.pathname.startsWith('/products')}>Products</a>
-  </div>
-  <div class="nav-env">
-    <span class="env-label">ENV: <span class="env-badge">{mode.toUpperCase()}</span></span>
-  </div>
-</nav>
-
-<main class="insight-content">
+{#if $page.url.pathname === '/login'}
   <slot />
-</main>
+{:else}
+  <nav class="noveru-navbar">
+    <a href="/" class="nav-brand">
+      NOVURE <span class="nav-brand-highlight">WORKSPACE</span>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-link" class:active={$page.url.pathname === '/'}>Overview</a>
+      <a href="/orders" class="nav-link" class:active={$page.url.pathname.startsWith('/orders')}>Transactions</a>
+      <a href="/products" class="nav-link" class:active={$page.url.pathname.startsWith('/products')}>Products</a>
+    </div>
+    <div class="nav-env">
+      <span class="env-label">ENV: <span class="env-badge">{mode.toUpperCase()}</span></span>
+      <a href="/api/logout" class="logout-btn" data-sveltekit-preload-data="off">Logout</a>
+    </div>
+  </nav>
+
+  <main class="insight-content">
+    <slot />
+  </main>
+{/if}
 
 <style>
   .noveru-navbar {
@@ -84,5 +90,26 @@
     padding: 0.3rem 0.8rem;
     border-radius: 999px;
     margin-left: 0.5rem;
+  }
+
+  .logout-btn {
+    display: inline-block;
+    text-decoration: none;
+    background: transparent;
+    border: 1px solid #ff4d4f;
+    color: #ff4d4f;
+    padding: 0.3rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 1.5rem;
+  }
+
+  .logout-btn:hover {
+    background: #ff4d4f;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.2);
   }
 </style>

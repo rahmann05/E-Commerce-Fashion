@@ -103,5 +103,5 @@ services:
       - PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY}
       - PUBLIC_GATEWAY_URL=${GATEWAY_PROD_URL:-http://localhost:8000}
       - PUBLIC_STOREFRONT_URL=${STOREFRONT_PROD_URL:-http://localhost:3000}
-      - API_BASE_URL=${GATEWAY_PROD_URL:-http://localhost:8000}/api/admin/storefront
-      - INTERNAL_API_URL=${GATEWAY_PROD_URL:-http://localhost:8000}/api/admin/management
+      - API_BASE_URL=${GATEWAY_PROD_URL:-http://api-gateway:8000}/api/admin/storefront
+      - INTERNAL_API_URL=${GATEWAY_PROD_URL:-http://api-gateway:8000}/api/admin/management

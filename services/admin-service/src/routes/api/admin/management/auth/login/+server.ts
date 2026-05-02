@@ -22,7 +22,7 @@ export async function POST({ request, cookies }) {
     cookies.set('novure_jwt', token, {
         path: '/',
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Development
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7 // 1 week
     });
