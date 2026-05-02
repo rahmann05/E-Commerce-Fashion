@@ -112,18 +112,13 @@ app.use(createProxyMiddleware({
     '/api/storefront/auth', 
     '/api/storefront/account', 
     '/api/storefront/cart', 
-    '/api/storefront/checkout'
+    '/api/storefront/checkout',
+    '/api/storefront/orders'
   ],
   ...proxyOptions(CUSTOMER_BACKEND_URL)
 }));
 
-// 4. Storefront Orders -> Admin Service (Neon)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/storefront/orders',
-  ...proxyOptions(ADMIN_BACKEND_URL)
-}));
-
-// 5. Admin Analytics & Management -> Admin Service (Neon)
+// 4. Admin Analytics & Management -> Admin Service (Neon)
 app.use(createProxyMiddleware({
   pathFilter: [
     '/api/admin/storefront/orders', 
