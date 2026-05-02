@@ -5,10 +5,14 @@
 
 import type { SessionUser } from "@/lib/mock-users";
 
+const getApiBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
+};
+
 /** Resolve current user from session cookie */
 export async function getSessionFromCookie(): Promise<SessionUser | null> {
   try {
-    const res = await fetch("/api/auth/me", {
+    const res = await fetch(`${getApiBaseUrl()}/auth/me`, {
       method: "GET",
       credentials: "include",
       cache: "no-store",
@@ -24,7 +28,7 @@ export async function getSessionFromCookie(): Promise<SessionUser | null> {
 
 /** Clear server-side session cookie */
 export async function logoutUser(): Promise<void> {
-  await fetch("/api/auth/logout", {
+  await fetch(`${getApiBaseUrl()}/auth/logout`, {
     method: "POST",
     credentials: "include",
     keepalive: true,
@@ -37,15 +41,16 @@ export async function loginUser(
   password: string
 ): Promise<{ user: SessionUser } | { error: string }> {
   try {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(`${getApiBaseUrl()}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
     const result = await res.json();
     
     if (!res.ok || !result.success) {
-      return { error: result.error ?? "Gagal login." };
+      return { error: result.error ?? result.message ?? "Gagal login." };
     }
     
     return { user: result.data };

@@ -16,37 +16,13 @@ export type CategoryFilter = "all" | "tees" | "jeans" | "accessories" | "outerwe
 // Use NEXT_PUBLIC_API_URL if available (client/server), otherwise fallback for server-side internal networking
 const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
-    return process.env.NEXT_PUBLIC_API_URL || "/api";
+    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
   }
   // Server-side: prefer internal networking if specified, otherwise fallback
   return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://api-gateway:8000/api/storefront";
 };
 
 const API_BASE_URL = getApiBaseUrl();
-
-const PRODUCT_COLOR_MAP: Record<string, string> = {
-  "tees1.png": "#e8e8e8",
-  "tees2.png": "#6b4423",
-  "tees3.png": "#8da38a",
-  "tees4.png": "#7a7a7a",
-  "tees5.png": "#333333",
-  "tees6.png": "#f5f5dc",
-  "tees7.png": "#556b2f",
-  "jeans1.png": "#2b4c7e",
-  "jeans2.png": "#1a1a1a",
-  "jeans3.png": "#5b84b1",
-  "jeans4.png": "#16213e",
-  "jeans5.png": "#2d2d2d",
-  "jeans6.png": "#0f172a",
-  "outerwear1.png": "#1a1a1a",
-  "outerwear2.png": "#2d2d2d",
-  "outerwear3.png": "#556b2f",
-  "outerwear4.png": "#16213e",
-  "outerwear5.png": "#6b4423",
-  "accessories1.png": "#111111",
-  "accessories2.png": "#1a1a1a",
-  "accessories3.png": "#c0c0c0",
-};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -56,9 +32,7 @@ function rowToProduct(
   const options = row.sizeOptions || [];
   const stocks = row.sizeStocks || [];
   const images = row.image || [];
-  const primaryImage = images[0] || "";
-  const fallbackColor = PRODUCT_COLOR_MAP[primaryImage] ? [PRODUCT_COLOR_MAP[primaryImage]] : ["#111"];
-  const colors = row.colors && row.colors.length > 0 ? row.colors : fallbackColor;
+  const colors = row.colors || [];
   const variants = row.variants || [];
 
   const categoryName = (row.category?.name || "editorial").toLowerCase();
@@ -80,7 +54,7 @@ function rowToProduct(
           ? `${options[0]} - ${options[options.length - 1]}`
           : options[0]
         : "S - XXL"),
-    image: getImageUrl(images[0] ?? "/images/tees1.png"),
+    image: getImageUrl(images[0]),
     colors: colors,
     sizeOptions: options,
     sizeStocks: stocks,

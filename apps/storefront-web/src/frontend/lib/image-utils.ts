@@ -18,10 +18,10 @@ const BUCKET_NAME = "products";
  * If the input is already a full URL (http/https), it returns it as-is.
  * 
  * @param path The local path or filename (e.g., "/images/tees1.png" or "tees1.png")
- * @returns The full Supabase Storage URL
+ * @returns The full Supabase Storage URL or an empty string if none
  */
 export function getImageUrl(path: string | null | undefined): string {
-  if (!path) return "/images/placeholder.png";
+  if (!path) return "";
 
   // If it's already an absolute URL or data URI, return it
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) {
@@ -33,9 +33,9 @@ export function getImageUrl(path: string | null | undefined): string {
   if (cleanPath.startsWith("/")) cleanPath = cleanPath.slice(1);
   if (cleanPath.startsWith("images/")) cleanPath = cleanPath.slice(7);
 
-  // If SUPABASE_URL is missing, fallback to local /images/ path
+  // If SUPABASE_URL is missing, we must NOT fallback to local. Return empty.
   if (!SUPABASE_URL) {
-    return `/images/${cleanPath}`;
+    return "";
   }
 
   // Ensure no trailing slash on SUPABASE_URL

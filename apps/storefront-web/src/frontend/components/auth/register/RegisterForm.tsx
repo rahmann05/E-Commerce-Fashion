@@ -8,6 +8,10 @@ import LoginInput from "../login/LoginInput";
 import LoginErrorMessage from "../login/LoginErrorMessage";
 import LoginSubmitButton from "../login/LoginSubmitButton";
 
+const getApiBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
+};
+
 export default function RegisterForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -29,7 +33,7 @@ export default function RegisterForm() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(`${getApiBaseUrl()}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -38,8 +42,8 @@ export default function RegisterForm() {
       const data = await res.json();
       setIsLoading(false);
 
-      if (!res.ok) {
-        setError(data.error ?? "Gagal membuat akun.");
+      if (!res.ok || !data.success) {
+        setError(data.error ?? data.message ?? "Gagal membuat akun.");
         return;
       }
 

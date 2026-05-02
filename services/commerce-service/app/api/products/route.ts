@@ -57,7 +57,8 @@ export async function GET(request: Request) {
       include: {
         category: {
           select: { name: true }
-        }
+        },
+        variants: true
       },
       orderBy: {
         createdAt: 'desc'
