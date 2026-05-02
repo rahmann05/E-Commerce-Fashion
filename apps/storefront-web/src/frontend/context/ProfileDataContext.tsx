@@ -134,6 +134,10 @@ interface ProfileDataContextValue {
 
 const ProfileDataContext = createContext<ProfileDataContextValue | null>(null);
 
+const getApiBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
+};
+
 const EMPTY_DATA: UserProfileData = {
   phone: "",
   addresses: [],
@@ -153,7 +157,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       setData(EMPTY_DATA);
       return;
     }
-    const res = await fetch("/api/account");
+    const res = await fetch(`${getApiBaseUrl()}/account`);
     if (!res.ok) return;
     const payload = (await res.json()) as { data: UserProfileData };
     if (payload.data) {
@@ -171,7 +175,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
   const callMutation = useCallback(
     async (action: string, body: Record<string, unknown>) => {
       if (!user) return null;
-      const res = await fetch("/api/account", {
+      const res = await fetch(`${getApiBaseUrl()}/account`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, ...body }),

@@ -1,30 +1,28 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useColorTheme } from "@/context/ColorContext";
 import styles from "./MultiColorWave.module.css";
 
-const CLOTHING_COLORS = [
-  "#e8e8e8", // White
-  "#6b4423", // Earth Brown
-  "#8da38a", // Sage
-  "#7a7a7a", // Vintage Grey
-  "#333333", // Charcoal
-  "#2b4c7e", // Blue
-  "#1a1a1a", // Washed Black
-  "#5b84b1", // Light Wash
-];
-
 export default function MultiColorWave() {
-  const [currentColors, setCurrentColors] = useState([CLOTHING_COLORS[0], CLOTHING_COLORS[2], CLOTHING_COLORS[5], CLOTHING_COLORS[7]]);
+  const { activeTheme } = useColorTheme();
+  const [currentColors, setCurrentColors] = useState([
+    activeTheme.primary,
+    activeTheme.secondary,
+    activeTheme.tertiary,
+    activeTheme.accent || activeTheme.primary
+  ]);
 
+  // Update colors when theme changes
   useEffect(() => {
-    const interval = setInterval(() => {
-      const shuffled = [...CLOTHING_COLORS].sort(() => 0.5 - Math.random());
-      setCurrentColors(shuffled.slice(0, 4));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    setCurrentColors([
+      activeTheme.primary,
+      activeTheme.secondary,
+      activeTheme.tertiary,
+      activeTheme.accent || activeTheme.primary
+    ]);
+  }, [activeTheme]);
 
   return (
     <motion.div
