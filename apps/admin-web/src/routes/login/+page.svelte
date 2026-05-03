@@ -16,7 +16,7 @@
         <div class="form-side">
             <div class="form-container">
                 <form 
-                    action="/login"
+                    action="?/login"
                     method="POST" 
                     use:enhance
                 >

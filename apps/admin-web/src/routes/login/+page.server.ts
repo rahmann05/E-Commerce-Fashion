@@ -2,7 +2,7 @@ import { fail, redirect, isRedirect } from '@sveltejs/kit';
 import { INTERNAL_API_URL } from '$lib/config';
 
 export const actions = {
-    default: async ({ request, cookies }) => {
+    login: async ({ request, cookies }) => {
         console.log('[LoginAction] Action started');
         const formData = await request.formData();
         const email = formData.get('email');

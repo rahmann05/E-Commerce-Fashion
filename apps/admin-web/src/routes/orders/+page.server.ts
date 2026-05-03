@@ -10,7 +10,8 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 	if (dateRange) ordersUrl.searchParams.set('range', dateRange);
 
 	const res = await fetch(ordersUrl.toString());
-	const orders = await res.json();
+	const payload = await res.json();
+	const orders = payload.success ? payload.data : [];
 
 	return {
 		orders,
