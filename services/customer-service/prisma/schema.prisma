@@ -141,22 +141,33 @@ model Address {
   customerId String
   customer   Customer @relation(fields: [customerId], references: [id])
   isPrimary  Boolean  @default(false)
+  label      String?  @default("Rumah")
+  recipient  String?
+  phone      String?
   line1      String
+  district   String?
   city       String
   province   String
+  postalCode String?
+  latitude   Float?
+  longitude  Float?
+  orders     Order[]
 }
 
 model Order {
-  id            String            @id @default(cuid())
-  customerId    String
-  customer      Customer          @relation(fields: [customerId], references: [id])
-  totalAmount   Decimal           @db.Decimal(10, 2)
-  status        OrderStatus       @default(AWAITING_PAYMENT)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  items         OrderItem[]
-  returnRequest ReturnRequest?
-  tracking      ShippingTracking?
+  id             String            @id @default(cuid())
+  customerId     String
+  customer       Customer          @relation(fields: [customerId], references: [id])
+  addressId      String?
+  address        Address?          @relation(fields: [addressId], references: [id])
+  totalAmount    Decimal           @db.Decimal(10, 2)
+  shippingAmount Decimal?          @db.Decimal(10, 2)
+  status         OrderStatus       @default(AWAITING_PAYMENT)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  items          OrderItem[]
+  returnRequest  ReturnRequest?
+  tracking       ShippingTracking?
 }
 
 model OrderItem {
@@ -221,14 +232,16 @@ model CustomerVoucher {
 }
 
 model SavedPaymentMethod {
-  id         String   @id @default(cuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  provider   String
-  cardMask   String?
-  token      String
-  isPrimary  Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider      String
+  cardMask      String?
+  token         String
+  accountNumber String?
+  accountName   String?
+  isPrimary     Boolean  @default(false)
+  createdAt     DateTime @default(now())
 }
 
 model ShippingCarrier {

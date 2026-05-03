@@ -23,9 +23,12 @@ export default function ProfileLogoutButton() {
       <button
         onClick={handleLogout}
         className="profile-logout-btn"
+        aria-label="Keluar dari akun"
       >
-        <LogOut size={14} />
-        Keluar
+        <span className="profile-logout-icon">
+          <LogOut size={16} strokeWidth={2.5} />
+        </span>
+        <span className="profile-logout-text">Keluar dari Akun</span>
       </button>
     </div>
   );

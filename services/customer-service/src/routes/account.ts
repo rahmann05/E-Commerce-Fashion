@@ -65,7 +65,10 @@ router.get('/', async (req: AuthRequest, res) => {
     data: {
       phone: customer.phone,
       addresses: customer.addresses,
-      paymentMethods: customer.paymentMethods,
+      paymentMethods: customer.paymentMethods.map(pm => ({
+        ...pm,
+        label: pm.provider // Map provider to label for frontend
+      })),
       orders: mappedOrders,
       wishlist: [], vouchers: [], notifications: []
     }
@@ -98,18 +101,22 @@ router.post('/', async (req: AuthRequest, res) => {
           provider: body.provider || body.label || 'Unknown',
           cardMask: body.cardMask || body.accountNumber?.slice(-4) || '****',
           token: body.token || body.accountNumber || 'dummy-token',
+          accountNumber: body.accountNumber || '',
+          accountName: body.accountName || '',
           isPrimary: false, 
           customerId 
         } 
       });
       console.log('[Account] Payment method created successfully');
     } else if (action === 'createOrder') {
-      const { items, total, addressId } = body;
+      const { items, total, addressId, shipping } = body;
       
       const order = await prisma.order.create({
         data: {
           customerId,
+          addressId,
           totalAmount: total,
+          shippingAmount: shipping || 0,
           status: 'AWAITING_PAYMENT',
           items: {
             create: items.map((item: any) => ({
@@ -124,13 +131,19 @@ router.post('/', async (req: AuthRequest, res) => {
       });
       console.log(`[Account] Order created: ${order.id}`);
       
-      // Return consistent structure for ProfileDataContext
-      return res.json({
-        success: true,
-        data: {
-          orders: [{ id: order.id }]
-        }
+      // We will let the code proceed to refetch and return full data
+      // but we'll manually inject the new order to the orders list below
+      req.params.newOrderId = order.id; 
+    } else if (action === 'removeAddress') {
+      await prisma.address.delete({
+        where: { id: body.id, customerId }
       });
+      console.log(`[Account] Address deleted: ${body.id}`);
+    } else if (action === 'removePaymentMethod') {
+      await prisma.savedPaymentMethod.delete({
+        where: { id: body.id, customerId }
+      });
+      console.log(`[Account] Payment method deleted: ${body.id}`);
     } else {
       console.warn(`[Account] Unknown action: ${action}`);
     }
@@ -145,14 +158,43 @@ router.post('/', async (req: AuthRequest, res) => {
       where: { id: customerId },
       include: { addresses: true, paymentMethods: true }
     });
+
+    const orders = await prisma.order.findMany({
+      where: { customerId },
+      orderBy: { createdAt: 'desc' },
+      include: { items: true }
+    });
+
+    // Hydrate orders (similar to GET /)
+    const mappedOrders = await Promise.all(orders.map(async (o) => {
+      const primaryItem = o.items[0];
+      let hydratedItem: any = primaryItem ? { ...primaryItem } : null;
+      if (primaryItem) {
+          const product = await fetchProduct(primaryItem.productId);
+          if (product) {
+            hydratedItem.name = product.name;
+            hydratedItem.imageUrl = product.imageUrl || (product.image && product.image[0]) || (product.images && product.images[0]) || '/images/about/model1.png';
+          } else {
+            hydratedItem.name = 'Pesanan';
+            hydratedItem.imageUrl = '/images/about/model1.png';
+          }
+          hydratedItem.unitPrice = Number(primaryItem.price);
+      }
+      return {
+        ...o,
+        total: Number(o.totalAmount),
+        items: hydratedItem ? [hydratedItem, ...o.items.slice(1)] : []
+      };
+    }));
     
     res.json({
       success: true,
       data: {
         phone: customer?.phone || '',
         addresses: customer?.addresses || [],
-        paymentMethods: customer?.paymentMethods || [],
-        orders: [], wishlist: [], vouchers: [], notifications: []
+        paymentMethods: customer?.paymentMethods.map(pm => ({ ...pm, label: pm.provider })) || [],
+        orders: mappedOrders,
+        wishlist: [], vouchers: [], notifications: []
       }
     });
   } catch (err: any) {
