@@ -74,23 +74,24 @@
 	</div>
 </div>
 
-<div class="studio-grid">
+<div class="entry-grid">
 	{#each products as product}
-		<a href="/products/{product.id}" class="product-entry">
+		<a href="/products/{product.id}" class="product-entry" style="text-decoration: none; color: inherit;">
 			<div class="entry-image">
-				{#if product.images && product.images.length > 0}
-					<img src={getImageUrl(product.images[0])} alt={product.name} />
+				{#if (product.image && product.image.length > 0) || (product.images && product.images.length > 0)}
+					{@const displayImage = product.image?.[0] || product.images?.[0]}
+					<img src={getImageUrl(displayImage)} alt={product.name} />
 				{:else}
-					<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; opacity: 0.05; font-weight: 900;">
+					<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; opacity: 0.1; font-weight: 900; background: #f0f0f0;">
 						{product.name.charAt(0)}
 					</div>
 				{/if}
 			</div>
 
 			<div class="entry-info">
-				<div>
-					<div class="entry-name">{product.name}</div>
-					<div class="entry-meta">{product.category?.name || 'ESSENTIAL'} — {product.stock} IN STOCK</div>
+				<div style="flex: 1; min-width: 0; padding-right: 1rem;">
+					<div class="entry-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{product.name}</div>
+					<div class="entry-meta">{product.category?.name || 'ESSENTIAL'} · {product.stock} IN STOCK</div>
 				</div>
 				<div class="entry-price">{formatCurrency(product.price)}</div>
 			</div>

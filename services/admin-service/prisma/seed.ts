@@ -3,7 +3,7 @@ import { prisma } from '../src/infrastructure/database/prisma';
 import { hashPassword } from '../src/application/auth/password';
 
 async function main() {
-  const password = await hashPassword('admin123');
+  const password = await hashPassword('password');
   const admin = await prisma.adminUser.upsert({
     where: { email: 'admin@novure.com' },
     update: { password },
