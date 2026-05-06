@@ -15,8 +15,10 @@ export const handle = async ({ event, resolve }) => {
             });
             if (res.ok) {
                 const data = await res.json();
-                event.locals.user = data.user;
-                console.log(`[Hooks] Auth SUCCESS for ${data.user.email}`);
+                // data.data = new envelope; data.user = legacy fallback (transitional support)
+                event.locals.user = data.data ?? data.user;
+                const user = event.locals.user;
+                console.log(`[Hooks] Auth SUCCESS for ${user?.email}`);
             } else {
                 console.warn(`[Hooks] Auth FAILED: API returned ${res.status}`);
                 event.cookies.delete('novure_jwt', { path: '/' });

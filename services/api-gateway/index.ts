@@ -35,13 +35,19 @@ app.use(cors({
 app.get(['/', '/api'], (req, res) => {
   res.json({
     name: "Novure E-Commerce API Gateway",
-    version: "1.2.1",
+    version: "1.3.0",
     status: "RUNNING",
     endpoints: {
       health: "/health",
       storefront: "/api/storefront",
-      admin_management: "/api/admin/management",
-      admin_storefront: "/api/admin/storefront"
+      storefrontAuth: "/api/storefront/auth",
+      storefrontCart: "/api/storefront/cart",
+      storefrontOrders: "/api/storefront/orders",
+      storefrontCheckout: "/api/storefront/checkout",
+      storefrontShipping: "/api/storefront/shipping",
+      adminAuth: "/api/admin/management/auth",
+      adminManagement: "/api/admin/management",
+      adminStorefront: "/api/admin/storefront"
     }
   });
 });
@@ -169,7 +175,7 @@ app.use(createProxyMiddleware({
   ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
 
-// 6. Generic Storefront API (Products, Categories) -> Commerce Service (Supabase)
+// 7. Generic Storefront API (Products, Categories) -> Commerce Service (Supabase)
 app.use(createProxyMiddleware({
   pathFilter: '/api/storefront',
   pathRewrite: { '^/api/storefront': '/api' },

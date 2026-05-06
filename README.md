@@ -7,9 +7,10 @@ Sistem menggunakan arsitektur dual-database untuk mengoptimalkan performa dan is
 
 1.  **api-gateway (Port 8000)**: Single entry point. Mengelola CORS dynamic, routing cerdas, dan proxying antar layanan.
 2.  **commerce-service (Port 3001)**: Catalog Engine (Supabase). Menangani Produk, Kategori, dan Review.
-3.  **admin-service (Port 4001)**: Transaction & Identity Engine (Neon). Menangani Customer, Order, Cart, dan Management Internal (Staff/Audit).
-4.  **storefront-web (Port 3000)**: Consumer Frontend (Next.js). Mengonsumsi data katalog dan transaksi via Gateway.
-5.  **admin-web (Port 4000)**: Management Dashboard (SvelteKit). Studio kontrol untuk katalog (Supabase) dan transaksi (Neon).
+3.  **admin-service (Port 4001)**: Management & Transaction Engine (Neon). Menangani Order, Analytics, dan Management Internal (Staff/Audit).
+4.  **customer-service (Port 4002)**: Customer Identity Engine (Neon). Menangani Autentikasi Customer, Profil, Cart, Checkout, dan Order Customer.
+5.  **storefront-web (Port 3000)**: Consumer Frontend (Next.js). Mengonsumsi data katalog dan transaksi via Gateway.
+6.  **admin-web (Port 4000)**: Management Dashboard (SvelteKit). Studio kontrol untuk katalog (Supabase) dan transaksi (Neon).
 
 ## Konfigurasi Database
 - **Supabase (PostgreSQL)**: Katalog produk (High Read, Low Write).
@@ -28,10 +29,13 @@ cd services/commerce-service && npm run dev
 # 3. Admin Service
 cd services/admin-service && npm run dev
 
-# 4. Storefront
+# 4. Customer Service
+cd services/customer-service && npm run dev
+
+# 5. Storefront
 cd apps/storefront-web && npm run dev
 
-# 5. Admin Dashboard
+# 6. Admin Dashboard
 cd apps/admin-web && npm run dev
 ```
 

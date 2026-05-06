@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '@infrastructure/database/prisma';
 
-const COMMERCE_API_URL = process.env.COMMERCE_API_URL || 'http://localhost:3001/api/admin';
+const COMMERCE_API_URL = process.env.COMMERCE_API_URL || 'http://commerce-service:3001/api/admin';
 
 export async function GET() {
   const now = new Date();

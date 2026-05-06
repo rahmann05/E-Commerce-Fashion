@@ -10,7 +10,7 @@ export async function POST({ request, cookies }) {
     
     const admin = await prisma.adminUser.findUnique({ where: { email } });
     if (!admin || !(await verifyPassword(password, admin.password))) {
-        return json({ error: 'Invalid credentials' }, { status: 401 });
+        return json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
 
     const token = jwt.sign(
@@ -32,7 +32,7 @@ export async function POST({ request, cookies }) {
 
     return json({ 
         success: true, 
-        user: { id: admin.id, email: admin.email, role: admin.role },
-        token // Returning token as well for flexibility
+        data: { id: admin.id, email: admin.email, role: admin.role },
+        token
     });
 }
