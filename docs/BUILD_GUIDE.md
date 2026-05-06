@@ -24,12 +24,17 @@ cd services/commerce-service && npm install && npm run build
 cd services/admin-service && npm install && npm run build
 ```
 
-### 4. Storefront Web
+### 4. Customer Service
+```bash
+cd services/customer-service && npm install && npm run build
+```
+
+### 5. Storefront Web
 ```bash
 cd apps/storefront-web && npm install && npm run build
 ```
 
-### 5. Admin Dashboard
+### 6. Admin Dashboard
 ```bash
 cd apps/admin-web && npm install && npm run build
 ```

@@ -1,0 +1,1001 @@
+openapi: 3.0.3
+info:
+  title: Novure E-Commerce API Gateway
+  version: 1.3.0
+  description: |
+    Single entry point for the Novure headless e-commerce ecosystem.
+
+    **Route groups:**
+    - `/api/storefront/*` — Public storefront BFF (catalog, auth, cart, checkout, orders, shipping)
+    - `/api/admin/storefront/*` — Admin BFF for storefront data (orders, analytics, products, categories)
+    - `/api/admin/management/*` — Admin internal operations (staff auth, shipping management)
+
+    **Response envelope (all endpoints):**
+    ```json
+    { "success": boolean, "data": ..., "error": "string (on failure)", "message": "string (optional)" }
+    ```
+    Login endpoints additionally include a top-level `token` field.
+  contact:
+    name: Novure Engineering
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.your-domain.com
+    description: Production (placeholder — update before deploying)
+
+tags:
+  - name: health
+    description: Gateway and service health checks
+  - name: storefront-catalog
+    description: Public catalog — products and categories (via commerce-service)
+  - name: storefront-auth
+    description: Customer authentication (via customer-service)
+  - name: storefront-cart
+    description: Customer cart management (via customer-service)
+  - name: storefront-orders
+    description: Customer order management (via customer-service)
+  - name: storefront-checkout
+    description: Checkout and payment (via customer-service)
+  - name: storefront-shipping
+    description: Shipping options and tracking (via customer-service)
+  - name: admin-catalog
+    description: Admin catalog management — products and categories (via commerce-service)
+  - name: admin-orders
+    description: Admin order management (via admin-service)
+  - name: admin-analytics
+    description: Business analytics dashboard (via admin-service)
+  - name: admin-auth
+    description: Admin staff authentication (via admin-service)
+
+# ─── Reusable components ────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: novure_jwt
+      description: JWT session cookie set on login
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer token (used by storefront SPA via Authorization header)
+
+  schemas:
+    ApiResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        data:
+          description: Response payload (shape varies by endpoint)
+        error:
+          type: string
+          description: Human-readable error message (present only on failure)
+        message:
+          type: string
+          description: Optional informational message
+
+    AuthTokenResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            token:
+              type: string
+              description: JWT access token
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          example: ADMIN
+        name:
+          type: string
+          nullable: true
+
+    CustomerProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProductVariant:
+      type: object
+      properties:
+        id:
+          type: string
+        size:
+          type: string
+        color:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+        categoryId:
+          type: string
+          nullable: true
+        image:
+          type: array
+          items:
+            type: string
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariant'
+        category:
+          type: object
+          properties:
+            name:
+              type: string
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        image:
+          type: string
+          nullable: true
+
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: string
+        cartId:
+          type: string
+        productId:
+          type: string
+        productVariantId:
+          type: string
+        quantity:
+          type: integer
+        product:
+          $ref: '#/components/schemas/Product'
+          nullable: true
+        variant:
+          $ref: '#/components/schemas/ProductVariant'
+          nullable: true
+
+    Cart:
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+        productId:
+          type: string
+        productVariantId:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED]
+        totalAmount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+    AnalyticsSummary:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalRevenue:
+              type: number
+            orderCount:
+              type: integer
+            customerCount:
+              type: integer
+            revenueThisMonth:
+              type: number
+            revenueGrowth:
+              type: number
+            aov:
+              type: number
+            newCustomers:
+              type: integer
+        finance:
+          type: object
+          properties:
+            grossProfit:
+              type: number
+            estimatedCOGS:
+              type: number
+            margin:
+              type: number
+        categoryDistribution:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: integer
+        topProducts:
+          type: array
+          items:
+            type: object
+        dailyData:
+          type: array
+          items:
+            type: number
+
+# ─── Paths ──────────────────────────────────────────────────────────────────
+paths:
+
+  # ── Health ────────────────────────────────────────────────────────────────
+
+  /health:
+    get:
+      tags: [health]
+      summary: Deep health check
+      description: Checks connectivity to all downstream services (commerce, admin, customer).
+      responses:
+        '200':
+          description: All services healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  timestamp:
+                    type: string
+                    format: date-time
+                  services:
+                    type: object
+                    properties:
+                      storefront:
+                        type: string
+                        enum: [HEALTHY, UNHEALTHY, UNREACHABLE]
+                      admin:
+                        type: string
+                        enum: [HEALTHY, UNHEALTHY, UNREACHABLE]
+                      customer:
+                        type: string
+                        enum: [HEALTHY, UNHEALTHY, UNREACHABLE]
+        '503':
+          description: One or more services degraded
+
+  # ── Storefront Catalog ────────────────────────────────────────────────────
+
+  /api/storefront/products:
+    get:
+      tags: [storefront-catalog]
+      summary: List products
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category slug (e.g. tees, jeans)
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Full-text search query
+      responses:
+        '200':
+          description: Products list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+
+  /api/storefront/products/{id}:
+    get:
+      tags: [storefront-catalog]
+      summary: Get product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single product
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+  # ── Storefront Auth ───────────────────────────────────────────────────────
+
+  /api/storefront/auth/register:
+    post:
+      tags: [storefront-auth]
+      summary: Register new customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                name:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '201':
+          description: Customer registered
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/AuthTokenResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CustomerProfile'
+        '400':
+          description: Email already exists
+
+  /api/storefront/auth/login:
+    post:
+      tags: [storefront-auth]
+      summary: Customer login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/AuthTokenResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CustomerProfile'
+        '401':
+          description: Invalid credentials
+
+  /api/storefront/auth/me:
+    get:
+      tags: [storefront-auth]
+      summary: Get current customer session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current customer
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CustomerProfile'
+        '401':
+          description: Not authenticated
+
+  /api/storefront/auth/logout:
+    post:
+      tags: [storefront-auth]
+      summary: Customer logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out
+
+  # ── Storefront Cart ───────────────────────────────────────────────────────
+
+  /api/storefront/cart:
+    get:
+      tags: [storefront-cart]
+      summary: Get current customer cart
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cart with hydrated items
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Cart'
+    post:
+      tags: [storefront-cart]
+      summary: Add item to cart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, productVariantId]
+              properties:
+                productId:
+                  type: string
+                productVariantId:
+                  type: string
+                quantity:
+                  type: integer
+                  default: 1
+      responses:
+        '200':
+          description: Updated cart
+    put:
+      tags: [storefront-cart]
+      summary: Update cart item quantity
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [itemId, quantity]
+              properties:
+                itemId:
+                  type: string
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Updated cart
+    patch:
+      tags: [storefront-cart]
+      summary: Clear entire cart
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cart cleared
+
+  /api/storefront/cart/{itemId}:
+    delete:
+      tags: [storefront-cart]
+      summary: Remove item from cart
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Updated cart
+
+  # ── Storefront Orders ─────────────────────────────────────────────────────
+
+  /api/storefront/orders:
+    get:
+      tags: [storefront-orders]
+      summary: List orders for current customer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Customer orders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Order'
+
+  /api/storefront/orders/{id}:
+    get:
+      tags: [storefront-orders]
+      summary: Get order by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order detail
+        '404':
+          description: Order not found
+
+  # ── Storefront Shipping ───────────────────────────────────────────────────
+
+  /api/storefront/shipping:
+    get:
+      tags: [storefront-shipping]
+      summary: Get available shipping options
+      responses:
+        '200':
+          description: Shipping options list
+
+  # ── Admin Auth ────────────────────────────────────────────────────────────
+
+  /api/admin/management/auth/login:
+    post:
+      tags: [admin-auth]
+      summary: Admin staff login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful — sets `novure_jwt` cookie and returns token
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/AuthTokenResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AdminUser'
+        '401':
+          description: Invalid credentials
+
+  /api/admin/management/auth/me:
+    get:
+      tags: [admin-auth]
+      summary: Get current admin session
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Current admin user
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AdminUser'
+        '401':
+          description: Not authenticated
+
+  /api/admin/management/auth/logout:
+    post:
+      tags: [admin-auth]
+      summary: Admin logout — clears session cookie
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Logged out
+
+  # ── Admin Catalog (via /api/admin/storefront → commerce-service /api/admin) ─
+
+  /api/admin/storefront/products:
+    get:
+      tags: [admin-catalog]
+      summary: List all products (admin view)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Products list (all, including out-of-stock)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+    post:
+      tags: [admin-catalog]
+      summary: Create a new product
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, price, stock]
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                stock:
+                  type: integer
+                categoryId:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Product created
+
+  /api/admin/storefront/products/{id}:
+    get:
+      tags: [admin-catalog]
+      summary: Get product by ID (admin view)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product detail
+    put:
+      tags: [admin-catalog]
+      summary: Update product
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Updated product
+    delete:
+      tags: [admin-catalog]
+      summary: Delete product
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product deleted
+
+  /api/admin/storefront/categories:
+    get:
+      tags: [admin-catalog]
+      summary: List categories (admin view)
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Category'
+    post:
+      tags: [admin-catalog]
+      summary: Create category
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                image:
+                  type: string
+      responses:
+        '201':
+          description: Category created
+
+  /api/admin/storefront/categories/{id}:
+    delete:
+      tags: [admin-catalog]
+      summary: Delete category
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category deleted
+
+  # ── Admin Orders ──────────────────────────────────────────────────────────
+
+  /api/admin/storefront/orders:
+    get:
+      tags: [admin-orders]
+      summary: List all orders (admin view)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED]
+        - name: range
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Orders list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Order'
+
+  /api/admin/storefront/orders/{id}:
+    get:
+      tags: [admin-orders]
+      summary: Get order detail (admin view, hydrated with product data)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order detail
+        '404':
+          description: Order not found
+    patch:
+      tags: [admin-orders]
+      summary: Update order status
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED]
+      responses:
+        '200':
+          description: Order status updated
+
+  # ── Admin Analytics ───────────────────────────────────────────────────────
+
+  /api/admin/storefront/analytics:
+    get:
+      tags: [admin-analytics]
+      summary: Dashboard analytics (unified Neon + Supabase)
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AnalyticsSummary'
+
+  # ── Admin Shipping Management ─────────────────────────────────────────────
+
+  /api/admin/management/shipping/carriers:
+    get:
+      tags: [admin-auth]
+      summary: List shipping carriers
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Carriers list
+
+  /api/admin/management/shipping/track/{trackingNumber}:
+    get:
+      tags: [admin-auth]
+      summary: Track shipment by tracking number
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: trackingNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tracking information
