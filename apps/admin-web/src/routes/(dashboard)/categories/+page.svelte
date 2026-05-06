@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CategoryCard from '@features/catalog/CategoryCard.svelte';
+	import CategoryCard from '@features/products/CategoryCard.svelte';
 	let { data } = $props();
 </script>
 

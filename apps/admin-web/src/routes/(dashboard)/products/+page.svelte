@@ -1,6 +1,6 @@
 <script lang="ts">
-	import ProductGrid from '@features/catalog/ProductGrid.svelte';
-	import ProductFilter from '@features/catalog/ProductFilter.svelte';
+	import ProductGrid from '@features/products/ProductGrid.svelte';
+	import ProductFilter from '@features/products/ProductFilter.svelte';
 	
 	let { data } = $props();
 	const products = $derived(data.products);
@@ -9,7 +9,7 @@
 <div class="studio-section" style="margin-bottom: 2rem;">
 	<div style="display: flex; justify-content: space-between; align-items: flex-end;">
 		<div>
-			<h1 class="editorial-title">Catalogue</h1>
+			<h1 class="editorial-title">Products</h1>
 			<p class="editorial-subtitle" style="margin-top: 1rem;">Curating the essential flow of the brand archive.</p>
 		</div>
 		<div style="display: flex; gap: 2rem; align-items: center;">

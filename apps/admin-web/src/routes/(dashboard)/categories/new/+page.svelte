@@ -7,7 +7,7 @@
 
 <div class="hero-header">
 	<h1 class="editorial-title">New Collection</h1>
-	<p class="editorial-subtitle">Defining a new conceptual group for your catalogue.</p>
+	<p class="editorial-subtitle">Defining a new conceptual group for your products.</p>
 </div>
 
 <div class="form-card">

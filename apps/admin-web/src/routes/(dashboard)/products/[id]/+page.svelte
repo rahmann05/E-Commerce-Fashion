@@ -122,7 +122,7 @@
 						Delete Entry
 					</button>
 					<a href="/products" class="btn-studio-secondary" style="text-align: center;">
-						Back to Catalogue
+						Back to Products
 					</a>
 				</div>
 			</div>
