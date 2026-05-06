@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@infrastructure/database/prisma";
+import { ProductController } from "@/modules/product/product.controller";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -7,41 +7,26 @@ export async function GET(req: Request) {
   const categoryId = searchParams.get("category");
 
   try {
-    const products = await prisma.product.findMany({
-      where: {
-        categoryId: categoryId || undefined,
-        OR: q ? [
-          { name: { contains: q, mode: "insensitive" } },
-          { description: { contains: q, mode: "insensitive" } }
-        ] : undefined
-      },
-      include: { category: true },
-      orderBy: { createdAt: "desc" }
-    });
-    return NextResponse.json({ success: true, data: products });
+    const result = await ProductController.getAdminProducts({ q, categoryId });
+    return NextResponse.json({ success: true, data: result.data });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
+  const authHeader = req.headers.get('authorization');
+  const adminKey = req.headers.get('x-admin-key');
+  const userId = req.headers.get('x-user-id');
+
+  if (!authHeader && !adminKey && !userId) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const data = await req.json();
-    
-    const slug = data.slug || data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-
-    const product = await prisma.product.create({
-      data: {
-        name: data.name,
-        slug,
-        description: data.description,
-        price: data.price,
-        stock: data.stock,
-        categoryId: data.categoryId,
-        image: data.images || []
-      }
-    });
-    return NextResponse.json({ success: true, data: product }, { status: 201 });
+    const result = await ProductController.createProduct(data);
+    return NextResponse.json({ success: true, data: result.data }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }

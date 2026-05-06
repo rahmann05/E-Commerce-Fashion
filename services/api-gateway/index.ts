@@ -1,8 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import { authenticateJWT } from './src/middlewares/auth';
+import { validate } from './src/middlewares/validate';
+import { loginSchema } from '@novure/contracts';
 
 dotenv.config();
 
@@ -84,6 +87,8 @@ const proxyOptions = (target: string) => ({
   changeOrigin: true,
   on: {
     proxyReq: (proxyReq: any, req: any) => {
+      fixRequestBody(proxyReq, req);
+      
       // Forward cookies
       if (req.headers.cookie) {
         proxyReq.setHeader('cookie', req.headers.cookie);
@@ -127,47 +132,67 @@ app.use(createProxyMiddleware({
 }));
 
 // 2. Admin Management APIs -> Admin Service (Neon)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/admin/management',
-  pathRewrite: { '^/api/admin/management': '/api/admin/management' }, // Keep as is
-  ...proxyOptions(ADMIN_BACKEND_URL)
-}));
+app.use(
+  '/api/admin/management',
+  authenticateJWT,
+  createProxyMiddleware({
+    pathRewrite: { '^/api/admin/management': '/api/admin/management' },
+    ...proxyOptions(ADMIN_BACKEND_URL)
+  })
+);
 
 // 3. Storefront Identity/Auth APIs -> Customer Service (Neon)
-// These routes handle customer login, register, profile, etc.
-app.use(createProxyMiddleware({
-  pathFilter: [
-    '/api/storefront/auth',
+// 3a. Protected routes
+app.use(
+  [
+    '/api/storefront/auth/me',
     '/api/storefront/account',
     '/api/storefront/cart',
     '/api/storefront/checkout',
     '/api/storefront/orders'
   ],
-  ...proxyOptions(CUSTOMER_BACKEND_URL)
-}));
+  authenticateJWT,
+  createProxyMiddleware(proxyOptions(CUSTOMER_BACKEND_URL))
+);
+
+// 3b. Unprotected routes with validation
+app.use('/api/storefront/auth/login', validate(loginSchema), createProxyMiddleware(proxyOptions(CUSTOMER_BACKEND_URL)));
+app.use('/api/storefront/auth/register', createProxyMiddleware(proxyOptions(CUSTOMER_BACKEND_URL)));
+app.use('/api/storefront/auth/logout', createProxyMiddleware(proxyOptions(CUSTOMER_BACKEND_URL)));
 
 // 4. Admin Dashboard Auth -> Admin Service (Neon)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/admin/auth',
+app.use('/api/admin/auth/login', validate(loginSchema), createProxyMiddleware({
+  pathRewrite: { '^/api/admin/auth': '/api/admin/management/auth' },
+  ...proxyOptions(ADMIN_BACKEND_URL)
+}));
+app.use('/api/admin/auth/logout', createProxyMiddleware({
+  pathRewrite: { '^/api/admin/auth': '/api/admin/management/auth' },
+  ...proxyOptions(ADMIN_BACKEND_URL)
+}));
+app.use('/api/admin/auth/me', authenticateJWT, createProxyMiddleware({
   pathRewrite: { '^/api/admin/auth': '/api/admin/management/auth' },
   ...proxyOptions(ADMIN_BACKEND_URL)
 }));
 
 // 5. Admin Dashboard APIs for Storefront Data (Orders, Analytics) -> Admin Service (Neon)
-app.use(createProxyMiddleware({
-  pathFilter: [
+app.use(
+  [
     '/api/admin/storefront/orders',
     '/api/admin/storefront/analytics'
   ],
-  ...proxyOptions(ADMIN_BACKEND_URL)
-}));
+  authenticateJWT,
+  createProxyMiddleware(proxyOptions(ADMIN_BACKEND_URL))
+);
 
 // 6. Storefront Catalog APIs for Admin (mapped to /api/admin/storefront) -> Commerce Service (Supabase)
-app.use(createProxyMiddleware({
-  pathFilter: '/api/admin/storefront',
-  pathRewrite: { '^/api/admin/storefront': '/api/admin' },
-  ...proxyOptions(STOREFRONT_BACKEND_URL)
-}));
+app.use(
+  '/api/admin/storefront',
+  authenticateJWT,
+  createProxyMiddleware({
+    pathRewrite: { '^/api/admin/storefront': '/api/admin' },
+    ...proxyOptions(STOREFRONT_BACKEND_URL)
+  })
+);
 
 // 6. Generic Storefront API (Products, Categories) -> Commerce Service (Supabase)
 app.use(createProxyMiddleware({
@@ -175,6 +200,16 @@ app.use(createProxyMiddleware({
   pathRewrite: { '^/api/storefront': '/api' },
   ...proxyOptions(STOREFRONT_BACKEND_URL)
 }));
+
+// 7. Geography API -> Emsifa
+app.use(
+  '/api/geography',
+  createProxyMiddleware({
+    target: 'https://www.emsifa.com',
+    changeOrigin: true,
+    pathRewrite: { '^/api/geography': '/api-wilayah-indonesia/api' }
+  })
+);
 
 // Error handling for unmatched routes
 app.use((req, res) => {

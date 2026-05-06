@@ -14,8 +14,14 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import type { SessionUser } from "@/lib/mock-users";
 import { getSessionFromCookie, loginUser, logoutUser } from "@/lib/auth";
+
+export interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  role?: string;
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

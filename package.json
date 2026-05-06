@@ -1,0 +1,9 @@
+{
+  "name": "novure-ecommerce",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ]
+}

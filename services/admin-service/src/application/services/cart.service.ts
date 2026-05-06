@@ -1,7 +1,7 @@
 import { prisma } from '@infrastructure/database/prisma';
 
-// Internal URL for API Gateway
-const INTERNAL_API_URL = 'http://api-gateway:8000/api/admin/storefront';
+// Internal URL for Commerce Service
+const INTERNAL_API_URL = 'http://commerce-service:3001/api/admin';
 
 export interface ProductData {
   id: string;

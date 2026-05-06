@@ -10,25 +10,41 @@ const COMMERCE_SERVICE_URL = process.env.COMMERCE_SERVICE_URL || 'http://commerc
 
 router.use(authenticateJWT);
 
-async function fetchProduct(productId: string) {
+async function fetchProducts(productIds: string[]) {
+  if (productIds.length === 0) return [];
   try {
-    // Call commerce-service directly inside Docker network
-    const res = await fetch(`${COMMERCE_SERVICE_URL}/api/products/${productId}`);
+    const idsParam = productIds.join(',');
+    const res = await fetch(`${COMMERCE_SERVICE_URL}/api/products?ids=${idsParam}`);
     if (!res.ok) {
-      console.error(`[Cart] fetchProduct failed for ${productId}: ${res.status}`);
-      return null;
+      console.error(`[Cart] fetchProducts failed: ${res.status}`);
+      return [];
     }
     const json = await res.json() as any;
-    const data = json.data;
-    if (data) {
-      // Ensure price is a number
-      data.price = Number(data.price);
-    }
-    return data;
+    const data = json.data || [];
+    return data.map((d: any) => ({
+      ...d,
+      price: Number(d.price)
+    }));
   } catch (err: any) {
-    console.error(`[Cart] Error fetching product ${productId}:`, err.message);
-    return null;
+    console.error(`[Cart] Error fetching products:`, err.message);
+    return [];
   }
+}
+
+async function hydrateCartItems(items: any[]) {
+  if (items.length === 0) return [];
+  const productIds = Array.from(new Set(items.map(item => item.productId as string)));
+  const products = await fetchProducts(productIds);
+  
+  return items.map(item => {
+    const product = products.find((p: any) => p.id === item.productId);
+    const variant = product?.variants?.find((v: any) => v.id === item.productVariantId);
+    return {
+      ...item,
+      product: product || null,
+      variant
+    };
+  });
 }
 
 // GET /api/storefront/cart - Fetch current user's cart with hydrated product data
@@ -49,20 +65,7 @@ router.get('/', async (req: AuthRequest, res) => {
     }
 
     // Hydrate items with product data from commerce-service
-    const hydratedItems = await Promise.all(
-      cart.items.map(async (item: any) => {
-        const product = await fetchProduct(item.productId);
-        const variant = product?.variants?.find((v: any) => v.id === item.productVariantId);
-        return {
-          ...item,
-          product: product ? {
-            ...product,
-            price: Number(product.price)
-          } : null,
-          variant
-        };
-      })
-    );
+    const hydratedItems = await hydrateCartItems(cart.items);
 
     // Ensure we return the items inside a data object to match CartContext expectations
     res.json({

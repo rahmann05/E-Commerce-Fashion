@@ -138,7 +138,17 @@ router.post('/midtrans', authenticateJWT, async (req: AuthRequest, res) => {
 router.post('/midtrans/notification', async (req, res) => {
   try {
     const body = req.body;
-    const { order_id, transaction_status } = body;
+    const { order_id, transaction_status, status_code, gross_amount, signature_key } = body;
+
+    const serverKey = process.env.MIDTRANS_SERVER_KEY || '';
+    const hash = crypto.createHash('sha512');
+    hash.update(order_id + status_code + gross_amount + serverKey);
+    const expectedSignature = hash.digest('hex');
+
+    if (expectedSignature !== signature_key) {
+      console.error(`[Midtrans] Webhook Signature mismatch for ${order_id}`);
+      return res.status(401).json({ success: false, error: 'Invalid signature' });
+    }
 
     console.log(`[Midtrans] Notification for ${order_id}: ${transaction_status}`);
 

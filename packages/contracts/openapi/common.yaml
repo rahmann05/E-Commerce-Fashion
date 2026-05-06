@@ -1,0 +1,118 @@
+openapi: "3.1.0"
+info:
+  title: Novure E-Commerce API Gateway
+  version: "2.0.0"
+
+servers:
+  - url: https://api.novure.id
+    description: Production
+  - url: http://localhost:8000
+    description: Development
+
+# ── Shared Schemas ─────────────────────────────────────────────────────────────
+components:
+  schemas:
+
+    # Common response envelope (ALL endpoints must use this)
+    ApiResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        data:
+          description: Present on success
+        error:
+          type: string
+          description: Present on failure
+        message:
+          type: string
+
+    Product:
+      type: object
+      required: [id, name, price, categoryId, inStock]
+      properties:
+        id:           { type: string }
+        name:         { type: string }
+        slug:         { type: string }
+        description:  { type: string, nullable: true }
+        price:        { type: number, format: float }
+        image:        { type: array, items: { type: string, format: uri } }
+        colors:       { type: array, items: { type: string } }
+        sizeOptions:  { type: array, items: { type: string } }
+        sizeStocks:   { type: array, items: { type: integer } }
+        rating:       { type: number }
+        inStock:      { type: boolean }
+        category:
+          type: object
+          properties:
+            id:   { type: string }
+            name: { type: string }
+        variants:
+          type: array
+          items: { $ref: '#/components/schemas/ProductVariant' }
+
+    ProductVariant:
+      type: object
+      required: [id, productId, size, stock]
+      properties:
+        id:        { type: string }
+        productId: { type: string }
+        sku:       { type: string }
+        size:      { type: string }
+        color:     { type: string, nullable: true }
+        stock:     { type: integer }
+        price:     { type: number, nullable: true }
+
+    CartItem:
+      type: object
+      properties:
+        id:               { type: string }
+        productId:        { type: string }
+        productVariantId: { type: string }
+        quantity:         { type: integer }
+        product:          { $ref: '#/components/schemas/Product' }
+        variant:          { $ref: '#/components/schemas/ProductVariant' }
+
+    Order:
+      type: object
+      properties:
+        id:            { type: string }
+        customerId:    { type: string }
+        totalAmount:   { type: number }
+        shippingAmount:{ type: number, nullable: true }
+        status:
+          type: string
+          enum: [AWAITING_PAYMENT, PROCESSING, SHIPPED, DELIVERED, CANCELLED, RETURNED, REFUNDED]
+        createdAt:     { type: string, format: date-time }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/OrderItem' }
+
+    OrderItem:
+      type: object
+      properties:
+        id:               { type: string }
+        productId:        { type: string }
+        productVariantId: { type: string, nullable: true }
+        quantity:         { type: integer }
+        price:            { type: number }
+
+    Customer:
+      type: object
+      properties:
+        id:        { type: string }
+        name:      { type: string }
+        email:     { type: string, format: email }
+        phone:     { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: novure_jwt

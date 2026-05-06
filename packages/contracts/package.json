@@ -1,0 +1,11 @@
+{
+  "name": "@novure/contracts",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "joi": "^17.13.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.x.x"
+  }
+}

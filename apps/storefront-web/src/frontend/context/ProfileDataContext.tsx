@@ -157,12 +157,9 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
     if (!user) {
       setData(EMPTY_DATA);
       return;
-    }
-    const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
-    const res = await fetch(`${getApiBaseUrl()}/account`, {
-      headers: {
-        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-      },
+    const res = await fetch(`${getApiBaseUrl()}/account/profile`, {
+      credentials: "include",
+    });
       credentials: "include"
     });
     if (!res.ok) return;
@@ -182,12 +179,10 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
   const callMutation = useCallback(
     async (action: string, body: Record<string, unknown>) => {
       if (!user) return null;
-      const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
       const res = await fetch(`${getApiBaseUrl()}/account`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+          "Content-Type": "application/json"
         },
         credentials: "include",
         body: JSON.stringify({ action, ...body }),

@@ -1,4 +1,7 @@
-const BASE_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
+const getApiBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8000";
+};
+const BASE_URL = `${getApiBaseUrl()}/api/geography`;
 
 export async function fetchProvinces() {
   const res = await fetch(`${BASE_URL}/provinces.json`);

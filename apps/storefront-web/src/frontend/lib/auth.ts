@@ -3,7 +3,7 @@
  * Client-side session utilities backed by secure server cookie via API Gateway.
  */
 
-import type { SessionUser } from "@/lib/mock-users";
+import type { SessionUser } from "@/context/AuthContext";
 
 const getApiBaseUrl = () => {
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
@@ -12,12 +12,8 @@ const getApiBaseUrl = () => {
 /** Resolve current user from session cookie */
 export async function getSessionFromCookie(): Promise<SessionUser | null> {
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("novure_jwt") : null;
     const res = await fetch(`${getApiBaseUrl()}/auth/me`, {
       method: "GET",
-      headers: {
-        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-      },
       credentials: "include",
       cache: "no-store",
     });
@@ -32,9 +28,6 @@ export async function getSessionFromCookie(): Promise<SessionUser | null> {
 
 /** Clear server-side session cookie */
 export async function logoutUser(): Promise<void> {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("novure_jwt");
-  }
   await fetch(`${getApiBaseUrl()}/auth/logout`, {
     method: "POST",
     credentials: "include",
@@ -58,10 +51,6 @@ export async function loginUser(
     
     if (!res.ok || !result.success) {
       return { error: result.error ?? result.message ?? "Gagal login." };
-    }
-
-    if (result.token && typeof window !== "undefined") {
-      localStorage.setItem("novure_jwt", result.token);
     }
     
     return { user: result.data };
