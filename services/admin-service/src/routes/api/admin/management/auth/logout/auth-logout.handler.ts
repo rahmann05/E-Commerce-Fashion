@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
+import { AdminAuthController } from '../../../../../../modules/auth/auth.controller';
 
 export async function POST({ cookies }) {
-  cookies.delete('novure_jwt', { path: '/' });
-  cookies.delete('admin_session', { path: '/' });
-  return json({ success: true });
+  const result = await AdminAuthController.logout(cookies);
+  return json(result);
 }

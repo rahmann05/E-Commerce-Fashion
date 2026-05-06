@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useAuth } from "@/context/AuthContext";
 import type { CartItem } from "@/context/CartContext";
+import { accountApi } from "@/lib/api/account";
 
 export type ProfileOrderStatus = "awaiting_payment" | "processing" | "shipped" | "delivered" | "cancelled";
 
@@ -135,10 +136,6 @@ interface ProfileDataContextValue {
 
 const ProfileDataContext = createContext<ProfileDataContextValue | null>(null);
 
-const getApiBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/storefront";
-};
-
 const EMPTY_DATA: UserProfileData = {
   phone: "",
   addresses: [],
@@ -157,14 +154,9 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
     if (!user) {
       setData(EMPTY_DATA);
       return;
-    const res = await fetch(`${getApiBaseUrl()}/account/profile`, {
-      credentials: "include",
-    });
-      credentials: "include"
-    });
-    if (!res.ok) return;
-    const payload = (await res.json()) as { data: UserProfileData };
-    if (payload.data) {
+    }
+    const payload = await accountApi.getProfile();
+    if (payload && payload.data) {
       setData(payload.data);
     }
   }, [user]);
@@ -179,18 +171,12 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
   const callMutation = useCallback(
     async (action: string, body: Record<string, unknown>) => {
       if (!user) return null;
-      const res = await fetch(`${getApiBaseUrl()}/account`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ action, ...body }),
-      });
-      if (!res.ok) return null;
-      const payload = (await res.json()) as { data: UserProfileData };
-      setData(payload.data);
-      return payload.data;
+      const payload = await accountApi.mutateAccount(action, body);
+      if (payload && payload.data) {
+        setData(payload.data);
+        return payload.data;
+      }
+      return null;
     },
     [user]
   );
@@ -210,7 +196,6 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       updateUser({ address: payload.line1 });
       const newData = await callMutation("addAddress", payload);
       if (newData && newData.addresses.length > 0) {
-        // Return the newly created address (last one since it's added)
         return { success: true, address: newData.addresses[newData.addresses.length - 1] };
       }
       return { success: false, message: "Gagal menyimpan alamat." };
@@ -317,7 +302,6 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       if (!user) return { success: false, message: "User belum login." };
       const next = await callMutation("createOrder", payload);
       if (!next) return { success: false, message: "Gagal membuat pesanan." };
-      // Return orderId from the first order (backend returns array)
       return { success: true, orderId: next.orders && next.orders[0]?.id };
     },
     [user, callMutation]
@@ -400,4 +384,3 @@ export function useProfileData(): ProfileDataContextValue {
   }
   return ctx;
 }
-

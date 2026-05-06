@@ -1,16 +1,10 @@
 import { NextResponse } from "next/server";
-import prisma from "@infrastructure/database/prisma";
+import { HealthController } from "@/modules/health/health.controller";
 
 export async function GET() {
   try {
-    // Ping database
-    await prisma.$queryRaw`SELECT 1`;
-    
-    return NextResponse.json({
-      status: "HEALTHY",
-      database: "CONNECTED",
-      timestamp: new Date().toISOString()
-    });
+    const result = await HealthController.checkHealth();
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Health Check Error:", error);
     return NextResponse.json({

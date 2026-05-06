@@ -82,20 +82,34 @@ export class ProductController {
     return { data: products };
   }
 
-  static async createProduct(data: any) {
-    const slug = data.slug || data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-
-    const product = await prisma.product.create({
-      data: {
-        name: data.name,
-        slug,
-        description: data.description,
-        price: data.price,
-        stock: data.stock,
-        categoryId: data.categoryId,
-        image: data.images || []
-      }
+  static async getProductByIdAdmin(id: string) {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { category: true, variants: true }
     });
     return { data: product };
+  }
+
+  static async updateProduct(id: string, data: any) {
+    const updateData: any = { ...data };
+    if (data.images) {
+      updateData.image = data.images;
+      delete updateData.images;
+    }
+    
+    if (data.name && !data.slug) {
+      updateData.slug = data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    }
+
+    const updated = await prisma.product.update({
+      where: { id },
+      data: updateData
+    });
+    return { data: updated };
+  }
+
+  static async deleteProduct(id: string) {
+    await prisma.product.delete({ where: { id } });
+    return { success: true };
   }
 }

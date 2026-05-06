@@ -1,12 +1,11 @@
 import { json } from '@sveltejs/kit';
-import { prisma } from '@infrastructure/database/prisma';
+import { AdminShippingController } from '../../../../../../modules/shipping/shipping.controller';
 
 export async function GET() {
   try {
-    const carriers = await prisma.shippingCarrier.findMany({ where: { isActive: true } });
-    return json({ success: true, data: carriers });
-  } catch (error: unknown) {
-    console.error('SHIPPING_CARRIERS_GET_ERROR', error);
-    return json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+    const result = await AdminShippingController.getCarriers();
+    return json({ success: true, data: result.data });
+  } catch (error) {
+    return json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

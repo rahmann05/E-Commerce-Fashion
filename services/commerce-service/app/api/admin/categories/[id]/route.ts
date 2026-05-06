@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@infrastructure/database/prisma";
+import { CategoryController } from "@/modules/category/category.controller";
 
 export async function GET(
   request: Request,
@@ -7,14 +7,9 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const category = await prisma.category.findUnique({
-      where: { id },
-      include: {
-        products: { orderBy: { createdAt: 'desc' } }
-      }
-    });
-    if (!category) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
-    return NextResponse.json({ success: true, data: category });
+    const result = await CategoryController.getCategoryById(id);
+    if (!result.data) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+    return NextResponse.json({ success: true, data: result.data });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
@@ -26,18 +21,9 @@ export async function PATCH(
 ) {
   const { id } = await params;
   try {
-    const { name, image } = await request.json();
-    
-    const data: { name?: string; image?: string; slug?: string } = { name, image };
-    if (name) {
-      data.slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-    }
-
-    const updated = await prisma.category.update({
-      where: { id },
-      data
-    });
-    return NextResponse.json({ success: true, data: updated });
+    const data = await request.json();
+    const result = await CategoryController.updateCategory(id, data);
+    return NextResponse.json({ success: true, data: result.data });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
@@ -49,12 +35,9 @@ export async function DELETE(
 ) {
   const { id } = await params;
   try {
-    const productsCount = await prisma.product.count({ where: { categoryId: id } });
-    if (productsCount > 0) return NextResponse.json({ success: false, error: "Cannot delete category with products" }, { status: 400 });
-    
-    await prisma.category.delete({ where: { id } });
+    await CategoryController.deleteCategory(id);
     return NextResponse.json({ success: true, message: "Deleted" });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 400 });
   }
 }
