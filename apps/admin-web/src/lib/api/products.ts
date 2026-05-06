@@ -11,7 +11,7 @@ export const productsApi = {
    */
   async getProducts(fetch: any, query = '', category = '') {
     try {
-      let url = `${API_BASE_URL}?q=${query}`;
+      let url = `${API_BASE_URL}/products?q=${query}`;
       if (category) url += `&category=${category}`;
       
       const res = await fetch(url);
@@ -28,7 +28,7 @@ export const productsApi = {
    */
   async getProductById(fetch: any, id: string) {
     try {
-      const res = await fetch(`${API_BASE_URL}/${id}`);
+      const res = await fetch(`${API_BASE_URL}/products/${id}`);
       if (!res.ok) return { data: null };
       return await res.json();
     } catch (e: any) {

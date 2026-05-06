@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { adminProxy } from '../../proxies/admin.proxy';
+import { adminManagementProxy } from '../../proxies/admin.proxy';
 import { authenticateJWT } from '../../middlewares/auth';
 
 const router = Router();
 
-router.use('/', authenticateJWT, adminProxy);
+router.use('/', authenticateJWT, adminManagementProxy);
 
 export default router;

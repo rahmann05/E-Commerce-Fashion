@@ -20,5 +20,5 @@ export const API_BASE_URL = browser
 
 // URL untuk data operasional internal (Auth, Voucher, dsb)
 export const INTERNAL_API_URL = browser 
-    ? `${GATEWAY_URL}/api/admin/management` 
-    : `${INTERNAL_GATEWAY}/api/admin/management`;
+    ? `${GATEWAY_URL}/api/admin` 
+    : `${INTERNAL_GATEWAY}/api/admin`;

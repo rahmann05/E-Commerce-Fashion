@@ -30,9 +30,11 @@ router.use('/storefront', storefrontCatalogRoutes); // Generic storefront (produ
 
 // 3. Admin BFF
 router.use('/admin/auth', adminUsersRoutes);
+router.use('/admin/shipping', adminManagementRoutes);
 router.use('/admin/storefront/orders', adminOrdersRoutes);
-router.use('/admin/storefront/analytics', adminOrdersRoutes); // Often handled by same controller
-router.use('/admin/storefront', adminProductsRoutes);
+router.use('/admin/storefront/analytics', adminOrdersRoutes);
+router.use('/admin/storefront/products', adminProductsRoutes);
+router.use('/admin/storefront/categories', adminProductsRoutes);
 router.use('/admin/management', adminManagementRoutes);
 
 export default router;
