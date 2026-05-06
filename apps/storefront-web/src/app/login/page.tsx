@@ -4,6 +4,7 @@
  */
 
 import type { Metadata } from "next";
+import "@/styles/auth.css";
 import LoginPage from "../../features/auth/login/LoginPage";
 
 export const metadata: Metadata = {

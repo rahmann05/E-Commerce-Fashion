@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Star, MessageSquare } from "lucide-react";
-import "./style.css";
+import "@/styles/reviews.css";
 
 interface Review {
   id: string;

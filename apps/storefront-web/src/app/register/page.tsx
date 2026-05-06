@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import RegisterPage from "../../features/auth/register/RegisterPage";
-import "../login/auth.css";
+import "@/styles/auth.css";
 
 export const metadata: Metadata = {
   title: "Daftar | Novure",

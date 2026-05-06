@@ -12,7 +12,7 @@ import Footer from "@/components/layout/Footer";
 import CatalogueHero from "@/components/catalogue/CatalogueHero";
 import CatalogueClient from "@/components/catalogue/CatalogueClient";
 import { getProducts } from "@/lib/actions/catalogue";
-import styles from "./page.module.css";
+import styles from "@/styles/catalogue-page.module.css";
 
 export const metadata: Metadata = {
   title: "Catalogue | Novure — Essentialized Daily Wear",

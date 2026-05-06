@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { ArrowUpRight } from "lucide-react";
-import styles from "./CatalogueWaveSection.module.css";
+import styles from "@/styles/CatalogueWaveSection.module.css";
 
 const RANDOM_POOL = [
   "#7a7a7a", // Vintage Grey

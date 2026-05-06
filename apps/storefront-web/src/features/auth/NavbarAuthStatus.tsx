@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import styles from "./NavbarAuthStatus.module.css";
+import styles from "@/styles/NavbarAuthStatus.module.css";
 
 function getInitials(name: string = ""): string {
   const safeName = name || "U";

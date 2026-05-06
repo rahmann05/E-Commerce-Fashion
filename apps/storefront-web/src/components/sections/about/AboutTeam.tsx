@@ -1,7 +1,7 @@
 "use client";
 
 import SectionLabel from "../../ui/SectionLabel";
-import ImmersiveSlider3D from "../../features/ImmersiveSlider3D";
+import ImmersiveSlider3D from "../../animations/ImmersiveSlider3D";
 import { TEAM } from "../../data/team";
 
 export default function AboutTeam() {

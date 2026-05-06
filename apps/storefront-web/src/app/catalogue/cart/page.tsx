@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Minus, Plus, X, ArrowRight, ShoppingBag } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import "./cart.css";
+import "@/styles/cart.css";
 
 
 /** Format price without toLocaleString (avoids SSR/client locale mismatch) */

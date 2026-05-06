@@ -10,7 +10,7 @@ import Footer from "@/components/layout/Footer";
 import { useProfileData } from "@/context/ProfileDataContext";
 import { useAuth } from "@/context/AuthContext";
 import { getImageUrl } from "@/lib/image-utils";
-import "./style.css";
+import "@/styles/payment-status-detail.css";
 
 // Payment method mapping
 const PAYMENT_METHODS: Record<string, { midtransId: string; bank?: string }> = {

@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import CursorTrail from "../features/CursorTrail";
+import CursorTrail from "../animations/CursorTrail";
 import GlowOrb from "../ui/GlowOrb";
 import ScrollIndicator from "../ui/ScrollIndicator";
 import { HERO_CORNER_LABELS } from "../data/navigation";

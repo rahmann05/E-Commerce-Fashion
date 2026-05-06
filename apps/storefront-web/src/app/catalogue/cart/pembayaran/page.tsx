@@ -11,7 +11,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useProfileData } from "@/context/ProfileDataContext";
 import { getImageUrl } from "@/lib/image-utils";
-import "./style.css";
+import "@/styles/payment.css";
 
 interface CourierOption {
   id: string;

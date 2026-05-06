@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProfilePage from "@/components/auth/profile/ProfilePage";
-import "./profile.css";
-import "./profile-views.css";
+import "@/styles/profile.css";
+import "@/styles/profile-views.css";
 
 export const metadata: Metadata = {
   title: "Profil Saya | Novure",

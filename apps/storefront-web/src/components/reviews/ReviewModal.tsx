@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Star, Loader2 } from "lucide-react";
-import "./style.css"; // We will add basic styling later
+import "@/styles/reviews.css"; // We will add basic styling later
 
 interface ReviewModalProps {
   productId: string;

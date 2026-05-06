@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import MultiColorWave from "../../features/MultiColorWave";
-import styles from "./AboutCTA.module.css";
+import MultiColorWave from "../../animations/MultiColorWave";
+import styles from "@/styles/AboutCTA.module.css";
 
 const MotionLink = motion.create(Link);
 

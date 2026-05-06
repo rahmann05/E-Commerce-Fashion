@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform, useSpring, useInView } from "framer-mo
 import SectionLabel from "../ui/SectionLabel";
 import AnimatedText from "../ui/AnimatedText";
 import GlowOrb from "../ui/GlowOrb";
-import InfiniteMarquee from "../features/InfiniteMarquee";
+import InfiniteMarquee from "../animations/InfiniteMarquee";
 
 export default function ScienceSection() {
   const containerRef = useRef<HTMLElement>(null);

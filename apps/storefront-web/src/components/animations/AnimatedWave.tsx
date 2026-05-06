@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useColorTheme } from "@/context/ColorContext";
 import { useMemo } from "react";
-import styles from "./AnimatedWave.module.css";
+import styles from "@/styles/AnimatedWave.module.css";
 
 export default function AnimatedWave() {
   const { activeTheme } = useColorTheme();

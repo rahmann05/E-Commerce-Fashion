@@ -4,8 +4,8 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useColorTheme } from "@/context/ColorContext";
-import AnimatedWave from "../features/AnimatedWave";
-import ClothingCarousel from "../features/ClothingCarousel";
+import AnimatedWave from "../animations/AnimatedWave";
+import ClothingCarousel from "../animations/ClothingCarousel";
 import { getTees, getJeans } from "@/lib/actions/catalogue";
 
 export default function EssentializedSection() {

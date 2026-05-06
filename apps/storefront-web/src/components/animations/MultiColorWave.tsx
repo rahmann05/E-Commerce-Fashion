@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
 import { useColorTheme } from "@/context/ColorContext";
-import styles from "./MultiColorWave.module.css";
+import styles from "@/styles/MultiColorWave.module.css";
 
 export default function MultiColorWave() {
   const { activeTheme } = useColorTheme();
