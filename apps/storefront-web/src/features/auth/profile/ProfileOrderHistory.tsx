@@ -41,7 +41,7 @@ export default function ProfileOrderHistory({ orders }: ProfileOrderHistoryProps
                 : "Rincian produk tidak tersedia",
               imageUrl: getImageUrl(primaryItem?.imageUrl) || "/images/about/model1.png",
               total: formatPrice(order.total),
-              status: order.status as any,
+              status: order.status,
               productId: primaryItem?.productId
             };
             return <ProfileOrderCard key={order.id} order={displayOrder} />;

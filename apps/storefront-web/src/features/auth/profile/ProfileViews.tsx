@@ -12,7 +12,11 @@ import type {
 
 import { fetchProvinces, fetchRegencies, fetchDistricts } from "@/lib/api/geography";
 
-const LocationMap = dynamic(() => import("@/components/checkout/LocationMap"), { ssr: false });
+const LocationMap = dynamic<{
+  onLocationSelect: (address: string, lat: number, lng: number, rawAddr: Record<string, unknown>, postalCode: string) => void;
+  centerLat?: number | null;
+  centerLng?: number | null;
+}>(() => import("@/features/checkout/LocationMap"), { ssr: false });
 
 function formatPrice(price: number): string {
   const finalPrice = price < 10000 ? price * 1000 : price;
@@ -36,7 +40,7 @@ export function ProfileAddressView({
     postalCode: string;
     latitude?: number;
     longitude?: number;
-  }) => Promise<any>;
+  }) => Promise<{ success: boolean; address?: ProfileAddress; message?: string }>;
   onRemoveAddress: (id: string) => void;
 }) {
   const [formData, setFormData] = useState({
@@ -58,7 +62,7 @@ export function ProfileAddressView({
   const [, setRegencies] = useState<{id: string, name: string}[]>([]);
   const [, setDistricts] = useState<{id: string, name: string}[]>([]);
 
-  const [selectedProvinceId, ] = useState("");
+  const [selectedProvinceId] = useState("");
   const [selectedRegencyId, setSelectedRegencyId] = useState("");
   const changeSourceRef = useRef<'map' | 'dropdown' | null>(null);
 
@@ -202,13 +206,13 @@ export function ProfileAddressView({
     setIsSaving(true);
     try {
       const result = await onSaveAddress(formData);
-      if (result && (result as any).success === false) {
-        setErrorMsg((result as any).message || "Gagal menyimpan alamat.");
+      if (result && result.success === false) {
+        setErrorMsg(result.message || "Gagal menyimpan alamat.");
       } else {
         setShowForm(false);
         setFormData({ label: "Rumah", recipient: "", phone: "", line1: "", district: "", city: "", province: "", postalCode: "", latitude: undefined, longitude: undefined });
       }
-    } catch (err) {
+    } catch {
       setErrorMsg("Terjadi kesalahan sistem saat menyimpan.");
     } finally {
       setIsSaving(false);
@@ -367,7 +371,7 @@ export function ProfilePaymentView({
   onRemovePayment,
 }: {
   paymentMethods: ProfilePaymentMethod[];
-  onSavePayment: (payload: { label: string; accountNumber: string; accountName: string }) => Promise<any>;
+  onSavePayment: (payload: { label: string; accountNumber: string; accountName: string }) => Promise<{ success: boolean; message?: string }>;
   onRemovePayment: (id: string) => void;
 }) {
   const [formData, setFormData] = useState({
@@ -390,7 +394,7 @@ export function ProfilePaymentView({
       await onSavePayment(formData);
       setShowForm(false);
       setFormData({ label: "BCA", accountNumber: "", accountName: "" });
-    } catch (err) {
+    } catch {
       setErrorMsg("Gagal menyimpan metode pembayaran.");
     } finally {
       setIsSaving(false);

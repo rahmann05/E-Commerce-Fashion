@@ -63,16 +63,16 @@
       {:else if data.order.status === 'PROCESSING'}
         <form method="POST" action="?/initTracking" use:enhance style="display: flex; flex-direction: column; gap: 1.5rem;">
           <div>
-            <label class="input-label" style="font-size: 0.75rem; font-weight: 700; color: #aaa; text-transform: uppercase;">Select Carrier</label>
-            <select name="carrierId" class="input-control" required style="padding: 0.8rem; margin-top: 0.5rem;">
-              {#each data.carriers as carrier}
+            <label for="carrier-select" class="input-label" style="font-size: 0.75rem; font-weight: 700; color: #aaa; text-transform: uppercase;">Select Carrier</label>
+            <select id="carrier-select" name="carrierId" class="input-control" required style="padding: 0.8rem; margin-top: 0.5rem;">
+              {#each (data.carriers as any[]) as carrier}
                 <option value={carrier.id}>{carrier.name}</option>
               {/each}
             </select>
           </div>
           <div>
-            <label class="input-label" style="font-size: 0.75rem; font-weight: 700; color: #aaa; text-transform: uppercase;">Tracking Number (Resi)</label>
-            <input type="text" name="trackingNumber" class="input-control" required placeholder="e.g. JP1234567890" style="padding: 0.8rem; margin-top: 0.5rem;" />
+            <label for="tracking-input" class="input-label" style="font-size: 0.75rem; font-weight: 700; color: #aaa; text-transform: uppercase;">Tracking Number (Resi)</label>
+            <input id="tracking-input" type="text" name="trackingNumber" class="input-control" required placeholder="e.g. JP1234567890" style="padding: 0.8rem; margin-top: 0.5rem;" />
           </div>
           <button type="submit" class="btn-studio" style="width: 100%; justify-content: center;">Initialize Shipping</button>
         </form>

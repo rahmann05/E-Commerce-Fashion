@@ -4,9 +4,13 @@
 	import { env } from '$env/dynamic/public';
 	
 	let { data } = $props();
-	let imageUrl = $state(data.category.image || '');
+	let imageUrl = $state('');
 	let isModalOpen = $state(false);
 	let searchQuery = $state('');
+
+	$effect(() => {
+		imageUrl = data.category.image || '';
+	});
 
 	const filteredProducts = $derived(
 		data.allProducts.filter((p: any) =>
@@ -142,7 +146,13 @@
 		role="button"
 		tabindex="0"
 	>
-		<div class="modal-content" onclick={(e) => e.stopPropagation()} role="document" tabindex="-1">
+		<div 
+			class="modal-content" 
+			onclick={(e) => e.stopPropagation()} 
+			onkeydown={(e) => e.key === 'Escape' && (isModalOpen = false)}
+			role="document" 
+			tabindex="-1"
+		>
 
 			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
 				<h2 style="font-size: 1.5rem; font-weight: 900; margin: 0; letter-spacing: -0.04em;">Assign to Collection</h2>

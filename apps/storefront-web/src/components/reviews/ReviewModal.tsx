@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Star, Loader2 } from "lucide-react";
+import Image from "next/image";
 import "@/styles/reviews.css"; // We will add basic styling later
 
 interface ReviewModalProps {
@@ -38,7 +39,7 @@ export default function ReviewModal({ productId, orderId, productName, productIm
       } else {
         setError(data.error || "Gagal mengirim ulasan.");
       }
-    } catch (err) {
+    } catch {
       setError("Terjadi kesalahan koneksi.");
     } finally {
       setLoading(false);
@@ -58,7 +59,7 @@ export default function ReviewModal({ productId, orderId, productName, productIm
         <div className="review-modal-body">
           <div className="review-product-info">
             {productImage ? (
-              <img src={productImage} alt={productName} className="review-product-image" />
+              <Image src={productImage} alt={productName} width={64} height={64} className="review-product-image" />
             ) : (
               <div className="review-product-placeholder"></div>
             )}

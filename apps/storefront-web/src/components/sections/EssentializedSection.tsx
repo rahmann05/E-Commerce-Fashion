@@ -7,16 +7,17 @@ import { useColorTheme } from "@/context/ColorContext";
 import AnimatedWave from "../animations/AnimatedWave";
 import ClothingCarousel from "../animations/ClothingCarousel";
 import { getTees, getJeans } from "@/lib/actions/catalogue";
+import type { CatalogueProduct } from "@/features/catalogue/types";
 
 export default function EssentializedSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const { setCustomTheme } = useColorTheme();
 
-  const [tees, setTees] = useState<any[]>([]);
-  const [jeans, setJeans] = useState<any[]>([]);
-  const [currentTee, setCurrentTee] = useState<any>(null);
-  const [currentJeans, setCurrentJeans] = useState<any>(null);
+  const [tees, setTees] = useState<CatalogueProduct[]>([]);
+  const [jeans, setJeans] = useState<CatalogueProduct[]>([]);
+  const [currentTee, setCurrentTee] = useState<CatalogueProduct | null>(null);
+  const [currentJeans, setCurrentJeans] = useState<CatalogueProduct | null>(null);
   const [comboKey, setComboKey] = useState(0);
 
   useEffect(() => {

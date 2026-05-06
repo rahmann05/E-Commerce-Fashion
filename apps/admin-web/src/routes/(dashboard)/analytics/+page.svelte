@@ -56,13 +56,13 @@
 	<div style="display: grid; grid-template-columns: 250px 1fr; gap: 5rem;">
 		<div class="forecast-controls">
 			<div class="input-group">
-				<label class="input-label" style="font-size: 0.65rem;">Horizon (Days)</label>
-				<input type="number" bind:value={forecastHorizon} class="input-control" style="background: #fff;" />
+				<label for="horizon" class="input-label" style="font-size: 0.65rem;">Horizon (Days)</label>
+				<input id="horizon" type="number" bind:value={forecastHorizon} class="input-control" style="background: #fff;" />
 			</div>
 			
 			<div class="input-group" style="margin-top: 2rem;">
-				<label class="input-label" style="font-size: 0.65rem;">Confidence Level (%)</label>
-				<select bind:value={confidenceLevel} class="input-control" style="background: #fff;">
+				<label for="confidence" class="input-label" style="font-size: 0.65rem;">Confidence Level (%)</label>
+				<select id="confidence" bind:value={confidenceLevel} class="input-control" style="background: #fff;">
 					<option value={90}>90% (Standard)</option>
 					<option value={95}>95% (Conservative)</option>
 					<option value={99}>99% (Strict)</option>
@@ -70,8 +70,8 @@
 			</div>
 
 			<div class="input-group" style="margin-top: 2rem;">
-				<label class="input-label" style="font-size: 0.65rem;">ML Model Architecture</label>
-				<select class="input-control" style="background: #fff;" disabled>
+				<label for="ml-model" class="input-label" style="font-size: 0.65rem;">ML Model Architecture</label>
+				<select id="ml-model" class="input-control" style="background: #fff;" disabled>
 					<option>Prophet Time-Series</option>
 					<option>LSTM Neural Network</option>
 					<option>XGBoost Regressor</option>
@@ -97,13 +97,14 @@
 		<h3 style="font-size: 1.2rem; font-weight: 900; margin-bottom: 3rem;">Market Share</h3>
 		<div style="display: flex; flex-direction: column; gap: 2rem;">
 			{#each data.categoryDistribution as cat}
+				{@const totalVal = data.categoryDistribution.reduce((acc: number, curr: any) => acc + curr.value, 0)}
 				<div>
 					<div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.8rem;">
 						<span>{cat.name}</span>
-						<span>{Math.round((cat.value / data.categoryDistribution.reduce((a,b) => a+b.value, 0)) * 100)}%</span>
+						<span>{Math.round((cat.value / totalVal) * 100)}%</span>
 					</div>
 					<div style="height: 4px; background: #f5f5f5; border-radius: 2px; overflow: hidden;">
-						<div style="width: {Math.round((cat.value / data.categoryDistribution.reduce((a,b) => a+b.value, 0)) * 100)}%; height: 100%; background: #000;"></div>
+						<div style="width: {Math.round((cat.value / totalVal) * 100)}%; height: 100%; background: #000;"></div>
 					</div>
 				</div>
 			{/each}

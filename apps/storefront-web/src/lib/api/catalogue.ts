@@ -9,27 +9,27 @@ import { getImageUrl } from "@/lib/image-utils";
 
 export type CategoryFilter = "all" | "tees" | "jeans" | "accessories" | "outerwear" | "editorial";
 
-function rowToProduct(row: any): CatalogueProduct {
-  const options = row.sizeOptions || [];
-  const stocks = row.sizeStocks || [];
-  const images = row.image || [];
-  const colors = row.colors || [];
-  const variants = row.variants || [];
+function rowToProduct(row: Record<string, unknown>): CatalogueProduct {
+  const options = (row.sizeOptions as string[]) || [];
+  const stocks = (row.sizeStocks as number[]) || [];
+  const images = (row.image as string[]) || [];
+  const colors = (row.colors as string[]) || [];
+  const variants = (row.variants as Record<string, unknown>[]) || [];
 
-  const categoryName = (row.category?.name || "editorial").toLowerCase();
+  const categoryName = ((row.category as Record<string, unknown>)?.name as string || "editorial").toLowerCase();
   const category = (["tees", "jeans", "accessories", "outerwear", "editorial"].includes(categoryName)
     ? categoryName
     : "editorial") as CatalogueProduct["category"];
 
   return {
-    id: row.id,
-    name: row.name,
-    description: row.description ?? "",
+    id: row.id as string,
+    name: row.name as string,
+    description: (row.description as string) ?? "",
     category,
     price: Number(row.price),
-    rating: row.rating ?? 5,
+    rating: (row.rating as number) ?? 5,
     sizes:
-      row.sizes ??
+      (row.sizes as string) ??
       (options.length > 0
         ? options.length > 1
           ? `${options[0]} - ${options[options.length - 1]}`
@@ -39,10 +39,10 @@ function rowToProduct(row: any): CatalogueProduct {
     colors: colors,
     sizeOptions: options,
     sizeStocks: stocks,
-    inStock: row.inStock && (variants.length === 0 || variants.some((v: any) => v.stock > 0)),
-    variants: variants.map((v: any) => ({
+    inStock: (row.inStock as boolean) && (variants.length === 0 || variants.some((v: { stock: number }) => v.stock > 0)),
+    variants: variants.map((v: { id: string; size: string; color?: string; stock: number }) => ({
       id: v.id,
-      productId: row.id,
+      productId: row.id as string,
       size: v.size,
       color: v.color ?? undefined,
       stock: v.stock,
@@ -63,7 +63,7 @@ export const catalogueApi = {
     const res = await fetch(urlString, fetchOptions({ cache: "no-store" }));
     if (!res.ok) throw new Error("Failed to fetch products");
 
-    const result = await res.json();
+    const result = await res.json() as { success: boolean; data: Record<string, unknown>[]; error?: string };
     if (!result.success) throw new Error(result.error || "Failed to fetch products");
 
     return result.data.map(rowToProduct);
@@ -78,7 +78,7 @@ export const catalogueApi = {
       const res = await fetch(urlString, fetchOptions({ cache: "no-store" }));
       if (!res.ok) return null;
 
-      const result = await res.json();
+      const result = await res.json() as { success: boolean; data: Record<string, unknown> };
       if (!result.success) return null;
 
       return rowToProduct(result.data);

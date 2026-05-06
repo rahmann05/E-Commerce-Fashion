@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit';
 import { AdminShippingController } from '../../../../../../modules/shipping/shipping.controller';
 
-export async function GET({ url }) {
+export async function GET({ url }: RequestEvent) {
   const trackingNumber = url.searchParams.get('number');
   if (!trackingNumber) return json({ success: false, error: 'Tracking number required' }, { status: 400 });
 
@@ -13,7 +13,7 @@ export async function GET({ url }) {
   }
 }
 
-export async function POST({ request }) {
+export async function POST({ request }: RequestEvent) {
   try {
     const { trackingNumber, status, location, description } = await request.json();
     const result = await AdminShippingController.updateTracking({ trackingNumber, status, location, description });

@@ -25,28 +25,6 @@ function formatPrice(price: number): string {
 
 const LETTER_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
 
-function expandSizeRange(range: string): string[] {
-  const parts = range.split(" - ").map((s) => s.trim());
-  if (parts.length < 2) return [range];
-  const [start, end] = parts;
-
-  // Waist sizes: W28 - W36
-  if (start.startsWith("W") && end.startsWith("W")) {
-    const s = parseInt(start.slice(1), 10);
-    const e = parseInt(end.slice(1), 10);
-    const result: string[] = [];
-    for (let i = s; i <= e; i += 2) result.push(`W${i}`);
-    return result;
-  }
-
-  // Letter sizes: S - XXL
-  const si = LETTER_SIZES.indexOf(start);
-  const ei = LETTER_SIZES.indexOf(end);
-  if (si !== -1 && ei !== -1) return LETTER_SIZES.slice(si, ei + 1);
-
-  return [start, end];
-}
-
 export default function ProductDetailModal({ product, onClose }: Props) {
   const { user } = useAuth();
   const { addToCart } = useCart();
@@ -58,25 +36,25 @@ export default function ProductDetailModal({ product, onClose }: Props) {
   const [addError, setAddError] = useState<string | null>(null);
   const [wishlistMessage, setWishlistMessage] = useState<string | null>(null);
 
-  const variants = product?.variants ?? [];
-  const hasVariantColors = variants.some((v) => !!v.color);
+  const variants = useMemo(() => product?.variants ?? [], [product]);
+  const hasVariantColors = useMemo(() => variants.some((v) => !!v.color), [variants]);
 
-  const sizeOptions =
+  const sizeOptions = useMemo(() =>
     variants.length > 0
       ? Array.from(new Set(variants.map((v) => v.size).filter((s): s is string => !!s)))
-      : [];
+      : [], [variants]);
 
-  const colorOptions =
+  const colorOptions = useMemo(() =>
     hasVariantColors
       ? Array.from(new Set(variants.map((v) => v.color).filter((c): c is string => !!c)))
-      : (product?.colors || []);
+      : (product?.colors || []), [hasVariantColors, variants, product]);
 
-  const stockBySize: Record<string, number> = sizeOptions.reduce((acc, size) => {
+  const stockBySize: Record<string, number> = useMemo(() => sizeOptions.reduce((acc, size) => {
     acc[size] = variants
       .filter((v) => v.size === size)
       .reduce((sum, v) => sum + v.stock, 0);
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, number>), [sizeOptions, variants]);
 
   const selectedVariant = useMemo(() => {
     if (!selectedSize) return null;
@@ -109,8 +87,9 @@ export default function ProductDetailModal({ product, onClose }: Props) {
       await addToCart(product, selectedVariant.id, 1);
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
-    } catch (err: any) {
-      setAddError(err?.message ?? "Gagal menambahkan produk ke cart.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal menambahkan produk ke cart.";
+      setAddError(msg);
     }
   }
 

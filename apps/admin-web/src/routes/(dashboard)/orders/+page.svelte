@@ -5,7 +5,7 @@
   let searchQuery = $state('');
 
   let filteredOrders = $derived(
-    data.orders.filter(o => 
+    data.orders.filter((o: any) => 
       o.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
       (o.customer?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
     )

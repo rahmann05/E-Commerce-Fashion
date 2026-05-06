@@ -20,6 +20,10 @@
   let previewUrl = $state(initialImage);
   let fileInput: HTMLInputElement;
 
+  $effect(() => {
+    previewUrl = initialImage;
+  });
+
   // Cleanup object URL to prevent memory leaks
   $effect(() => {
     return () => {

@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit';
 import { AdminAuthController } from '../../../../../../modules/auth/auth.controller';
 
-export async function GET({ cookies }) {
+export async function GET({ cookies }: RequestEvent) {
   const token = cookies.get('novure_jwt');
   if (!token) return json({ success: false, error: 'Unauthorized' }, { status: 401 });
 

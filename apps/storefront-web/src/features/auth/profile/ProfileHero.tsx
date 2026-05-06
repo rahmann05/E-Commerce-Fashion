@@ -1,9 +1,10 @@
 "use client";
 
 import ProfileAvatar from "./ProfileAvatar";
+import type { SessionUser } from "@/context/AuthContext";
 
 interface ProfileHeroProps {
-  user: any;
+  user: SessionUser;
 }
 
 export default function ProfileHero({ user }: ProfileHeroProps) {

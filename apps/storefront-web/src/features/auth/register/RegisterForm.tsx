@@ -40,7 +40,7 @@ export default function RegisterForm() {
 
       // Success! Redirect to login or auto-login
       router.push("/login?registered=true");
-    } catch (err: any) {
+    } catch {
       setIsLoading(false);
       setError("Terjadi kesalahan jaringan.");
     }

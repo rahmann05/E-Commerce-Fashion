@@ -1,28 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useColorTheme } from "@/context/ColorContext";
 import styles from "@/styles/MultiColorWave.module.css";
 
 export default function MultiColorWave() {
   const { activeTheme } = useColorTheme();
-  const [currentColors, setCurrentColors] = useState([
+  
+  const currentColors = useMemo(() => [
     activeTheme.primary,
     activeTheme.secondary,
     activeTheme.tertiary,
     activeTheme.accent || activeTheme.primary
-  ]);
-
-  // Update colors when theme changes
-  useEffect(() => {
-    setCurrentColors([
-      activeTheme.primary,
-      activeTheme.secondary,
-      activeTheme.tertiary,
-      activeTheme.accent || activeTheme.primary
-    ]);
-  }, [activeTheme]);
+  ], [activeTheme]);
 
   return (
     <motion.div

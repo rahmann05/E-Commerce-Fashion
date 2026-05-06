@@ -5,7 +5,7 @@
  * Grid of user info rows with editorial section label /02.
  */
 
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useProfileData } from "@/context/ProfileDataContext";
 
@@ -15,23 +15,14 @@ export default function ProfileInfoCard() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
+  const [formData, setFormData] = useState(() => {
+    const fullName = user?.name || "";
+    return {
+      firstName: fullName.split(" ")[0] || "",
+      lastName: fullName.split(" ").slice(1).join(" ") || "",
+      phone: user?.phone || "",
+    };
   });
-
-  // Sync initial state when user loads
-  useEffect(() => {
-    if (user) {
-      const fullName = user.name || "";
-      setFormData({
-        firstName: fullName.split(" ")[0] || "",
-        lastName: fullName.split(" ").slice(1).join(" ") || "",
-        phone: user.phone || "",
-      });
-    }
-  }, [user]);
 
   if (!user) return null;
 

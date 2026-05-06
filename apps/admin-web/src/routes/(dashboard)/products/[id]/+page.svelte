@@ -3,7 +3,11 @@
 	import { enhance } from '$app/forms';
 	import UploadImage from '@components/atoms/UploadImage.svelte';
 
-	let imageUrl = $state(data.product.imageUrl || '');
+	let imageUrl = $state('');
+
+	$effect(() => {
+		imageUrl = data.product.imageUrl || '';
+	});
 </script>
 
 <div class="hero-header">

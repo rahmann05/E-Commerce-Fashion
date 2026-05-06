@@ -46,12 +46,12 @@ export default function InfiniteMarquee({ speed = 25, itemHeight = 380 }: Infini
               alignItems: "center",
             }}
           >
-            <img
+            <Image
               src={getImageUrl(src || "model1.jpg")}
-              alt="Clothing"
+              alt={`Featured item ${idx + 1}`}
+              width={288}
+              height={itemHeight * 0.9}
               style={{
-                width: "90%",
-                height: "90%",
                 objectFit: "contain",
                 filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))",
               }}

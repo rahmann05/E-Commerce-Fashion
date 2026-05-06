@@ -21,9 +21,12 @@ interface CourierOption {
 }
 
 import dynamic from "next/dynamic";
-import { fetchProvinces } from "@/lib/api/geography";
 
-const LocationMap = dynamic(() => import("@/components/checkout/LocationMap"), { ssr: false });
+const LocationMap = dynamic<{
+  onLocationSelect: (address: string, lat: number, lng: number, rawAddr: Record<string, unknown>, postalCode: string) => void;
+  centerLat?: number | null;
+  centerLng?: number | null;
+}>(() => import("@/features/checkout/LocationMap"), { ssr: false });
 
 const STANDARD_PAYMENTS = [
   { id: "std_qris", label: "QRIS", details: "Dana, OVO, LinkAja, dsb." },
@@ -176,7 +179,7 @@ export default function CheckoutPage() {
     [couriers, selectedCourierId]
   );
 
-  const handleLocationSelect = async (address: string, lat: number, lng: number, rawAddr: any, postalCode: string) => {
+  const handleLocationSelect = async (address: string, lat: number, lng: number, rawAddr: Record<string, unknown>, postalCode: string) => {
     const translateMapTerm = (s: string) => {
       if (!s) return "";
       return s
@@ -287,7 +290,7 @@ export default function CheckoutPage() {
       await clearCart();
       
       router.push(`/catalogue/cart/pembayaran/status/${result.orderId}?method=${methodKey}`);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Checkout submission error:", err);
       setError("Gagal membuat pesanan. Silakan coba lagi.");
     } finally {

@@ -1,8 +1,8 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit';
 import { prisma } from '@infrastructure/database/prisma';
-import type { OrderStatus } from '@prisma/client';
+import type { OrderStatus } from '@novure/database';
 
-export async function GET({ url }) {
+export async function GET({ url }: RequestEvent) {
   const status = (url.searchParams.get('status') as OrderStatus) || undefined;
 
   try {

@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit';
 import { AdminAuthController } from '../../../../../../modules/auth/auth.controller';
 
-export async function POST({ request, cookies }) {
+export async function POST({ request, cookies }: RequestEvent) {
   try {
     const { email, password } = await request.json();
     const result = await AdminAuthController.login({ email, password });

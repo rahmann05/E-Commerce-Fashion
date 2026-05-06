@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Star, MessageSquare } from "lucide-react";
 import "@/styles/reviews.css";
 
+import Image from "next/image";
+
 interface Review {
   id: string;
   rating: number;
@@ -75,7 +77,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
             <div className="review-user-info">
               <div className="review-avatar">
                 {review.user.image ? (
-                  <img src={review.user.image} alt={review.user.name || "User"} />
+                  <Image src={review.user.image} alt={review.user.name || "User"} width={40} height={40} />
                 ) : (
                   <span>{(review.user.name || "U").charAt(0).toUpperCase()}</span>
                 )}

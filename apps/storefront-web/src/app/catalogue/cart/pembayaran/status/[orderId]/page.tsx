@@ -78,12 +78,12 @@ export default function PaymentStatusPage() {
       });
 
       if (result.success) {
-        setStatus(result.data);
+        setStatus(result.data as MidtransStatus);
         setError(null);
       } else {
         setError(result.error || "Gagal memulai pembayaran.");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Charge initiation error:", err);
       setError("Gagal menghubungi server pembayaran.");
     } finally {
@@ -98,7 +98,7 @@ export default function PaymentStatusPage() {
       const result = await ordersApi.getMidtransStatus(orderId);
 
       if (result.success) {
-        setStatus(result.data);
+        setStatus(result.data as MidtransStatus);
         setLoading(false);
       } else if (!isRetry) {
         const methodKey = new URLSearchParams(window.location.search).get("method");
@@ -111,7 +111,7 @@ export default function PaymentStatusPage() {
         setError(result.error || "Gagal mengambil data pembayaran.");
         setLoading(false);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Status fetch error:", err);
       const methodKey = new URLSearchParams(window.location.search).get("method");
       if (!isRetry && methodKey) await initiateCharge(methodKey);
@@ -124,7 +124,11 @@ export default function PaymentStatusPage() {
 
   useEffect(() => {
     if (orderId) {
-      fetchStatus();
+      // Defer to avoid synchronous setState warning
+      const timer = setTimeout(() => {
+        void fetchStatus();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [orderId, fetchStatus]);
 
@@ -167,7 +171,7 @@ export default function PaymentStatusPage() {
     return status.actions.find((a) => a.name === "generate-qr-code");
   }, [status]);
 
-  const formatPrice = (price: any) => {
+  const formatPrice = (price: string | number | undefined | null) => {
     const numericPrice = typeof price === "string" ? parseFloat(price) : price;
     if (numericPrice === undefined || numericPrice === null || isNaN(numericPrice)) return "Rp0";
 
@@ -271,7 +275,7 @@ export default function PaymentStatusPage() {
                     <div key={item.productId} style={{ display: "flex", gap: "1rem", padding: "0.75rem 0", borderBottom: "1px solid #f9f9f9" }}>
                       <div style={{ width: 48, height: 56, borderRadius: 4, overflow: "hidden", position: "relative", backgroundColor: "#f5f5f5" }}>
                         {productImg ? (
-                          <Image src={productImg} alt={item.name} fill style={{ objectFit: "cover" }} />
+                          <Image src={productImg} alt={item.name} width={48} height={56} style={{ objectFit: "cover" }} />
                         ) : (
                           <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.5rem" }}>No Image</div>
                         )}
@@ -325,7 +329,7 @@ export default function PaymentStatusPage() {
                 <div className="qris-container">
                   <div style={{ textAlign: "center" }}>
                     <p style={{ fontSize: "0.85rem", marginBottom: "1rem", color: "#666" }}>Scan kode QR di bawah ini</p>
-                    <img src={qrAction.url} alt="QRIS Code" className="qris-img" />
+                    <Image src={qrAction.url} alt="QRIS Code" width={200} height={200} className="qris-img" unoptimized />
                   </div>
                 </div>
               )}

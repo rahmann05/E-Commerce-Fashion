@@ -5,11 +5,23 @@
 
 import { API_BASE_URL, fetchOptions } from "./config";
 
+export interface OrderResponse {
+  success: boolean;
+  data: Record<string, unknown>;
+  error?: string;
+}
+
+export interface OrdersListResponse {
+  success: boolean;
+  data: Record<string, unknown>[];
+  error?: string;
+}
+
 export const ordersApi = {
   /**
    * Create a new order (Checkout)
    */
-  async createOrder(orderData: any) {
+  async createOrder(orderData: Record<string, unknown>): Promise<{ success: boolean; orderId?: string; error?: string }> {
     const res = await fetch(`${API_BASE_URL}/checkout`, fetchOptions({
       method: "POST",
       body: JSON.stringify(orderData),
@@ -20,7 +32,7 @@ export const ordersApi = {
   /**
    * Get order history for current user
    */
-  async getMyOrders() {
+  async getMyOrders(): Promise<OrdersListResponse> {
     const res = await fetch(`${API_BASE_URL}/orders`, fetchOptions());
     if (!res.ok) throw new Error("Failed to fetch orders");
     return await res.json();
@@ -29,7 +41,7 @@ export const ordersApi = {
   /**
    * Get specific order details
    */
-  async getOrderById(orderId: string) {
+  async getOrderById(orderId: string): Promise<OrderResponse> {
     const res = await fetch(`${API_BASE_URL}/orders/${orderId}`, fetchOptions());
     if (!res.ok) throw new Error("Failed to fetch order details");
     return await res.json();
@@ -38,7 +50,7 @@ export const ordersApi = {
   /**
    * Initiate Midtrans payment charge
    */
-  async initiateMidtransCharge(params: { order_id: string; payment_type: string; bank?: string; customer_details: any }) {
+  async initiateMidtransCharge(params: { order_id: string; payment_type: string; bank?: string; customer_details: Record<string, unknown> }): Promise<{ success: boolean; data: Record<string, unknown>; error?: string }> {
     const res = await fetch(`${API_BASE_URL}/checkout/midtrans`, fetchOptions({
       method: "POST",
       body: JSON.stringify(params),
@@ -49,7 +61,7 @@ export const ordersApi = {
   /**
    * Get Midtrans payment status
    */
-  async getMidtransStatus(orderId: string) {
+  async getMidtransStatus(orderId: string): Promise<{ success: boolean; data: Record<string, unknown>; error?: string }> {
     const res = await fetch(`${API_BASE_URL}/checkout/midtrans/status?orderId=${orderId}`, fetchOptions());
     return await res.json();
   }

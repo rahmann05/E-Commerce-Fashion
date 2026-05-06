@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix Leaflet icon issue
 const fixLeafletIcon = () => {
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  // @ts-expect-error - Leaflet internal property manipulation
+  const proto = L.Icon.Default.prototype as { _getIconUrl?: unknown };
+  delete proto._getIconUrl;
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
     iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
@@ -15,7 +17,7 @@ const fixLeafletIcon = () => {
 };
 
 interface LocationMapProps {
-  onLocationSelect: (address: string, lat: number, lng: number, rawAddr: any, postalCode: string) => void;
+  onLocationSelect: (address: string, lat: number, lng: number, rawAddr: Record<string, unknown>, postalCode: string) => void;
   centerLat?: number | null;
   centerLng?: number | null;
 }
@@ -24,14 +26,10 @@ export default function LocationMap({ onLocationSelect, centerLat, centerLng }: 
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     fixLeafletIcon();
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
+    
     if (!mapContainerRef.current || mapRef.current) return;
 
     const initialLat = centerLat || -6.200000;
@@ -61,14 +59,14 @@ export default function LocationMap({ onLocationSelect, centerLat, centerLng }: 
         const res = await fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
         );
-        const data = await res.json();
+        const data = await res.json() as { address?: Record<string, unknown>; display_name: string };
         const addr = data.address || {};
         
-        const road = addr.road || addr.suburb || "";
-        const houseNumber = addr.house_number || "";
-        const village = addr.village || addr.hamlet || "";
+        const road = (addr.road as string) || (addr.suburb as string) || "";
+        const houseNumber = (addr.house_number as string) || "";
+        const village = (addr.village as string) || (addr.hamlet as string) || "";
         const detailedAddress = [road, houseNumber, village].filter(Boolean).join(", ");
-        const postalCode = addr.postcode || "";
+        const postalCode = (addr.postcode as string) || "";
 
         onLocationSelect(detailedAddress || data.display_name, lat, lng, addr, postalCode);
       } catch (err) {
@@ -79,7 +77,6 @@ export default function LocationMap({ onLocationSelect, centerLat, centerLng }: 
     return () => {
       if (mapRef.current) {
         try {
-          // Stop any ongoing animations
           mapRef.current.off();
           mapRef.current.stop();
           mapRef.current.remove();
@@ -90,7 +87,7 @@ export default function LocationMap({ onLocationSelect, centerLat, centerLng }: 
         }
       }
     };
-  }, [isMounted, onLocationSelect]);
+  }, [onLocationSelect, centerLat, centerLng]);
 
   // Sync marker when center props change (for external updates)
   useEffect(() => {
@@ -101,10 +98,8 @@ export default function LocationMap({ onLocationSelect, centerLat, centerLng }: 
       } else {
         markerRef.current = L.marker(latlng).addTo(mapRef.current);
       }
-      // Only pan if it's not too far to avoid jumping
       mapRef.current.panTo(latlng);
     }
-   
   }, [centerLat, centerLng]);
 
   return (

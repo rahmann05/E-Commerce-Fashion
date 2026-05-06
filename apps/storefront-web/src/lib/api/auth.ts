@@ -30,7 +30,7 @@ export const authApi = {
         method: "POST",
         body: JSON.stringify({ email, password }),
       }));
-      const result = await res.json();
+      const result = await res.json() as { success: boolean; data?: SessionUser; error?: string; message?: string };
       
       if (!res.ok || !result.success) {
         return { success: false, error: result.error ?? result.message ?? "Gagal login." };
@@ -43,7 +43,7 @@ export const authApi = {
   },
 
   /** Attempt to register */
-  async register(data: any): Promise<{ success: boolean; data?: any; error?: string }> {
+  async register(data: Record<string, unknown>): Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }> {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/register`, fetchOptions({
         method: "POST",

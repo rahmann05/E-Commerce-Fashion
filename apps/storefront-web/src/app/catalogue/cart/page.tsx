@@ -6,10 +6,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Minus, Plus, X, ArrowRight, ShoppingBag } from "lucide-react";
+import { Minus, Plus, ArrowRight, ShoppingBag } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import "@/styles/cart.css";
+import { getImageUrl } from "@/lib/image-utils";
 
 
 /** Format price without toLocaleString (avoids SSR/client locale mismatch) */
@@ -17,12 +18,10 @@ function formatPrice(price: number): string {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function getActualPrice(price: any): number {
+function getActualPrice(price: string | number): number {
   const p = Number(price ?? 0);
   return p < 10000 ? p * 1000 : p;
 }
-
-import { getImageUrl } from "@/lib/image-utils";
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart } = useCart();

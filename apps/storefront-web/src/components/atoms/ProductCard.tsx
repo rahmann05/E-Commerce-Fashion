@@ -5,7 +5,16 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 import { useState } from "react";
 import { getImageUrl } from "@/lib/image-utils";
-type DiscoverProduct = any;
+
+export interface DiscoverProduct {
+  id: string | number;
+  name: string;
+  image?: string;
+  sizes: string;
+  rating: number;
+  price: number;
+  blurred?: boolean;
+}
 
 interface ProductCardProps {
   product: DiscoverProduct;

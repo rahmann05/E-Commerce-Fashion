@@ -1,8 +1,8 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit';
 import { prisma } from '@infrastructure/database/prisma';
 import { cartService } from '@application/services/cart.service';
 
-export async function GET({ params }) {
+export async function GET({ params }: RequestEvent) {
   try {
     const order = await prisma.order.findUnique({
       where: { id: params.id },
@@ -35,7 +35,7 @@ export async function GET({ params }) {
   }
 }
 
-export async function PATCH({ params, request }) {
+export async function PATCH({ params, request }: RequestEvent) {
   try {
     const { status } = await request.json();
 

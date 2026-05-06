@@ -47,7 +47,7 @@ export interface ProfileOrderItem {
   quantity: number;
   unitPrice: number;
   imageUrl: string;
-  product?: any;
+  product?: Record<string, unknown>;
 }
 
 export interface ProfileOrder {

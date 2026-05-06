@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useProfileData } from "@/context/ProfileDataContext";
+import { useProfileData, type ProfileAddress } from "@/context/ProfileDataContext";
 import ProfileHero from "./ProfileHero";
 import ProfileInfoCard from "./ProfileInfoCard";
 import ProfileOrderHistory from "./ProfileOrderHistory";
@@ -47,12 +47,13 @@ export default function ProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
+  const activeTab = useMemo(() => toTab(searchParams.get("tab")), [searchParams]);
 
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab) setActiveTab(toTab(tab));
-  }, [searchParams]);
+  const setActiveTab = useCallback((tab: TabId) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("tab", tab);
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [router]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -68,17 +69,17 @@ export default function ProfilePage() {
     );
   }
 
-  const handleSaveAddress = async (payload: any) => {
+  const handleSaveAddress = async (payload: Omit<ProfileAddress, "id" | "isPrimary">) => {
     await addAddress(payload);
     updateUser({ address: `${payload.line1}, ${payload.city}` });
   };
 
-  const handleSavePayment = async (payload: any) => {
+  const handleSavePayment = async (payload: { label: string; accountNumber: string; accountName: string }) => {
     await addPaymentMethod(payload);
     updateUser({ paymentPreference: payload.label });
   };
 
-  const handleSavePassword = (payload: any) => {
+  const handleSavePassword = (payload: Record<string, string>) => {
     const result = updatePassword({
       currentPassword: payload.currentPassword,
       newPassword: payload.newPassword,
@@ -89,7 +90,7 @@ export default function ProfilePage() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case "overview": return <ProfileInfoCard />;
+      case "overview": return <ProfileInfoCard key={user?.id} />;
       case "orders": return <ProfileOrderHistory orders={orders} />;
       case "address":
         return (

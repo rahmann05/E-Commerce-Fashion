@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring, useInView } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 import SectionLabel from "../ui/SectionLabel";
 import AnimatedText from "../ui/AnimatedText";

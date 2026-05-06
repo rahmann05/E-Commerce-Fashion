@@ -10,7 +10,7 @@ export class AdminShippingController {
   }
 
   static async getTracking(trackingNumber: string) {
-    const tracking = await prisma.shippingTracking.findUnique({
+    const tracking = await prisma.shippingTracking.findFirst({
       where: { trackingNumber },
       include: {
         order: {
@@ -27,10 +27,16 @@ export class AdminShippingController {
   static async updateTracking(params: { trackingNumber: string, status: string, location?: string, description?: string }) {
     const { trackingNumber, status, location, description } = params;
 
+    const existing = await prisma.shippingTracking.findFirst({
+      where: { trackingNumber }
+    });
+
+    if (!existing) throw new Error("Tracking not found");
+
     const tracking = await prisma.shippingTracking.update({
-      where: { trackingNumber },
+      where: { id: existing.id },
       data: {
-        status,
+        currentStatus: status,
         lastLocation: location,
         logs: {
           create: {
