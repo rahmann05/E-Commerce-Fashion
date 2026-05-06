@@ -3,9 +3,9 @@
 import { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-import SectionLabel from "../ui/SectionLabel";
-import PillButton from "../ui/PillButton";
-import VideoCard from "../ui/VideoCard";
+import SectionLabel from "@/components/atoms/SectionLabel";
+import PillButton from "@/components/atoms/PillButton";
+import VideoCard from "@/components/atoms/VideoCard";
 import { STYLE_VIDEOS } from "../data/videos";
 import { STYLE_PILLS } from "../data/navigation";
 

@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation";
 import { getProducts } from "@/lib/actions/catalogue";
 import type { CatalogueProduct } from "@/components/catalogue/types";
 
-import FilterBar from "../ui/FilterBar";
-import ProductCard from "../ui/ProductCard";
-import AnimatedText from "../ui/AnimatedText";
-import SectionLabel from "../ui/SectionLabel";
+import FilterBar from "@/components/atoms/FilterBar";
+import ProductCard from "@/components/atoms/ProductCard";
+import AnimatedText from "@/components/atoms/AnimatedText";
+import SectionLabel from "@/components/atoms/SectionLabel";
 
 export default function DiscoverSection() {
   const [products, setProducts] = useState<CatalogueProduct[]>([]);

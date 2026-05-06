@@ -1,6 +1,6 @@
 "use client";
 
-import SectionLabel from "../../ui/SectionLabel";
+import SectionLabel from "@/components/atoms/SectionLabel";
 import ImmersiveSlider3D from "../../animations/ImmersiveSlider3D";
 import { TEAM } from "../../data/team";
 

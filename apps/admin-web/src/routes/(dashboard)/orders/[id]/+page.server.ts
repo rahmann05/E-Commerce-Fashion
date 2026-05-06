@@ -56,7 +56,7 @@ export const actions: Actions = {
       const carrierId = data.get('carrierId');
       const trackingNumber = data.get('trackingNumber');
       
-      const res = await fetch(`${INTERNAL_API_URL}/shipping/track`, {
+      const res = await fetch(`${INTERNAL_API_URL}/shipping/tracking/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId: params.id, carrierId, trackingNumber })
@@ -71,15 +71,15 @@ export const actions: Actions = {
   addLog: async ({ request, fetch }) => {
     try {
       const data = await request.formData();
-      const trackingId = data.get('trackingId');
+      const trackingNumber = data.get('trackingNumber');
       const status = data.get('status');
       const location = data.get('location');
       const description = data.get('description');
 
-      const res = await fetch(`${INTERNAL_API_URL}/shipping/log`, {
+      const res = await fetch(`${INTERNAL_API_URL}/shipping/tracking/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trackingId, status, location, description })
+        body: JSON.stringify({ trackingNumber, status, location, description })
       });
       if (!res.ok) return fail(res.status, { message: 'Failed to add log' });
       return { success: true };

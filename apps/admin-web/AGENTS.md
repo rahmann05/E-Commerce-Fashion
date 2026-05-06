@@ -7,6 +7,7 @@ Dokumen ini merupakan mandat arsitektural untuk pengembangan `admin-web`. Aplika
 ### Arsitektur Inti: Headless SvelteKit
 - **Decoupled Backend**: Frontend ini tidak memiliki koneksi database. Seluruh data diambil dari API Gateway (:8000).
 - **Server Loaders**: Manfaatkan `+page.server.ts` untuk mengambil data sensitif atau data besar sebelum halaman dirender. Gunakan parameter `fetch` bawaan SvelteKit untuk menjaga integritas sesi (cookie).
+- **Kontrak Backend**: Backend memakai arsitektur berlapis (controllers/services/db). Admin UI hanya mengikuti kontrak API Gateway.
 
 ### Svelte 5 & Reaktivitas
 - **Wajib Menggunakan Runes**: Gantikan pola `writable stores` dengan `$state` dan `$derived` jika memungkinkan untuk *local state*.

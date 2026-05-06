@@ -3,8 +3,8 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import CursorTrail from "../animations/CursorTrail";
-import GlowOrb from "../ui/GlowOrb";
-import ScrollIndicator from "../ui/ScrollIndicator";
+import GlowOrb from "@/components/atoms/GlowOrb";
+import ScrollIndicator from "@/components/atoms/ScrollIndicator";
 import { HERO_CORNER_LABELS } from "../data/navigation";
 
 export default function HeroSection() {

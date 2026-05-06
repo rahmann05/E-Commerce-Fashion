@@ -80,4 +80,8 @@ export class CheckoutService {
 
     return { success: true };
   }
+
+  static async getMidtransStatus(orderId: string) {
+    return await coreApi.transaction.status(orderId);
+  }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import SectionLabel from "../../ui/SectionLabel";
+import SectionLabel from "@/components/atoms/SectionLabel";
 import { VALUES } from "../../data/team";
 
 export default function AboutValues() {

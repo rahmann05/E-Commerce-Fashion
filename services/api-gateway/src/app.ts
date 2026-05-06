@@ -18,7 +18,7 @@ app.use(cors({
 }));
 
 // Body parser needed for Joi validation
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 // Root Route
 app.get(['/', '/api'], (req: Request, res: Response) => {

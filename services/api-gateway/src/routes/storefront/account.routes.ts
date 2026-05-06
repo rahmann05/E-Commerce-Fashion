@@ -13,7 +13,7 @@ router.get('/profile', customerProxy);
 
 // Conditional validation for account actions
 const AccountActionSchema = Joi.object({
-  action: Joi.string().valid('addAddress', 'removeAddress', 'addPaymentMethod', 'removePaymentMethod', 'createOrder').required()
+  action: Joi.string().valid('addAddress', 'updateAddress', 'removeAddress', 'addPaymentMethod', 'removePaymentMethod', 'createOrder').required()
 }).unknown(true);
 
 router.post('/', validate(AccountActionSchema), customerProxy);

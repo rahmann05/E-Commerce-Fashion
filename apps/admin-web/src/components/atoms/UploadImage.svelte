@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { supabase } from '@lib/api/supabase';
+  import { uploadImage } from '@lib/api/uploads';
   
   let { 
     bucket = 'products', 
@@ -53,23 +53,38 @@
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${folder}/${fileName}`;
 
-      const { error } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
+      const base64 = await toBase64(file);
+      const result = await uploadImage({
+        bucket,
+        path: filePath,
+        base64,
+        contentType: file.type || 'application/octet-stream'
+      });
 
-      if (error) throw error;
+      if (!result.success || !result.publicUrl) {
+        throw new Error(result.error || 'Upload failed');
+      }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filePath);
-
-      onUpload(publicUrl);
+      onUpload(result.publicUrl);
     } catch (error: any) {
       console.error('Error uploading image:', error);
       errorMsg = 'Upload failed. Please check your connection and storage settings.';
     } finally {
       uploading = false;
     }
+  }
+
+  function toBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = typeof reader.result === 'string' ? reader.result : '';
+        const base64 = result.includes('base64,') ? result.split('base64,')[1] : result;
+        resolve(base64);
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
   }
 </script>
 

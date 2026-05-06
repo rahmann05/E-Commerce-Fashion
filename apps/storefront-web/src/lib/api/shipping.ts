@@ -30,7 +30,7 @@ export const shippingApi = {
    * Calculate shipping fees based on location
    */
   async calculateShipping(params: ShippingParams): Promise<ShippingResponse> {
-    const res = await fetch(`${API_BASE_URL}/shipping`, fetchOptions({
+    const res = await fetch(`${API_BASE_URL}/shipping/calculate`, fetchOptions({
       method: "POST",
       body: JSON.stringify(params),
     }));

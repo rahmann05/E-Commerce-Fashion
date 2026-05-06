@@ -157,7 +157,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
     }
     const payload = await accountApi.getProfile();
     if (payload && payload.data) {
-      setData(payload.data);
+      setData(payload.data as unknown as UserProfileData);
     }
   }, [user]);
 
@@ -169,12 +169,13 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
   }, [refreshAccountData]);
 
   const callMutation = useCallback(
-    async (action: string, body: Record<string, unknown>) => {
+    async (action: string, body: Record<string, unknown>): Promise<UserProfileData | null> => {
       if (!user) return null;
       const payload = await accountApi.mutateAccount(action, body);
       if (payload && payload.data) {
-        setData(payload.data);
-        return payload.data;
+        const nextData = payload.data as unknown as UserProfileData;
+        setData(nextData);
+        return nextData;
       }
       return null;
     },
@@ -195,7 +196,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
     async (payload: Omit<ProfileAddress, "id" | "isPrimary">) => {
       updateUser({ address: payload.line1 });
       const newData = await callMutation("addAddress", payload);
-      if (newData && newData.addresses.length > 0) {
+      if (newData && newData.addresses && newData.addresses.length > 0) {
         return { success: true, address: newData.addresses[newData.addresses.length - 1] };
       }
       return { success: false, message: "Gagal menyimpan alamat." };
@@ -205,10 +206,16 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
 
   const updateAddress = useCallback(
     async (id: string, payload: Partial<Omit<ProfileAddress, "id">>) => {
-      const res = await callMutation("updateAddress", { id, payload });
+      const res = await callMutation("updateAddress", { id, ...payload });
+      if (res && (payload.isPrimary || payload.line1)) {
+        const primaryAddr = res.addresses.find(a => a.isPrimary);
+        if (primaryAddr) {
+          updateUser({ address: primaryAddr.line1 });
+        }
+      }
       return { success: !!res };
     },
-    [callMutation]
+    [callMutation, updateUser]
   );
 
   const removeAddress = useCallback(
@@ -302,7 +309,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       if (!user) return { success: false, message: "User belum login." };
       const next = await callMutation("createOrder", payload);
       if (!next) return { success: false, message: "Gagal membuat pesanan." };
-      return { success: true, orderId: next.orders && next.orders[0]?.id };
+      return { success: true, orderId: next.orders && (next.orders as any[])[0]?.id };
     },
     [user, callMutation]
   );

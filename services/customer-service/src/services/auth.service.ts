@@ -36,4 +36,11 @@ export class AuthService {
     const { password: _, ...customerData } = customer;
     return { user: customerData, token };
   }
+
+  static async getMe(id: string) {
+    const customer = await prisma.customer.findUnique({ where: { id } });
+    if (!customer) throw new Error('Pelanggan tidak ditemukan');
+    const { password: _, ...customerData } = customer;
+    return { user: customerData };
+  }
 }

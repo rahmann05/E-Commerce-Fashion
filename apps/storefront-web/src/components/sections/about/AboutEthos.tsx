@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import RevealText from "../../ui/RevealText";
+import RevealText from "@/components/atoms/RevealText";
 import Image from "next/image";
 
 interface AboutEthosProps {

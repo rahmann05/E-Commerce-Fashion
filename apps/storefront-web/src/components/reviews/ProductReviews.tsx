@@ -5,6 +5,7 @@ import { Star, MessageSquare } from "lucide-react";
 import "@/styles/reviews.css";
 
 import Image from "next/image";
+import { reviewsApi } from "@/lib/api/reviews";
 
 interface Review {
   id: string;
@@ -31,8 +32,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
     const fetchReviews = async () => {
       try {
-        const res = await fetch(`/api/products/${productId}/reviews`);
-        const data = await res.json();
+        const data = await reviewsApi.getProductReviews(productId);
         if (data.success) {
           setReviews(data.reviews);
           setSummary(data.summary);

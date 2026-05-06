@@ -8,8 +8,8 @@ import ProfileHero from "./ProfileHero";
 import ProfileInfoCard from "./ProfileInfoCard";
 import ProfileOrderHistory from "./ProfileOrderHistory";
 import ProfileLogoutButton from "./ProfileLogoutButton";
+import { AddressManager } from "./AddressManager";
 import { 
-  ProfileAddressView, 
   ProfileWishlistView,
   ProfilePaymentView, 
   ProfileVoucherView,
@@ -69,11 +69,6 @@ export default function ProfilePage() {
     );
   }
 
-  const handleSaveAddress = async (payload: Omit<ProfileAddress, "id" | "isPrimary">) => {
-    await addAddress(payload);
-    updateUser({ address: `${payload.line1}, ${payload.city}` });
-  };
-
   const handleSavePayment = async (payload: { label: string; accountNumber: string; accountName: string }) => {
     await addPaymentMethod(payload);
     updateUser({ paymentPreference: payload.label });
@@ -93,13 +88,7 @@ export default function ProfilePage() {
       case "overview": return <ProfileInfoCard key={user?.id} />;
       case "orders": return <ProfileOrderHistory orders={orders} />;
       case "address":
-        return (
-          <ProfileAddressView
-            addresses={addresses}
-            onSaveAddress={handleSaveAddress}
-            onRemoveAddress={removeAddress}
-          />
-        );
+        return <AddressManager />;
       case "payment":
         return (
           <ProfilePaymentView

@@ -4,6 +4,7 @@ import { commerceProxy } from '../../proxies/commerce.proxy';
 const router = Router();
 
 // Products & Categories are public
+router.use('/products/:id/reviews', commerceProxy);
 router.use('/products', commerceProxy);
 router.use('/categories', commerceProxy);
 

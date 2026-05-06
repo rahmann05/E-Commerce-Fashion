@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import SectionLabel from "../../ui/SectionLabel";
-import RevealText from "../../ui/RevealText";
+import SectionLabel from "@/components/atoms/SectionLabel";
+import RevealText from "@/components/atoms/RevealText";
 import Image from "next/image";
 
 interface AboutStoryProps {

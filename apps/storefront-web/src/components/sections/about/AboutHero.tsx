@@ -2,8 +2,8 @@
 
 import { motion, MotionValue, useTransform, useSpring } from "framer-motion";
 import Link from "next/link";
-import ScrollIndicator from "../../ui/ScrollIndicator";
-import GlowOrb from "../../ui/GlowOrb";
+import ScrollIndicator from "@/components/atoms/ScrollIndicator";
+import GlowOrb from "@/components/atoms/GlowOrb";
 
 interface AboutHeroProps {
   scrollYProgress: MotionValue<number>;

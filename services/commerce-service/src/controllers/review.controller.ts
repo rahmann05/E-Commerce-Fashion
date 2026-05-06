@@ -48,4 +48,35 @@ export class ReviewController {
       newAverageRating: Number(averageRating.toFixed(2))
     };
   }
+
+  static async getReviewsByProductId(productId: string) {
+    const reviews = await prisma.review.findMany({
+      where: { productId },
+      orderBy: { createdAt: "desc" }
+    });
+
+    const total = reviews.length;
+    const average = total === 0
+      ? 0
+      : reviews.reduce((acc, review) => acc + review.rating, 0) / total;
+
+    const formatted = reviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt.toISOString(),
+      user: {
+        name: null,
+        image: null
+      }
+    }));
+
+    return {
+      reviews: formatted,
+      summary: {
+        total,
+        average: Number(average.toFixed(2))
+      }
+    };
+  }
 }

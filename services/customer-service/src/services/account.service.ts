@@ -4,17 +4,19 @@ const GATEWAY_URL = process.env.INTERNAL_API_URL || 'http://api-gateway:8000/api
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY;
 
 export class AccountService {
-  private static async fetchProduct(productId: string) {
+  private static async fetchProducts(productIds: string[]) {
+    if (productIds.length === 0) return [];
     try {
-      const res = await fetch(`${GATEWAY_URL}/products/${productId}`, {
+      const idsParam = productIds.join(',');
+      const res = await fetch(`${GATEWAY_URL}/products?ids=${idsParam}`, {
         headers: { 'x-internal-key': INTERNAL_KEY || '' }
       });
-      if (!res.ok) return null;
+      if (!res.ok) return [];
       const json = await res.json() as any;
-      return json.data;
+      return json.data || [];
     } catch (err) {
-      console.error(`[AccountService] Error fetching product ${productId}:`, err);
-      return null;
+      console.error(`[AccountService] Error fetching products:`, err);
+      return [];
     }
   }
 
@@ -32,28 +34,26 @@ export class AccountService {
       include: { items: true }
     });
 
-    const mappedOrders = await Promise.all(orders.map(async (o) => {
-      const primaryItem = o.items[0];
-      let hydratedItem: any = primaryItem ? { ...primaryItem } : null;
-      
-      if (primaryItem) {
-          const product = await this.fetchProduct(primaryItem.productId);
-          if (product) {
-            hydratedItem.name = product.name;
-            hydratedItem.imageUrl = product.imageUrl || (product.image && product.image[0]) || (product.images && product.images[0]) || '/images/about/model1.png';
-          } else {
-            hydratedItem.name = 'Pesanan';
-            hydratedItem.imageUrl = '/images/about/model1.png';
-          }
-          hydratedItem.unitPrice = Number(primaryItem.price);
-      }
+    const productIds = Array.from(new Set(orders.flatMap(o => o.items.map(i => i.productId))));
+    const products = await this.fetchProducts(productIds);
+
+    const mappedOrders = orders.map((o) => {
+      const hydratedItems = o.items.map(item => {
+        const product = products.find((p: any) => p.id === item.productId);
+        return {
+          ...item,
+          name: product?.name || 'Pesanan',
+          imageUrl: product?.imageUrl || (product?.image && product.image[0]) || (product?.images && product.images[0]) || '/images/about/model1.png',
+          unitPrice: Number(item.price)
+        };
+      });
 
       return {
         ...o,
         total: Number(o.totalAmount),
-        items: hydratedItem ? [hydratedItem, ...o.items.slice(1)] : []
+        items: hydratedItems
       };
-    }));
+    });
 
     return {
       phone: customer.phone,
@@ -70,12 +70,46 @@ export class AccountService {
   static async addAddress(userId: string, data: any) {
     return await prisma.address.create({ 
       data: { 
-        line1: data.line1 || data.address || '',
-        city: data.city || '',
-        province: data.province || '',
-        isPrimary: false, 
+        label: data.label || "Rumah",
+        recipient: data.recipient || "",
+        phone: data.phone || "",
+        line1: data.line1 || data.address || "",
+        district: data.district || "",
+        city: data.city || "",
+        province: data.province || "",
+        postalCode: data.postalCode || "",
+        latitude: data.latitude ? parseFloat(data.latitude) : null,
+        longitude: data.longitude ? parseFloat(data.longitude) : null,
+        isPrimary: data.isPrimary || false, 
         customerId: userId 
       } 
+    });
+  }
+
+  static async updateAddress(userId: string, addressId: string, data: any) {
+    // If setting as primary, unset others first
+    if (data.isPrimary) {
+      await prisma.address.updateMany({
+        where: { customerId: userId },
+        data: { isPrimary: false }
+      });
+    }
+
+    return await prisma.address.update({
+      where: { id: addressId, customerId: userId },
+      data: {
+        label: data.label,
+        recipient: data.recipient,
+        phone: data.phone,
+        line1: data.line1 || data.address,
+        district: data.district,
+        city: data.city,
+        province: data.province,
+        postalCode: data.postalCode,
+        latitude: data.latitude ? parseFloat(data.latitude) : undefined,
+        longitude: data.longitude ? parseFloat(data.longitude) : undefined,
+        isPrimary: data.isPrimary
+      }
     });
   }
 

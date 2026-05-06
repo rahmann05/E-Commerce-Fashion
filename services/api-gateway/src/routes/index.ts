@@ -5,6 +5,8 @@ import storefrontAuthRoutes from './storefront/auth.routes';
 import storefrontCartRoutes from './storefront/cart.routes';
 import storefrontCheckoutRoutes from './storefront/checkout.routes';
 import storefrontAccountRoutes from './storefront/account.routes';
+import storefrontReviewRoutes from './storefront/reviews.routes';
+import storefrontShippingRoutes from './storefront/shipping.routes';
 
 import adminProductsRoutes from './admin/products.routes';
 import adminOrdersRoutes from './admin/orders.routes';
@@ -25,7 +27,8 @@ router.use('/storefront/account', storefrontAccountRoutes);
 router.use('/storefront/cart', storefrontCartRoutes);
 router.use('/storefront/checkout', storefrontCheckoutRoutes);
 router.use('/storefront/orders', storefrontCheckoutRoutes); // Reuse for orders
-router.use('/storefront/shipping', customerProxy);
+router.use('/storefront/reviews', storefrontReviewRoutes);
+router.use('/storefront/shipping', storefrontShippingRoutes);
 router.use('/storefront', storefrontCatalogRoutes); // Generic storefront (products/categories)
 
 // 3. Admin BFF

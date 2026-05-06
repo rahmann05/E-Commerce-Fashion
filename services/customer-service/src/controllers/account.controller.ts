@@ -19,6 +19,8 @@ export class AccountController {
       
       if (action === 'addAddress') {
         result = await AccountService.addAddress(req.user!.id, body);
+      } else if (action === 'updateAddress') {
+        result = await AccountService.updateAddress(req.user!.id, body.id, body);
       } else if (action === 'removeAddress') {
         result = await AccountService.removeAddress(req.user!.id, body.id);
       } else {

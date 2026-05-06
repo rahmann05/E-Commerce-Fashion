@@ -10,6 +10,7 @@ Dokumen ini adalah mandat operasi untuk `api-gateway`. Gateway ini bertindak seb
   - Gunakan pabrik `proxyOptions` di `src/proxies/common.proxy.ts`. 
   - Wajib memanggil `fixRequestBody(proxyReq, req)` karena penggunaan middleware `express.json()`.
 - **Path Rewriting**: Tangani translasi URL publik yang ramah (mis. `/api/admin/auth`) ke rute internal yang teknis (mis. `/api/admin/management/auth`) di level proksi.
+- **Kontrak Layanan**: Downstream service mengikuti arsitektur berlapis (controllers/services/db). Gateway tidak bergantung pada struktur internalnya.
 
 ### Protokol Keamanan & Validasi
 - **CORS Hardening**: Hanya izinkan origin yang terdaftar di `env.ALLOWED_ORIGINS`. Localhost diizinkan hanya pada mode development.

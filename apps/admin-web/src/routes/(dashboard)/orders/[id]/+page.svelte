@@ -89,7 +89,7 @@
         <!-- Add Log Form -->
         {#if data.order.status !== 'DELIVERED'}
           <form method="POST" action="?/addLog" use:enhance style="display: flex; gap: 1rem; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #eee;">
-            <input type="hidden" name="trackingId" value={data.tracking.id} />
+            <input type="hidden" name="trackingNumber" value={data.tracking.trackingNumber} />
             <select name="status" class="input-control" style="padding: 0.6rem; font-size: 0.8rem; flex: 1;">
               <option value="IN_TRANSIT">In Transit</option>
               <option value="ARRIVED_AT_SORTING_CENTER">Arrived at Facility</option>

@@ -3,9 +3,9 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
-import SectionLabel from "../ui/SectionLabel";
-import AnimatedText from "../ui/AnimatedText";
-import GlowOrb from "../ui/GlowOrb";
+import SectionLabel from "@/components/atoms/SectionLabel";
+import AnimatedText from "@/components/atoms/AnimatedText";
+import GlowOrb from "@/components/atoms/GlowOrb";
 import InfiniteMarquee from "../animations/InfiniteMarquee";
 
 export default function ScienceSection() {

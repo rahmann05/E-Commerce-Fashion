@@ -5,10 +5,21 @@ const router = Router();
 
 router.post("/", async (req, res) => {
   try {
-    const result = await ReviewController.submitReview(req.body);
-    res.json(result);
+    const customerId = (req.body.customerId || req.headers["x-user-id"]) as string | undefined;
+    if (!customerId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const result = await ReviewController.submitReview({
+      customerId,
+      productId: req.body.productId,
+      orderId: req.body.orderId,
+      rating: Number(req.body.rating),
+      comment: req.body.comment
+    });
+    res.json({ success: true, data: result });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

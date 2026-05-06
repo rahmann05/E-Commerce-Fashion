@@ -20,6 +20,9 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
+  phone?: string;
+  address?: string;
+  paymentPreference?: string;
   role?: string;
 }
 

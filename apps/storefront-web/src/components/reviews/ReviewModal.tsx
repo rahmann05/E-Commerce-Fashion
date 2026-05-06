@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Star, Loader2 } from "lucide-react";
 import Image from "next/image";
 import "@/styles/reviews.css"; // We will add basic styling later
+import { reviewsApi } from "@/lib/api/reviews";
 
 interface ReviewModalProps {
   productId: string;
@@ -27,13 +28,7 @@ export default function ReviewModal({ productId, orderId, productName, productIm
     setError(null);
 
     try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, orderId, rating, comment }),
-      });
-
-      const data = await res.json();
+      const data = await reviewsApi.submitReview({ productId, orderId, rating, comment });
       if (data.success) {
         onSuccess();
       } else {

@@ -20,4 +20,7 @@ router.get('/categories/:id', authenticateJWT, commerceAdminProxy);
 router.patch('/categories/:id', authenticateJWT, commerceAdminProxy);
 router.delete('/categories/:id', authenticateJWT, commerceAdminProxy);
 
+// Uploads
+router.post('/uploads', authenticateJWT, commerceAdminProxy);
+
 export default router;

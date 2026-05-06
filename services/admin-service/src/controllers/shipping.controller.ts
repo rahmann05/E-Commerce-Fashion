@@ -24,6 +24,24 @@ export class AdminShippingController {
     return { data: tracking };
   }
 
+  static async createTracking(params: { orderId: string; carrierId: string; trackingNumber: string; estimatedArrival?: string }) {
+    const { orderId, carrierId, trackingNumber, estimatedArrival } = params;
+
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) throw new Error("Order not found");
+
+    const tracking = await prisma.shippingTracking.create({
+      data: {
+        orderId,
+        carrierId,
+        trackingNumber,
+        estimatedArrival: estimatedArrival ? new Date(estimatedArrival) : null
+      }
+    });
+
+    return { data: tracking };
+  }
+
   static async updateTracking(params: { trackingNumber: string, status: string, location?: string, description?: string }) {
     const { trackingNumber, status, location, description } = params;
 

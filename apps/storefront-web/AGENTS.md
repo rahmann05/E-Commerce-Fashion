@@ -7,6 +7,7 @@ Dokumen ini adalah spesifikasi arsitektur tingkat rendah untuk semua agen AI dan
 ### Arsitektur Inti: Murni Headless (Presentation Layer)
 - **Larangan Akses Database Langsung**: `storefront-web` adalah lapisan presentasi. Dilarang menginstal atau menggunakan `@prisma/client` atau SDK database apapun. Semua interaksi data wajib melalui API Gateway (`:8000`).
 - **Pola BFF (Backend for Frontend)**: Frontend mengonsumsi endpoint yang telah dioptimalkan oleh Gateway (`/api/storefront/*`). Jangan pernah mencoba memanggil layanan backend (seperti port 3001 atau 4002) secara langsung.
+- **Kontrak Backend**: Layanan backend menggunakan arsitektur berlapis (controllers/services/db). Frontend tidak bergantung pada struktur internal backend, hanya kontrak API.
 
 ### Next.js 15 & React 19: Standar Modern
 - **Server-First Fetching**: Prioritaskan penggunaan Server Components untuk pengambilan data awal. 

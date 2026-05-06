@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ProductController } from "../controllers/product.controller";
+import { ReviewController } from "../controllers/review.controller";
 
 const router = Router();
 
@@ -16,6 +17,15 @@ router.get("/", async (req, res) => {
     res.json(result);
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.get("/:id/reviews", async (req, res) => {
+  try {
+    const result = await ReviewController.getReviewsByProductId(req.params.id);
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -59,5 +69,23 @@ router.delete("/admin/:id", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+import { Router } from "express";
+import { ProductController } from "../controllers/product.controller";
+import { ReviewController } from "../controllers/review.controller";
+
+const router = Router();
+
+// Storefront routes
+router.get("/", ProductController.getProducts);
+router.get("/:id/reviews", async (req, res) => {
+  try {
+    const result = await ReviewController.getReviewsByProductId(req.params.id);
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+router.get("/:id", ProductController.getProductById);
 
 export default router;
