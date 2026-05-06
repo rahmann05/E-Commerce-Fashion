@@ -1,4 +1,4 @@
-# Storefront Web Agent Guidelines
+# Storefront Web Agent Guidelines (Next.js 15)
 
 This document serves as the foundational mandate for all AI agents working on the `storefront-web` application.
 
@@ -11,28 +11,26 @@ The storefront is a **purely decoupled "Head"**.
 ## 2. Directory Structure
 Maintain the following standardized structure within `src/`:
 
-- **`app/`**: Next.js App Router (Routing, Layouts, Metadata).
-- **`features/`**: Domain-driven modules (`auth`, `catalogue`, `checkout`). Contains business logic and complex domain components.
-- **`components/`**: UI building blocks.
-    - **`atoms/`**: Primitive elements.
-    - **`animations/`**: Specialized motion/visual components (waves, sliders).
-    - **`layout/`**: Global UI structures (Navbar, Footer).
-    - **`sections/`**: Reusable page blocks.
-    - **`data/`**: Static configuration data.
-- **`styles/`**: ALL CSS and CSS Modules. No `.css` files allowed in `components/` or `features/`.
+- **`app/`**: Next.js App Router.
+    - **Data Fetching**: Use `async` Server Components with `fetch`.
+    - **Caching**: Note that Next.js 15 defaults to `no-store` for many operations. Use `cache: 'force-cache'` only for static data.
+    - **Error Handling**: Use `error.tsx` and `not-found.tsx` for graceful degradation.
+- **`features/`**: Domain-driven modules (`auth`, `catalogue`, `checkout`).
+- **`components/`**: UI building blocks (atoms, animations, layout, sections).
+- **`styles/`**: ALL CSS and CSS Modules.
 - **`context/`**: Global React Context providers.
 - **`lib/`**:
-    - **`api/`**: Pure API clients (`auth.ts`, `cart.ts`, `catalogue.ts`, `account.ts`, `orders.ts`). **This is the only place fetch calls should live.**
+    - **`api/`**: Pure API clients. **Only place for fetch calls.**
     - **`actions/`**: Next.js Server Actions. Must delegate to `lib/api`.
 
-## 3. Styling & Imports
-- **Styles**: Centralized in `src/styles/`. Use descriptive names.
-- **Aliases**: Always use absolute paths via `@/` alias.
-- **Credentials**: Ensure all API calls use `credentials: "include"`.
+## 3. Implementation Mandates (Next.js 15)
+- **Server Actions**: All Server Actions must be in `src/lib/actions/`. They default to `no-store`.
+- **Fetch**: Always use `credentials: "include"` in `lib/api` to support cookie-based sessions.
+- **Relative Imports**: Avoid deep relative imports. Always use the `@/` alias.
 
 ## 4. Import Order
-1. Built-ins (React/Next)
-2. Libs (Lucide, Framer, etc)
+1. React/Next.js built-ins
+2. Third-party libraries
 3. API Clients (`@/lib/api`)
 4. Features (`@/features`)
 5. Components (`@/components`)
