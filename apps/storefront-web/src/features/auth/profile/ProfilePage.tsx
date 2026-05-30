@@ -2,8 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useCallback, useMemo } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { useProfileData, type ProfileAddress } from "@/context/ProfileDataContext";
+import { useAuth } from "@/core/providers/AuthContext";
+import { useProfileData, type ProfileAddress } from "@/core/providers/ProfileDataContext";
 import ProfileHero from "./ProfileHero";
 import ProfileInfoCard from "./ProfileInfoCard";
 import ProfileOrderHistory from "./ProfileOrderHistory";

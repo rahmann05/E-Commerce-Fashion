@@ -1,70 +1,55 @@
-# Novarium Headless Microservices Ecosystem
+# Novarium E-Commerce 
 
-Arsitektur headless e-commerce yang modular, terukur, dan terisolasi.
+Novarium E-Commerce adalah sebuah platform *e-commerce* berskala *enterprise* dengan arsitektur **True Microservices**. Sistem ini didesain agar sangat modular, *scalable*, dan mudah dikelola melalui pemisahan domain yang ketat antar berbagai fungsionalitas bisnis utama.
 
-## Layanan & Arsitektur (Unified Headless)
-Sistem menggunakan arsitektur dual-database untuk mengoptimalkan performa dan isolasi data:
+## Arsitektur Sistem 🏗️
 
-1.  **api-gateway (Port 8000)**: Single entry point. Mengelola CORS dynamic, routing cerdas, dan proxying antar layanan.
-2.  **commerce-service (Port 3001)**: Catalog Engine (Supabase). Menangani Produk, Kategori, dan Review.
-3.  **admin-service (Port 4001)**: Management & Transaction Engine (Neon). Menangani Order, Analytics, dan Management Internal (Staff/Audit).
-4.  **customer-service (Port 4002)**: Customer Identity Engine (Neon). Menangani Autentikasi Customer, Profil, Cart, Checkout, dan Order Customer.
-5.  **storefront-web (Port 3000)**: Consumer Frontend (Next.js). Mengonsumsi data katalog dan transaksi via Gateway.
-6.  **admin-web (Port 4000)**: Management Dashboard (SvelteKit). Studio kontrol untuk katalog (Supabase) dan transaksi (Neon).
+Proyek ini menggunakan pola arsitektur **Microservices** murni. Komunikasi yang sebelumnya dikelola oleh sebuah `api-gateway` raksasa telah sepenuhnya diubah ke dalam bentuk komunikasi *direct service-to-service* melalui *internal networking* yang aman. Semua layanan (*services*) sepenuhnya *stateless* dan berdikari.
 
-## Konfigurasi Database
-- **Supabase (PostgreSQL)**: Katalog produk (High Read, Low Write).
-- **Neon (PostgreSQL)**: Transaksi & Identitas (High Write, Consistent Read).
+### 1. Pembagian Bounded Context (Database)
+Untuk menghindari *bottleneck* tunggal, kita menerapkan isolasi data dengan membagi dua *core database*:
+- **Storefront DB (Supabase/PostgreSQL):** Menyimpan seluruh data terkait katalog produk, *review*, dan akun pelanggan. Diakses oleh `commerce-service` dan `customer-service`.
+- **Operational DB (Neon/PostgreSQL):** Menyimpan seluruh data pesanan, manajemen operasional, dan admin (termasuk *tracking* ongkir). Diakses oleh `admin-service` dan `order-service`.
+
+### 2. Peta Domain & Microservices
+Setiap bagian dari platform dipecah menjadi layanan terpisah sebagai berikut:
+
+- **Frontend Applications** (`/apps`):
+  - **`storefront-web` (Next.js):** Aplikasi *frontend* (Headless E-Commerce) untuk pembeli. Menampilkan katalog, keranjang belanja, *checkout*, dsb.
+  - **`admin-web` (SvelteKit):** Dashboard administrasi untuk manajemen stok, pengelolaan produk, dan konfirmasi pesanan.
+
+- **Backend Services** (`/services`):
+  - **`commerce-service` (Port: 3001):** Mengelola domain Produk, Kategori, *Inventory*, dan ulasan produk (Storefront DB).
+  - **`admin-service` (Port: 4001):** Layanan murni untuk otentikasi Admin, dan mengelola analitik operasional (Operational DB).
+  - **`customer-service` (Port: 4002):** Layanan khusus untuk otentikasi Pelanggan (Customer), manajemen Profil, dan Keranjang (Storefront DB).
+  - **`order-service` (Port: 4003):** Layanan spesifik menangani pemesanan (*Order*), *Checkout*, integrasi Midtrans, dan ongkos kirim (Operational DB).
+
+- **Shared Packages** (`/packages`):
+  - **`@novarium/shared`**: Pustaka khusus internal yang digunakan di seluruh *microservices*. Berisi *Middleware* keamanan (Auth, CORS, Error Handler), utilitas enkripsi (*password hashing*), dan klien HTTP (*Service Client*) untuk komunikasi antar-*service* via internal-key.
+
+### 3. Keamanan & Otentikasi 🛡️
+Semua layanan memiliki standar pengamanan internal melalui paket `@novarium/shared`. Terdapat dua lapisan pengamanan:
+1.  **Public/Client Access (JWT):** Menggunakan *cookie-based JWT* bernama `novarium_jwt`. Setiap permintaan publik dari *browser* disaring oleh `AuthMiddleware`.
+2.  **Internal Mesh Access:** Komunikasi antar *service* di Docker (seperti saat `order-service` mengambil info detail stok ke `commerce-service`) dibebaskan dari kewajiban membawa JWT milik pelanggan, melainkan menggunakan rahasia internal `x-internal-key` yang hanya diketahui oleh kontainer secara *backend*.
 
 ## Cara Menjalankan (Development)
-Jalankan setiap layanan di terminal terpisah:
 
-```bash
-# 1. API Gateway
-cd services/api-gateway && npm run dev
+Sistem ini didesain menggunakan **Docker Compose** dan **NPM Workspaces**.
 
-# 2. Commerce Service
-cd services/commerce-service && npm run dev
+### Persyaratan:
+- Node.js versi 20+
+- Docker & Docker Compose
+- Dua buah Database PostgreSQL (Storefront DB & Operational DB)
 
-# 3. Admin Service
-cd services/admin-service && npm run dev
+### Langkah-langkah:
+1.  Install seluruh dependensi dari folder *root*:
+    ```bash
+    npm install
+    ```
+2.  Salin dan isi `.env` sesuai dengan konfigurasi masing-masing koneksi database dan *secret key*.
+3.  Jalankan *build* dan integrasi kontainer secara serentak menggunakan:
+    ```bash
+    docker-compose up --build -d
+    ```
 
-# 4. Customer Service
-cd services/customer-service && npm run dev
-
-# 5. Storefront
-cd apps/storefront-web && npm run dev
-
-# 6. Admin Dashboard
-cd apps/admin-web && npm run dev
-```
-
-## Persiapan Produksi / Hosting
-1.  Pastikan `DATABASE_URL` di masing-masing backend menunjuk ke instance Neon dan Supabase yang benar.
-2.  Update `allowedOrigins` di `api-gateway/index.ts` dengan domain asli storefront dan admin Anda.
-3.  Jalankan `npx prisma db push` di kedua folder API untuk memastikan skema database sinkron.
-4.  Gunakan `pm2` atau `Docker` untuk mengelola kelima proses ini di server.
-
-## Deployment (Kubernetes)
-Gunakan manifes di folder `k8s/` untuk deployment skala besar:
-
-```bash
-# 1. Create Namespace
-kubectl apply -f k8s/namespace.yaml
-
-# 2. Setup Secrets (Contoh)
-kubectl create secret generic novarium-secrets \
-  --from-literal=core-database-url="YOUR_NEON_URL" \
-  --namespace=novarium-ecosystem
-
-# 3. Apply Deployments
-kubectl apply -f k8s/
-```
-
----
-**Status: Ready for Hosting (Enterprise Grade)**
-- [x] Database Isolation (Neon & Supabase)
-- [x] API Standardization ({ success, data, message })
-- [x] Gateway Proxying & CORS Config
-- [x] Frontend Syncing & Hook Fixes
-- [x] Docker & Kubernetes Ready
+Sistem akan otomatis me-*routing* port internal dan memunculkan *storefront* di `http://localhost:3000` serta *admin panel* di `http://localhost:5173`.

@@ -8,7 +8,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/core/providers/AuthContext";
 import Link from "next/link";
 import LoginInput from "./LoginInput";
 import LoginErrorMessage from "./LoginErrorMessage";

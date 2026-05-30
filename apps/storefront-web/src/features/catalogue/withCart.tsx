@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/core/providers/CartContext';
 
 export function withCart<P extends object>(WrappedComponent: React.ComponentType<P>) {
   return function WithCartComponent(props: Omit<P, 'cart'>) {

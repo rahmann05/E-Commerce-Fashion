@@ -6,7 +6,7 @@ import type {
   ProfilePaymentMethod,
   ProfileVoucher,
   WishlistItem,
-} from "@/context/ProfileDataContext";
+} from "@/core/providers/ProfileDataContext";
 
 function formatPrice(price: number): string {
   const finalPrice = price < 10000 ? price * 1000 : price;

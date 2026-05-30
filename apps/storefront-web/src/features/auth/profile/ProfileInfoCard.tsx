@@ -6,8 +6,8 @@
  */
 
 import { useState, type FormEvent } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { useProfileData } from "@/context/ProfileDataContext";
+import { useAuth } from "@/core/providers/AuthContext";
+import { useProfileData } from "@/core/providers/ProfileDataContext";
 
 export default function ProfileInfoCard() {
   const { user } = useAuth();

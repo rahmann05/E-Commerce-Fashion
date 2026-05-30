@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Novarium Storefront Web (Next.js) 🛒
 
-## Getting Started
+Aplikasi *frontend* utama bagi pembeli dan pengunjung e-commerce Novarium.
 
-First, run the development server:
+## Arsitektur & Teknologi
 
+*   **Framework:** Next.js 14+ (App Router).
+*   **Rendering:** Hybrid (Static Site Generation untuk Katalog & Server-Side Rendering untuk Keranjang/Checkout).
+*   **Styling:** Vanilla CSS dengan desain modern, UI dinamis, dan efek *glassmorphism*.
+*   **Komunikasi API:** Menggunakan metode *headless*.
+
+Aplikasi ini tidak lagi terhubung ke *API Gateway*, melainkan secara dinamis (menggunakan `process.env.PUBLIC_..._API_URL`) memanggil secara *direct* ke tiga layanan microservices di backend:
+1.  **Commerce Service:** Mengambil katalog produk, gambar, dan kategori.
+2.  **Customer Service:** Otentikasi pelanggan, sinkronisasi profil, dan isi keranjang belanja.
+3.  **Order Service:** Melakukan kalkulasi pengiriman (ongkir) dan inisiasi transaksi Checkout.
+
+## Struktur Folder Utama
+- `src/app`: Komponen utama App Router (rute web).
+- `src/components`: UI dasar yang modular.
+- `src/features`: Fitur *bounded-context* frontend (seperti `auth`, `cart`, `catalogue`, `checkout`).
+- `src/lib/api`: Kumpulan fungsi untuk interaksi langsung ke backend *microservices*. Telah dikonfigurasikan agar port URL-nya beradaptasi secara pintar ke *localhost* (saat *development*) dan *docker host* (saat di dalam kontainer).
+
+## Perintah Pengembangan
 ```bash
+# Menjalankan development server (port 3000)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Melakukan build produksi
+npm run build
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -2,14 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
-import type { ProfileAddress } from "@/context/ProfileDataContext";
-import { fetchProvinces } from "@/lib/api/geography";
+import type { ProfileAddress } from "@/core/providers/ProfileDataContext";
+import { fetchProvinces } from "@/shared/lib/geography";
 
 const LocationMap = dynamic<{
   onLocationSelect: (address: string, lat: number, lng: number, rawAddr: Record<string, unknown>, postalCode: string) => void;
   centerLat?: number | null;
   centerLng?: number | null;
-}>(() => import("@/features/checkout/LocationMap"), { ssr: false });
+}>(() => import("@/features/checkout/components/LocationMap"), { ssr: false });
 
 interface AddressFormProps {
   initialData?: ProfileAddress;

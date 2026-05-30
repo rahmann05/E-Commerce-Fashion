@@ -6,8 +6,8 @@
  */
 
 import ProfileOrderCard, { type MockOrder } from "./ProfileOrderCard";
-import type { ProfileOrder } from "@/context/ProfileDataContext";
-import { getImageUrl } from "@/lib/image-utils";
+import type { ProfileOrder } from "@/core/providers/ProfileDataContext";
+import { getImageUrl } from "@/shared/utils/image-utils";
 
 interface ProfileOrderHistoryProps {
   orders: ProfileOrder[];

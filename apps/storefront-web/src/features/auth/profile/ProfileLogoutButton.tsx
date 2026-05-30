@@ -7,7 +7,7 @@
 
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/core/providers/AuthContext";
 
 export default function ProfileLogoutButton() {
   const { logout } = useAuth();

@@ -39,7 +39,7 @@ interface ProfileOrderCardProps {
 }
 
 import { useState } from "react";
-import ReviewModal from "@/components/reviews/ReviewModal";
+import ReviewModal from "@/features/catalogue/components/ReviewModal";
 
 export default function ProfileOrderCard({ order }: ProfileOrderCardProps) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);

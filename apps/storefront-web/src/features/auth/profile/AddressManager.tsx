@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useProfileData, type ProfileAddress } from "@/context/ProfileDataContext";
+import { useProfileData, type ProfileAddress } from "@/core/providers/ProfileDataContext";
 import { AddressCard } from "./AddressCard";
 import { AddressForm } from "./AddressForm";
 

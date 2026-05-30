@@ -1,7 +1,7 @@
 "use client";
 
 import ProfileAvatar from "./ProfileAvatar";
-import type { SessionUser } from "@/context/AuthContext";
+import type { SessionUser } from "@/core/providers/AuthContext";
 
 interface ProfileHeroProps {
   user: SessionUser;

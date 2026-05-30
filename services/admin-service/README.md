@@ -1,42 +1,22 @@
-# sv
+# Admin Service 🏢
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Admin Service adalah backend *microservice* yang bertugas khusus untuk mengatur manajemen hak akses para administrator Novarium, serta menghasilkan agregasi analitik bisnis dari **Operational Database** (Neon/PostgreSQL).
 
-## Creating a project
+## Tanggung Jawab Domain
+- **Manajemen Kredensial Admin:** Otentikasi, otorisasi, dan validasi sesi admin dari _Dashboard_.
+- **Dashboard Analytics:** Layanan ini bertanggung jawab atas query-query operasional dan komputasi agregasi untuk menyajikan visualisasi data yang berat, agar *commerce-service* tidak memikul beban *analytics query*.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Arsitektur Internal
+- **Port Layanan:** Terjalan di port `4001` (secara default).
+- **Database:** Prisma ORM (Driver: Prisma Pg) terkoneksi ke Operational Database. Model yang dipertahankan hanyalah tabel-tabel spesifik admin (`AdminUser`, dsb).
+- **Rute Utama:** 
+  - `/api/admin/auth`
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## Hubungan Dengan Frontend Admin (`admin-web`)
+Penting untuk diketahui bahwa _Dashboard_ **tidak** hanya bergantung pada Admin Service ini. Otentikasi _Dashboard_ memang masuk ke `admin-service`, namun untuk menambah Produk, _Dashboard_ akan langsung memanggil `commerce-service` melalui proxy UI, sehingga `admin-service` menjadi *stateless* dan berfokus murni pada sekuriti tingkat tinggi.
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.15.1 create --template minimal --types ts --add eslint sveltekit-adapter="adapter:auto" --install npm ecommerce-admin-server
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+## Perintah Pengembangan
+```bash
+# Menjalankan mode development
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

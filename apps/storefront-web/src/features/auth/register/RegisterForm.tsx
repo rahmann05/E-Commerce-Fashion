@@ -7,7 +7,7 @@ import Link from "next/link";
 import LoginInput from "../login/LoginInput";
 import LoginErrorMessage from "../login/LoginErrorMessage";
 import LoginSubmitButton from "../login/LoginSubmitButton";
-import { authApi } from "@/lib/api/auth";
+import { authApi } from "@/shared/api/auth";
 
 export default function RegisterForm() {
   const router = useRouter();

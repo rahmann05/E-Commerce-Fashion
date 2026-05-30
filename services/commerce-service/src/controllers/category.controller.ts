@@ -1,65 +1,20 @@
-import prisma from "../db/client";
+import { Request, Response, NextFunction } from 'express';
+import { CategoryService } from '../services/category.service';
 
 export class CategoryController {
-  static async getCategories() {
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: { products: true }
-        }
-      },
-      orderBy: { name: 'asc' }
-    });
-    return { data: categories };
+  static async getCategories(req: Request, res: Response, next: NextFunction) {
+    try { res.json(await CategoryService.getCategories()); } catch(e) { next(e); }
   }
-
-  static async createCategory(data: any) {
-    const name = String(data.name || '').trim();
-    const slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-    
-    const category = await prisma.category.create({
-      data: {
-        name,
-        slug,
-        image: data.image
-      }
-    });
-    return { data: category };
+  static async createCategory(req: Request, res: Response, next: NextFunction) {
+    try { res.json(await CategoryService.createCategory(req.body)); } catch(e) { next(e); }
   }
-
-  static async getCategoryById(id: string) {
-    const category = await prisma.category.findUnique({
-      where: { id },
-      include: {
-        products: {
-          orderBy: { createdAt: 'desc' }
-        },
-        _count: {
-          select: { products: true }
-        }
-      }
-    });
-    return { data: category };
+  static async getCategoryById(req: Request, res: Response, next: NextFunction) {
+    try { res.json(await CategoryService.getCategoryById(req.params.id)); } catch(e) { next(e); }
   }
-
-  static async updateCategory(id: string, data: any) {
-    const updateData: { name?: string; image?: string; slug?: string } = { ...data };
-    if (data.name) {
-      updateData.slug = data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-    }
-
-    const updated = await prisma.category.update({
-      where: { id },
-      data: updateData
-    });
-    return { data: updated };
+  static async updateCategory(req: Request, res: Response, next: NextFunction) {
+    try { res.json(await CategoryService.updateCategory(req.params.id, req.body)); } catch(e) { next(e); }
   }
-
-  static async deleteCategory(id: string) {
-    const productsCount = await prisma.product.count({ where: { categoryId: id } });
-    if (productsCount > 0) throw new Error("Cannot delete category with products");
-    
-    await prisma.category.delete({ where: { id } });
-    return { success: true };
+  static async deleteCategory(req: Request, res: Response, next: NextFunction) {
+    try { res.json(await CategoryService.deleteCategory(req.params.id)); } catch(e) { next(e); }
   }
 }
