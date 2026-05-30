@@ -1,29 +1,7 @@
 services:
-  api-gateway:
-    build:
-      context: .
-      dockerfile: services/api-gateway/Dockerfile
-    ports:
-      - "${GATEWAY_PORT:-8000}:8000"
-    environment:
-      - PORT=8000
-      - COMMERCE_SERVICE_URL=http://commerce-service:3001
-      - ADMIN_SERVICE_URL=http://admin-service:4001
-      - CUSTOMER_SERVICE_URL=http://customer-service:4002
-      - STOREFRONT_URL=${STOREFRONT_PROD_URL:-http://localhost:3000}
-      - ADMIN_URL=${ADMIN_PROD_URL:-http://localhost:4000}
-      - GATEWAY_PROD_URL=${GATEWAY_PROD_URL}
-      - STOREFRONT_PROD_URL=${STOREFRONT_PROD_URL}
-      - ADMIN_PROD_URL=${ADMIN_PROD_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
-      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novure-internal-mesh-key-2026}
-    depends_on:
-      - commerce-service
-      - admin-service
-      - customer-service
-
   commerce-service:
+    container_name: commerce-service
+    hostname: commerce-service
     build:
       context: .
       dockerfile: services/commerce-service/Dockerfile
@@ -37,77 +15,97 @@ services:
       - DATABASE_URL=${CORE_DATABASE_URL}
       - DIRECT_URL=${CORE_DIRECT_URL}
       - JWT_SECRET=${JWT_SECRET}
-      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novure-internal-mesh-key-2026}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novarium-internal-mesh-key-2026}
 
   admin-service:
+    container_name: admin-service
+    hostname: admin-service
     build:
       context: .
       dockerfile: services/admin-service/Dockerfile
       args:
         - DATABASE_URL=${ADMIN_DATABASE_URL}
-        - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
-        - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}
-        - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
     ports:
       - "4001:4001"
     environment:
       - PORT=4001
       - DATABASE_URL=${ADMIN_DATABASE_URL}
       - DIRECT_URL=${ADMIN_DIRECT_URL}
-      - COMMERCE_API_URL=http://commerce-service:3001/api/admin
-      - MIDTRANS_IS_PRODUCTION=false
-      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
-      - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
       - JWT_SECRET=${JWT_SECRET}
-      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novure-internal-mesh-key-2026}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novarium-internal-mesh-key-2026}
 
   customer-service:
+    container_name: customer-service
+    hostname: customer-service
     build:
       context: .
       dockerfile: services/customer-service/Dockerfile
     ports:
       - "4002:4002"
     environment:
+      - PORT=4002
+      - DATABASE_URL=${CORE_DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novarium-internal-mesh-key-2026}
+      - COMMERCE_SERVICE_URL=http://commerce-service:3001
+      - ORDER_SERVICE_URL=http://order-service:4003
+
+  order-service:
+    container_name: order-service
+    hostname: order-service
+    build:
+      context: .
+      dockerfile: services/order-service/Dockerfile
+    ports:
+      - "4003:4003"
+    environment:
+      - PORT=4003
       - DATABASE_URL=${ADMIN_DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
-      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novure-internal-mesh-key-2026}
-      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
-      - MIDTRANS_IS_PRODUCTION=false
-      - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novarium-internal-mesh-key-2026}
       - COMMERCE_SERVICE_URL=http://commerce-service:3001
-      - INTERNAL_API_URL=http://api-gateway:8000/api/admin/storefront
+      - CUSTOMER_SERVICE_URL=http://customer-service:4002
+      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
+      - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}
 
   storefront-web:
+    container_name: storefront-web
+    hostname: storefront-web
     build:
       context: .
       dockerfile: apps/storefront-web/Dockerfile
-      args:
-        - NEXT_PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
-        - NEXT_PUBLIC_API_URL=${GATEWAY_PROD_URL:-http://localhost:8000}/api/storefront
-        - NEXT_PUBLIC_GATEWAY_URL=${GATEWAY_PROD_URL:-http://localhost:8000}
     ports:
       - "${STOREFRONT_PORT:-3000}:3000"
     environment:
       - PORT=3000
       - NEXT_PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
-      - NEXT_PUBLIC_GATEWAY_URL=${GATEWAY_PROD_URL:-http://localhost:8000}
-      - NEXT_PUBLIC_API_URL=${GATEWAY_PROD_URL:-http://localhost:8000}/api/storefront
-      - INTERNAL_API_URL=http://api-gateway:8000/api/storefront
+      - NEXT_PUBLIC_COMMERCE_API_URL=http://localhost:3001/api/commerce
+      - NEXT_PUBLIC_CUSTOMER_API_URL=http://localhost:4002/api/customer
+      - NEXT_PUBLIC_ORDER_API_URL=http://localhost:4003/api/orders
+      - INTERNAL_COMMERCE_API_URL=http://commerce-service:3001/api/commerce
+      - INTERNAL_CUSTOMER_API_URL=http://customer-service:4002/api/customer
+      - INTERNAL_ORDER_API_URL=http://order-service:4003/api/orders
+    depends_on:
+      - commerce-service
+      - customer-service
+      - order-service
 
   admin-web:
+    container_name: admin-web
+    hostname: admin-web
     build:
       context: .
       dockerfile: apps/admin-web/Dockerfile
-      args:
-        - PUBLIC_GATEWAY_URL=${GATEWAY_PROD_URL:-http://localhost:8000}
-        - PUBLIC_STOREFRONT_URL=${STOREFRONT_PROD_URL:-http://localhost:3000}
-        - PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
-        - PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY}
     ports:
       - "${ADMIN_DASHBOARD_PORT:-4000}:4000"
     environment:
       - PORT=4000
-      - PUBLIC_GATEWAY_URL=${GATEWAY_PROD_URL:-http://localhost:8000}
-      - PUBLIC_STOREFRONT_URL=${STOREFRONT_PROD_URL:-http://localhost:3000}
-      - API_BASE_URL=${GATEWAY_PROD_URL:-http://api-gateway:8000}/api/admin/storefront
-      - INTERNAL_API_URL=${GATEWAY_PROD_URL:-http://api-gateway:8000}/api/admin/management
+      - PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
+      - PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY}
+      - PUBLIC_COMMERCE_API_URL=http://localhost:3001/api/commerce/admin
+      - PUBLIC_ADMIN_API_URL=http://localhost:4001/api/admin
+      - INTERNAL_COMMERCE_API_URL=http://commerce-service:3001/api/commerce/admin
+      - INTERNAL_ADMIN_API_URL=http://admin-service:4001/api/admin
+    depends_on:
+      - commerce-service
+      - admin-service

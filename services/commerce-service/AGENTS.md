@@ -44,7 +44,7 @@ Layanan ini menggunakan pola desain berlapis untuk pemisahan tanggung jawab yang
 
 ### Integrasi
 - **Framework**: Express 5.
-- **Database**: PostgreSQL via `@novure/database`.
+- **Database**: PostgreSQL via `@novarium/database`.
 - **Runtime & Execution**: Node.js 20+. Dockerfile menggunakan `npx tsx src/index.ts` untuk menjalankan layanan.
 - **Port**: **3001** (Internal Mesh).
 - **BFF Alignment**: Di-mount oleh API Gateway pada jalur internal `/api/commerce`.

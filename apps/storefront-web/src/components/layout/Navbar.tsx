@@ -66,7 +66,7 @@ export default function Navbar() {
           <Link href="/about" className={styles.navLink}>About Us</Link>
         </div>
         <Link href="/" className={styles.brand}>
-          Novure
+          Novarium
         </Link>
         <div className={styles.actionsGroup}>
           <CartLink />

@@ -15,7 +15,7 @@ export default function LoginDemoHint() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, delay: 1 }}
     >
-      Demo: <span>demo@novure.com</span> / <span>novure123</span>
+      Demo: <span>demo@novarium.com</span> / <span>novarium123</span>
     </motion.p>
   );
 }

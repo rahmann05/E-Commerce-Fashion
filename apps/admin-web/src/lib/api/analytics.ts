@@ -3,7 +3,7 @@
  * API client for Business Intelligence and Analytics.
  */
 
-import { API_BASE_URL } from "./config";
+import { COMMERCE_API_URL } from "./config";
 
 export const analyticsApi = {
   /**
@@ -11,7 +11,7 @@ export const analyticsApi = {
    */
   async getAnalytics(fetch: any) {
     try {
-      const res = await fetch(`${API_BASE_URL}/analytics`);
+      const res = await fetch(`${COMMERCE_API_URL}/analytics`);
       if (!res.ok) return { data: null, error: `Fetch failed: ${res.status}` };
       return await res.json();
     } catch (e: any) {

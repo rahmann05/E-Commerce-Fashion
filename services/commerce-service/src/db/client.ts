@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/client";
+import { PrismaClient } from "@novarium/commerce-prisma";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 

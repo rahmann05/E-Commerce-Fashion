@@ -65,7 +65,7 @@ export default function RegisterForm() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
       >
-        Bergabung dengan Novure untuk pengalaman belanja premium.
+        Bergabung dengan Novarium untuk pengalaman belanja premium.
       </motion.p>
 
       <LoginErrorMessage message={error} />

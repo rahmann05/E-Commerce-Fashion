@@ -110,7 +110,7 @@ export default function AboutHero({ scrollYProgress }: AboutHeroProps) {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent"
           }}>
-            Novure.
+            Novarium.
           </span>
         </motion.h1>
 

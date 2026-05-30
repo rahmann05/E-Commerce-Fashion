@@ -1,18 +1,18 @@
-import { prisma } from '../db/client';
-import bcrypt from 'bcryptjs';
-import { generateToken } from '../middleware/auth';
+import { prisma } from '../db/client.js';
+import { generateToken, verifyPassword, hashPassword } from '@novarium/shared';
+import { env } from '../config/env.js';
 
 export class AuthService {
   static async login(email: string, password: any) {
     const customer = await prisma.customer.findUnique({ where: { email } });
     
-    if (!customer || !bcrypt.compareSync(password, customer.password)) {
+    if (!customer || !(await verifyPassword(password, customer.password))) {
       const error = new Error('Email atau password salah') as any;
       error.status = 401;
       throw error;
     }
     
-    const token = generateToken(customer.id, 'CUSTOMER');
+    const token = generateToken(customer.id, 'CUSTOMER', env.JWT_SECRET, '7d');
     const { password: _, ...customerData } = customer;
     return { user: customerData, token };
   }
@@ -27,12 +27,12 @@ export class AuthService {
       throw error;
     }
     
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    const hashedPassword = await hashPassword(password);
     const customer = await prisma.customer.create({
       data: { email, password: hashedPassword, name, phone }
     });
     
-    const token = generateToken(customer.id, 'CUSTOMER');
+    const token = generateToken(customer.id, 'CUSTOMER', env.JWT_SECRET, '7d');
     const { password: _, ...customerData } = customer;
     return { user: customerData, token };
   }

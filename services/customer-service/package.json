@@ -1,23 +1,23 @@
 {
-  "name": "@novure/customer-service",
+  "name": "@novarium/customer-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
-    "build": "tsc"
+    "build": "tsup src/index.ts --format cjs --clean --external @novarium/customer-prisma --external @prisma/adapter-pg"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@novure/database": "*",
+    "@novarium/contracts": "*",
+    "@novarium/database": "*",
+    "@novarium/shared": "*",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -35,6 +35,7 @@
     "@types/pg": "^8.20.0",
     "prisma": "^7.8.0",
     "ts-node": "^10.9.2",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }

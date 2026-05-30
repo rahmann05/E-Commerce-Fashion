@@ -1,24 +1,19 @@
 import express from 'express';
-import cors from 'cors';
-import authRoutes from './routes/auth.routes';
-import orderRoutes from './routes/order.routes';
-import shippingRoutes from './routes/shipping.routes';
-import { errorHandler } from './middleware/error-handler';
+import { createCorsMiddleware, errorHandler } from '@novarium/shared';
+import { env } from './config/env.js';
+import routes from './routes/index.js';
 
 const app = express();
 
-app.use(cors());
+app.use(createCorsMiddleware(env.ALLOWED_ORIGINS));
 app.use(express.json());
 
-// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', service: 'admin-service' });
 });
 
-// Modular Routes
-app.use('/api/admin/auth', authRoutes);
-app.use('/api/admin/orders', orderRoutes);
-app.use('/api/admin/shipping', shippingRoutes);
+// Routes — semua di bawah /api/admin
+app.use('/api/admin', routes);
 
 // Error Handler
 app.use(errorHandler);

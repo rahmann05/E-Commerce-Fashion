@@ -1,6 +1,6 @@
-# NOVURE — AI Agent Styling Guide
+# NOVARIUM — AI Agent Styling Guide
 
-> Panduan ini adalah **sumber kebenaran tunggal** untuk semua keputusan visual di project Novure.
+> Panduan ini adalah **sumber kebenaran tunggal** untuk semua keputusan visual di project Novarium.
 > AI agent WAJIB membaca dokumen ini sebelum menulis CSS, inline style, atau JSX baru.
 
 ---
@@ -620,5 +620,5 @@ background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%,
 
 ---
 
-*Dibuat dari audit kode sumber Novure landing page.*
+*Dibuat dari audit kode sumber Novarium landing page.*
 *Update dokumen ini setiap ada perubahan design system baru.*

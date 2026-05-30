@@ -1,5 +1,5 @@
 import prisma from '../db/client';
-import { Prisma } from "../generated/client";
+import { Prisma } from "@novarium/commerce-prisma";
 
 export class ProductService {
   static async getProducts(params: { categoryId?: string, categoryName?: string, query?: string, idsParam?: string }) {

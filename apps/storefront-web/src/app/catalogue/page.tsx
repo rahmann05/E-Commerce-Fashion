@@ -15,9 +15,9 @@ import { getProducts } from "@/lib/actions/catalogue";
 import styles from "@/styles/catalogue-page.module.css";
 
 export const metadata: Metadata = {
-  title: "Catalogue | Novure — Essentialized Daily Wear",
+  title: "Catalogue | Novarium — Essentialized Daily Wear",
   description:
-    "Browse the full Novure collection — premium tees, denim, and accessories crafted for modern everyday wear.",
+    "Browse the full Novarium collection — premium tees, denim, and accessories crafted for modern everyday wear.",
 };
 
 // Revalidate every 60s so new DB entries show up without a full deploy

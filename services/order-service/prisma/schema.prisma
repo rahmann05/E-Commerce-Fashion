@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@novarium/order-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  AWAITING_PAYMENT
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+model Order {
+  id             String            @id @default(cuid())
+  customerId     String            // Reference ke customer-service (by ID)
+  addressSnapshot String?          // JSON snapshot alamat saat checkout
+  totalAmount    Decimal           @db.Decimal(10, 2)
+  shippingAmount Decimal?          @db.Decimal(10, 2)
+  status         OrderStatus       @default(AWAITING_PAYMENT)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  
+  items          OrderItem[]
+  returnRequest  ReturnRequest?
+  tracking       ShippingTracking?
+}
+
+model OrderItem {
+  id               String  @id @default(cuid())
+  orderId          String
+  order            Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String  // Reference to Supabase Product ID
+  productVariantId String? // Reference to Supabase ProductVariant ID
+  size             String?
+  quantity         Int
+  price            Decimal @db.Decimal(10, 2)
+}
+
+model ReturnRequest {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  reason      String
+  status      String   @default("PENDING")
+  images      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ShippingCarrier {
+  id        String             @id @default(cuid())
+  name      String
+  code      String             @unique
+  isActive  Boolean            @default(true)
+  baseRate  Decimal            @db.Decimal(10, 2)
+  trackings ShippingTracking[]
+}
+
+model ShippingTracking {
+  id              String          @id @default(cuid())
+  orderId         String          @unique
+  order           Order           @relation(fields: [orderId], references: [id])
+  carrierId       String
+  carrier         ShippingCarrier @relation(fields: [carrierId], references: [id])
+  trackingNumber  String          @unique
+  status          String          @default("PENDING")
+  estimatedArrival DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  logs            ShippingLog[]
+}
+
+model ShippingLog {
+  id                 String           @id @default(cuid())
+  shippingTrackingId String
+  tracking           ShippingTracking @relation(fields: [shippingTrackingId], references: [id], onDelete: Cascade)
+  status             String
+  location           String?
+  description        String?
+  timestamp          DateTime         @default(now())
+}

@@ -65,7 +65,7 @@ Rewrite the file to contain exactly two main sections.
 Section 1 (Instruksi dan Panduan) must cover:
 - Express BFF (Backend for Frontend) pattern.
 - Strict proxying rules using `http-proxy-middleware`.
-- Security validation using Joi (from `@novure/contracts`) and JWT.
+- Security validation using Joi (from `@novarium/contracts`) and JWT.
 - Internal Mesh communication (using `x-internal-key`).
 
 Section 2 (Kondisi Saat Ini) must document the current actual state:

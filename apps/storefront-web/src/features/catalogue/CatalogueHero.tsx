@@ -99,7 +99,7 @@ export default function CatalogueHero() {
           onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.9)")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
         >
-          ← Novure
+          ← Novarium
         </Link>
       </motion.div>
 

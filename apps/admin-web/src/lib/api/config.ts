@@ -1,24 +1,16 @@
-import { env } from '$env/dynamic/public';
+import { env as publicEnv } from '$env/dynamic/public';
 import { browser } from '$app/environment';
 
-// URL Storefront untuk preview gambar atau link produk
-export const STOREFRONT_URL = env.PUBLIC_STOREFRONT_URL || 'http://localhost:3000';
+export const STOREFRONT_URL = publicEnv.PUBLIC_STOREFRONT_URL || 'http://localhost:3000';
 
-// URL Utama Gateway (untuk browser)
-export const GATEWAY_URL = env.PUBLIC_GATEWAY_URL || 'http://localhost:8000';
+export const COMMERCE_API_URL = browser 
+    ? (publicEnv.PUBLIC_COMMERCE_API_URL || 'http://localhost:3001/api/commerce/admin')
+    : (publicEnv.PUBLIC_COMMERCE_API_URL || 'http://commerce-service:3001/api/commerce/admin');
 
-// Sisi Server (Docker) harus menggunakan nama service agar bisa saling terhubung
-const INTERNAL_GATEWAY = 'http://api-gateway:8000';
+export const ADMIN_API_URL = browser 
+    ? (publicEnv.PUBLIC_ADMIN_API_URL || 'http://localhost:4001/api/admin')
+    : (publicEnv.PUBLIC_ADMIN_API_URL || 'http://admin-service:4001/api/admin');
 
-// URL Gateway untuk data publik storefront
-export const PUBLIC_API_URL = `${GATEWAY_URL}/api/storefront`;
-
-// URL Gateway untuk data transaksional (Produk, Pesanan, dsb)
-export const API_BASE_URL = browser 
-    ? `${GATEWAY_URL}/api/admin/storefront` 
-    : `${INTERNAL_GATEWAY}/api/admin/storefront`;
-
-// URL untuk data operasional internal (Auth, Voucher, dsb)
-export const INTERNAL_API_URL = browser 
-    ? `${GATEWAY_URL}/api/admin` 
-    : `${INTERNAL_GATEWAY}/api/admin`;
+export const ORDER_API_URL = browser 
+    ? (publicEnv.PUBLIC_ORDER_API_URL || 'http://localhost:4003/api/orders/admin')
+    : (publicEnv.PUBLIC_ORDER_API_URL || 'http://order-service:4003/api/orders/admin');

@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
-  title: Novure E-Commerce API Gateway
+  title: Novarium E-Commerce API Gateway
   version: 1.3.0
   description: |
-    Single entry point for the Novure headless e-commerce ecosystem.
+    Single entry point for the Novarium headless e-commerce ecosystem.
 
     **Route groups:**
     - `/api/storefront/*` — Public storefront BFF (catalog, auth, cart, checkout, orders, shipping)
@@ -16,7 +16,7 @@ info:
     ```
     Login endpoints additionally include a top-level `token` field.
   contact:
-    name: Novure Engineering
+    name: Novarium Engineering
   license:
     name: MIT
 
@@ -56,7 +56,7 @@ components:
     cookieAuth:
       type: apiKey
       in: cookie
-      name: novure_jwt
+      name: novarium_jwt
       description: JWT session cookie set on login
 
     bearerAuth:
@@ -660,7 +660,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: Login successful — sets `novure_jwt` cookie and returns token
+          description: Login successful — sets `novarium_jwt` cookie and returns token
           content:
             application/json:
               schema:

@@ -1,12 +1,11 @@
 {
-	"name": "@novure/admin-service",
+	"name": "@novarium/admin-service",
 	"private": true,
 	"version": "0.0.1",
-	"type": "module",
 	"scripts": {
 		"dev": "tsx src/index.ts",
 		"start": "node dist/index.js",
-		"build": "tsc",
+		"build": "tsup",
 		"prisma:generate": "prisma generate"
 	},
 	"devDependencies": {
@@ -20,12 +19,15 @@
 		"@types/pg": "^8.20.0",
 		"eslint": "^10.2.0",
 		"globals": "^17.4.0",
+		"tsup": "^8.5.1",
 		"tsx": "^4.21.0",
 		"typescript": "^6.0.2",
 		"typescript-eslint": "^8.58.1"
 	},
 	"dependencies": {
-		"@novure/database": "*",
+		"@novarium/contracts": "*",
+		"@novarium/database": "*",
+		"@novarium/shared": "*",
 		"@prisma/adapter-pg": "^7.8.0",
 		"@prisma/client": "^7.8.0",
 		"@prisma/config": "^7.8.0",

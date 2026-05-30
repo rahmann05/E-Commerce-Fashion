@@ -57,7 +57,7 @@ export default function AboutValues() {
             style={{ flex: 1, textAlign: "right" }}
           >
             <p style={{ maxWidth: "350px", marginLeft: "auto", fontSize: "1rem", lineHeight: 1.6, color: "rgba(255,255,255,0.5)", fontWeight: 300 }}>
-              At Novure, we believe that the best products are born from a balance
+              At Novarium, we believe that the best products are born from a balance
               of heritage, ethics, and modern engineering.
             </p>
           </motion.div>

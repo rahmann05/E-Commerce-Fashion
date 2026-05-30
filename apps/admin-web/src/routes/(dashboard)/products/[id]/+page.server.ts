@@ -1,11 +1,11 @@
-import { API_BASE_URL } from '@lib/api/config';
+import { COMMERCE_API_URL, ORDER_API_URL, ADMIN_API_URL } from '@lib/api/config';
 import type { PageServerLoad, Actions } from './$types';
 import { error, fail, redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
 	const [productRes, categoriesRes] = await Promise.all([
-		fetch(`${API_BASE_URL}/products/${params.id}`),
-		fetch(`${API_BASE_URL}/categories`)
+		fetch(`${COMMERCE_API_URL}/products/${params.id}`),
+		fetch(`${COMMERCE_API_URL}/categories`)
 	]);
 
 	if (!productRes.ok) throw error(404, 'Product not found');
@@ -35,7 +35,7 @@ export const actions: Actions = {
 
 		const totalStock = sizeStocks.reduce((acc, curr) => acc + curr, 0);
 
-		const res = await fetch(`${API_BASE_URL}/products/${params.id}`, {
+		const res = await fetch(`${COMMERCE_API_URL}/products/${params.id}`, {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -56,7 +56,7 @@ export const actions: Actions = {
 		return { success: true };
 	},
 	delete: async ({ params, fetch }) => {
-		const res = await fetch(`${API_BASE_URL}/products/${params.id}`, {
+		const res = await fetch(`${COMMERCE_API_URL}/products/${params.id}`, {
 			method: 'DELETE'
 		});
 

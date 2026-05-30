@@ -3,14 +3,14 @@
  * Pure API client for Cart management.
  */
 
-import { API_BASE_URL, fetchOptions } from "./config";
+import { CUSTOMER_API_URL, fetchOptions } from "./config";
 
 export const cartApi = {
   /**
    * Get current user's cart
    */
   async getCart() {
-    const res = await fetch(`${API_BASE_URL}/cart`, fetchOptions());
+    const res = await fetch(`${CUSTOMER_API_URL}/cart`, fetchOptions());
     if (!res.ok) throw new Error("Failed to fetch cart");
     return await res.json();
   },
@@ -19,7 +19,7 @@ export const cartApi = {
    * Add item to cart
    */
   async addToCart(productId: string, productVariantId: string, quantity: number) {
-    const res = await fetch(`${API_BASE_URL}/cart`, fetchOptions({
+    const res = await fetch(`${CUSTOMER_API_URL}/cart`, fetchOptions({
       method: "POST",
       body: JSON.stringify({ productId, productVariantId, quantity }),
     }));
@@ -30,7 +30,7 @@ export const cartApi = {
    * Update item quantity
    */
   async updateQuantity(itemId: string, quantity: number) {
-    const res = await fetch(`${API_BASE_URL}/cart`, fetchOptions({
+    const res = await fetch(`${CUSTOMER_API_URL}/cart`, fetchOptions({
       method: "PUT",
       body: JSON.stringify({ itemId, quantity }),
     }));
@@ -41,7 +41,7 @@ export const cartApi = {
    * Remove item from cart
    */
   async removeItem(itemId: string) {
-    const res = await fetch(`${API_BASE_URL}/cart/${itemId}`, fetchOptions({
+    const res = await fetch(`${CUSTOMER_API_URL}/cart/${itemId}`, fetchOptions({
       method: "DELETE",
     }));
     return await res.json();
@@ -51,7 +51,7 @@ export const cartApi = {
    * Clear cart
    */
   async clearCart() {
-    const res = await fetch(`${API_BASE_URL}/cart`, fetchOptions({
+    const res = await fetch(`${CUSTOMER_API_URL}/cart`, fetchOptions({
       method: "PATCH",
     }));
     return await res.json();

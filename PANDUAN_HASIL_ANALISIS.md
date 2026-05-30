@@ -110,11 +110,11 @@ _Catat risiko yang belum bisa ditangani, dependensi eksternal, atau keputusan bi
 # services/api-gateway/openapi.yaml
 openapi: "3.1.0"
 info:
-  title: Novure E-Commerce API Gateway
+  title: Novarium E-Commerce API Gateway
   version: "2.0.0"
 
 servers:
-  - url: https://api.novure.id
+  - url: https://api.novarium.id
     description: Production
   - url: http://localhost:8000
     description: Development
@@ -243,7 +243,7 @@ components:
     CookieAuth:
       type: apiKey
       in: cookie
-      name: novure_jwt
+      name: novarium_jwt
 
 # ── Storefront Routes (/api/storefront) ────────────────────────────────────────
 paths:
@@ -311,7 +311,7 @@ paths:
                 password: { type: string }
       responses:
         "200":
-          description: Login successful; sets httpOnly novure_jwt cookie
+          description: Login successful; sets httpOnly novarium_jwt cookie
           content:
             application/json:
               schema:
@@ -421,7 +421,7 @@ paths:
                 password: { type: string }
       responses:
         "200":
-          description: Sets httpOnly novure_jwt admin cookie
+          description: Sets httpOnly novarium_jwt admin cookie
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ApiResponse' }
@@ -555,7 +555,7 @@ File: services/api-gateway/index.ts
 The gateway is a thin http-proxy-middleware reverse proxy. It does no request validation, no schema enforcement, and no response normalization. Key issues:
 
 No authentication middleware. Auth is entirely delegated to downstream services. There is no centralized JWT verification or rate-limiting at the gateway (index.ts:82–114).
-Hardcoded JWT secret exposed in docker-compose.yml. JWT_SECRET=novure-super-secret-key-2026 appears in plain text at lines 17, 58, and 67.
+Hardcoded JWT secret exposed in docker-compose.yml. JWT_SECRET=novarium-super-secret-key-2026 appears in plain text at lines 17, 58, and 67.
 Path rewrite inconsistency. Rule 4 rewrites /api/admin/auth → /api/admin/management/auth (index.ts:150–154), but rule 2 passes /api/admin/management through unchanged with a no-op rewrite (index.ts:130–134). This creates maintenance confusion. Rule 6 is also labeled twice ("6.") (index.ts:166,172).
 No OpenAPI spec. There is no contract file in services/api-gateway/.
 CORS allows all localhost origins indiscriminately: origin && origin.includes('localhost') at index.ts:25 bypasses the allowlist entirely for any localhost port.
@@ -576,16 +576,16 @@ The Supabase project hostname is hardcoded in the Next.js image config. While th
 ts
 // apps/storefront-web/src/frontend/lib/mock-users.ts:32–52
 MOCK_USERS: [
-  { email: "demo@novure.com", password: "novure123" },   // plaintext
-  { email: "admin@novure.com", password: "admin123" },   // plaintext
+  { email: "demo@novarium.com", password: "novarium123" },   // plaintext
+  { email: "admin@novarium.com", password: "admin123" },   // plaintext
 ]
 The comment explicitly says "plaintext for demo only — hash in production" but these credentials are committed to the repo. More critically, AuthContext.tsx:18 still imports from mock-users, meaning the type SessionUser is coupled to this file. The verifyCredentials() function (mock-users.ts:58–78) is never actually called (the real auth goes through the API), so this file is dead code that creates credential exposure risk.
 
 ❌ Issue 3 — JWT stored in localStorage
 ts
 // apps/storefront-web/src/frontend/lib/auth.ts:15,63
-const token = localStorage.getItem("novure_jwt");
-localStorage.setItem("novure_jwt", result.token);
+const token = localStorage.getItem("novarium_jwt");
+localStorage.setItem("novarium_jwt", result.token);
 localStorage is XSS-vulnerable. The correct pattern for a headless storefront is httpOnly cookie-only. CartContext.tsx also reads from localStorage at lines 52, 76, 100, 124, 151.
 
 ❌ Issue 4 — Direct third-party API call bypassing gateway
@@ -636,7 +636,7 @@ Framework: Express
 
 Auth/cart/orders/checkout all go through proper Prisma + JWT middleware.
 src/routes/cart.ts:9,16 — the customer-service fetches product data directly from commerce-service internally (COMMERCE_SERVICE_URL = 'http://commerce-service:3001'). This is a valid internal service call but is not documented in the gateway. The cart hydration (cart.ts:13–31) makes N+1 fetches (one per cart item) with no batching.
-src/middleware/auth.ts:4 — JWT_SECRET defaults to 'novure-super-secret-key-2026', same as in all other services and exposed in docker-compose. All services share one secret with no rotation strategy.
+src/middleware/auth.ts:4 — JWT_SECRET defaults to 'novarium-super-secret-key-2026', same as in all other services and exposed in docker-compose. All services share one secret with no rotation strategy.
 src/routes/checkout.ts:143–165 — the Midtrans webhook handler at POST /midtrans/notification performs no signature verification. Midtrans signs payloads with a SHA512 hash; ignoring it allows spoofed payment notifications.
 Summary of Headless Violations
 #	Location	Issue	Severity
@@ -656,12 +656,12 @@ Step-by-Step Migration Roadmap to Fully Headless Architecture
 Phase 1: Security Hardening (Immediate)
 Remove apps/admin-web/src/lib/supabase.ts entirely. Replace all usages (audit via grep -r 'supabase' in apps/admin-web/) with gateway API calls. All admin reads/writes for Supabase data must go through commerce-service → gateway.
 Delete apps/storefront-web/src/frontend/lib/mock-users.ts. Remove the import in AuthContext.tsx:18. The SessionUser type should be defined inline or in a shared types package.
-Rotate the JWT secret (novure-super-secret-key-2026 appears in docker-compose.yml:17,58,67 and hardcoded in customer-service/src/middleware/auth.ts:4, admin-service/src/hooks.server.ts:5). Move to a proper JWT_SECRET env var injected only at runtime, never in source code.
+Rotate the JWT secret (novarium-super-secret-key-2026 appears in docker-compose.yml:17,58,67 and hardcoded in customer-service/src/middleware/auth.ts:4, admin-service/src/hooks.server.ts:5). Move to a proper JWT_SECRET env var injected only at runtime, never in source code.
 Implement Midtrans webhook signature verification in customer-service/src/routes/checkout.ts:138. Validate signature_key = SHA512(order_id + status_code + gross_amount + server_key) per Midtrans docs.
 Add auth middleware to commerce-service admin routes (app/api/admin/products/route.ts, app/api/admin/categories, app/api/admin/analytics). Check a service-level API key or forward the admin JWT from the gateway.
 Phase 2: Gateway Authentication Centralization
-Add centralized JWT verification middleware in the gateway (services/api-gateway/index.ts). Verify the novure_jwt cookie / Authorization: Bearer header before proxying to any protected route. Remove per-service auth for routes that go through the gateway (storefront cart, orders, account).
-Move localStorage JWT storage to httpOnly cookies in storefront-web. Update loginUser (auth.ts:63) to rely solely on the set-cookie response header; remove all localStorage.getItem("novure_jwt") reads from CartContext.tsx and auth.ts.
+Add centralized JWT verification middleware in the gateway (services/api-gateway/index.ts). Verify the novarium_jwt cookie / Authorization: Bearer header before proxying to any protected route. Remove per-service auth for routes that go through the gateway (storefront cart, orders, account).
+Move localStorage JWT storage to httpOnly cookies in storefront-web. Update loginUser (auth.ts:63) to rely solely on the set-cookie response header; remove all localStorage.getItem("novarium_jwt") reads from CartContext.tsx and auth.ts.
 Proxy the geography API through the gateway (add a new route /api/storefront/geography that fetches from emsifa). Update geography.ts:1 to point at the gateway.
 Phase 3: Schema and Database Consolidation
 Merge admin-service and customer-service Prisma schemas into one authoritative schema. Since both services use the same ADMIN_DATABASE_URL, either:

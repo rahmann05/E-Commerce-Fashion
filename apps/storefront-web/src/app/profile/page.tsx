@@ -7,8 +7,8 @@ import "@/styles/profile.css";
 import "@/styles/profile-views.css";
 
 export const metadata: Metadata = {
-  title: "Profil Saya | Novure",
-  description: "Kelola akun dan lihat riwayat pesanan Novure Anda.",
+  title: "Profil Saya | Novarium",
+  description: "Kelola akun dan lihat riwayat pesanan Novarium Anda.",
 };
 
 export default function ProfileRoute() {

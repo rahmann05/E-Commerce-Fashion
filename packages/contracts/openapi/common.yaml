@@ -1,10 +1,10 @@
 openapi: "3.1.0"
 info:
-  title: Novure E-Commerce API Gateway
+  title: Novarium E-Commerce API Gateway
   version: "2.0.0"
 
 servers:
-  - url: https://api.novure.id
+  - url: https://api.novarium.id
     description: Production
   - url: http://localhost:8000
     description: Development
@@ -115,4 +115,4 @@ components:
     CookieAuth:
       type: apiKey
       in: cookie
-      name: novure_jwt
+      name: novarium_jwt

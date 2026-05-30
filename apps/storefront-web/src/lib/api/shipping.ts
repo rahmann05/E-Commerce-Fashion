@@ -3,7 +3,7 @@
  * API client for Shipping and Logistics calculations.
  */
 
-import { API_BASE_URL, fetchOptions } from "./config";
+import { ORDER_API_URL, fetchOptions } from "./config";
 
 export interface ShippingParams {
   lat: number;
@@ -30,7 +30,7 @@ export const shippingApi = {
    * Calculate shipping fees based on location
    */
   async calculateShipping(params: ShippingParams): Promise<ShippingResponse> {
-    const res = await fetch(`${API_BASE_URL}/shipping/calculate`, fetchOptions({
+    const res = await fetch(`${ORDER_API_URL}/shipping/calculate`, fetchOptions({
       method: "POST",
       body: JSON.stringify(params),
     }));

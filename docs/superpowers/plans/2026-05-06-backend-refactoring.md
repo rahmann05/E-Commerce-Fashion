@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Refactor `commerce-service` and `admin-service` into pure Node.js/Express BFF architectures, removing Next.js and SvelteKit remnants. Align with the established `src/modules/` architecture.
-**Architecture:** Pure Express with controllers, services, routes, and dtos. Shared database from `@novure/database`.
+**Architecture:** Pure Express with controllers, services, routes, and dtos. Shared database from `@novarium/database`.
 **Tech Stack:** Node.js, Express, TypeScript
 
 ---

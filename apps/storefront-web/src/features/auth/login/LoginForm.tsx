@@ -62,7 +62,7 @@ export default function LoginForm({ redirectTo }: LoginFormProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
       >
-        Masuk ke akun Novure untuk melanjutkan belanja.
+        Masuk ke akun Novarium untuk melanjutkan belanja.
       </motion.p>
 
       {/* Error */}

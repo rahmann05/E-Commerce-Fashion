@@ -1,17 +1,17 @@
 import { redirect } from '@sveltejs/kit';
-import { INTERNAL_API_URL } from '@lib/api/config';
+import { ADMIN_API_URL } from '@lib/api/config';
 
 export const handle = async ({ event, resolve }) => {
     event.locals.user = null;
-    const token = event.cookies.get('novure_jwt');
+    const token = event.cookies.get('novarium_jwt');
     const isLoginPage = event.url.pathname === '/login';
     
     console.log(`[Hooks] Path: ${event.url.pathname}, Token present: ${!!token}`);
 
     if (token) {
         try {
-            const res = await fetch(`${INTERNAL_API_URL}/auth/me`, {
-                headers: { cookie: `novure_jwt=${token}` }
+            const res = await fetch(`${ADMIN_API_URL}/auth/me`, {
+                headers: { cookie: `novarium_jwt=${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -21,11 +21,11 @@ export const handle = async ({ event, resolve }) => {
                 console.log(`[Hooks] Auth SUCCESS for ${user?.email}`);
             } else {
                 console.warn(`[Hooks] Auth FAILED: API returned ${res.status}`);
-                event.cookies.delete('novure_jwt', { path: '/' });
+                event.cookies.delete('novarium_jwt', { path: '/' });
             }
         } catch (e) {
             console.error(`[Hooks] Auth ERROR:`, e);
-            event.cookies.delete('novure_jwt', { path: '/' });
+            event.cookies.delete('novarium_jwt', { path: '/' });
         }
     }
 

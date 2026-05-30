@@ -7,7 +7,7 @@
 
 <nav class="noveru-navbar">
   <a href="/" class="nav-brand">
-    NOVURE <span class="nav-brand-highlight">WORKSPACE</span>
+    NOVARIUM <span class="nav-brand-highlight">WORKSPACE</span>
   </a>
   <div class="nav-links">
     <a href="/" class="nav-link" class:active={$page.url.pathname === '/'}>Overview</a>

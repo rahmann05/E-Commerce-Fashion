@@ -3,14 +3,14 @@
  * API client for Authentication and Identity.
  */
 
-import { API_BASE_URL, fetchOptions } from "./config";
+import { CUSTOMER_API_URL, fetchOptions } from "./config";
 import type { SessionUser } from "@/context/AuthContext";
 
 export const authApi = {
   /** Resolve current user from session cookie */
   async getMe(): Promise<SessionUser | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/me`, fetchOptions({
+      const res = await fetch(`${CUSTOMER_API_URL}/auth/me`, fetchOptions({
         method: "GET",
         cache: "no-store",
       }));
@@ -26,7 +26,7 @@ export const authApi = {
   /** Attempt to log in */
   async login(email: string, password: string): Promise<{ success: boolean; data?: SessionUser; error?: string }> {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, fetchOptions({
+      const res = await fetch(`${CUSTOMER_API_URL}/auth/login`, fetchOptions({
         method: "POST",
         body: JSON.stringify({ email, password }),
       }));
@@ -45,7 +45,7 @@ export const authApi = {
   /** Attempt to register */
   async register(data: Record<string, unknown>): Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }> {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/register`, fetchOptions({
+      const res = await fetch(`${CUSTOMER_API_URL}/auth/register`, fetchOptions({
         method: "POST",
         body: JSON.stringify(data),
       }));
@@ -58,7 +58,7 @@ export const authApi = {
 
   /** Clear session cookie */
   async logout(): Promise<void> {
-    await fetch(`${API_BASE_URL}/auth/logout`, fetchOptions({
+    await fetch(`${CUSTOMER_API_URL}/auth/logout`, fetchOptions({
       method: "POST",
       keepalive: true,
     }));

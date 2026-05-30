@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SESSION_COOKIE_NAME = "novure_jwt";
+const SESSION_COOKIE_NAME = "novarium_jwt";
 
 const AUTH_REQUIRED_PREFIXES = [
   "/api/cart",

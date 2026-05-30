@@ -1,5 +1,6 @@
 import express from "express";
-import cors from "cors";
+import { createCorsMiddleware, errorHandler } from "@novarium/shared";
+import { env } from "./config/env";
 import productRoutes from "./routes/product.routes";
 import categoryRoutes from "./routes/category.routes";
 import productAdminRoutes from "./routes/product.admin.routes";
@@ -9,11 +10,10 @@ import shippingRoutes from "./routes/shipping.routes";
 import analyticsRoutes from "./routes/analytics.routes";
 import healthRoutes from "./routes/health.routes";
 import uploadRoutes from "./routes/upload.routes";
-import { errorHandler } from "./middleware/error-handler";
 
 const app = express();
 
-app.use(cors());
+app.use(createCorsMiddleware(env.ALLOWED_ORIGINS));
 app.use(express.json({ limit: "10mb" }));
 
 app.get("/health", (req, res) => {

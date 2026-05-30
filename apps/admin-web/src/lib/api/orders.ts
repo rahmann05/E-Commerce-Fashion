@@ -3,7 +3,7 @@
  * API client for Order and Transaction management.
  */
 
-import { API_BASE_URL } from "./config";
+import { ORDER_API_URL } from "./config";
 
 export const ordersApi = {
   /**
@@ -11,7 +11,7 @@ export const ordersApi = {
    */
   async getOrders(fetch: any, limit?: number) {
     try {
-      let url = `${API_BASE_URL}/orders`;
+      let url = `${ORDER_API_URL}/orders`;
       if (limit) url += `?limit=${limit}`;
       
       const res = await fetch(url);
@@ -28,7 +28,7 @@ export const ordersApi = {
    */
   async getOrderById(fetch: any, id: string) {
     try {
-      const res = await fetch(`${API_BASE_URL}/orders/${id}`);
+      const res = await fetch(`${ORDER_API_URL}/orders/${id}`);
       if (!res.ok) return { data: null };
       return await res.json();
     } catch (e: any) {

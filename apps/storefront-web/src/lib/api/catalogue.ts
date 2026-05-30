@@ -3,7 +3,7 @@
  * Pure API client for Catalogue domain.
  */
 
-import { API_BASE_URL, fetchOptions } from "./config";
+import { COMMERCE_API_URL, fetchOptions } from "./config";
 import type { CatalogueProduct } from "@/features/catalogue/types";
 import { getImageUrl } from "@/lib/image-utils";
 
@@ -55,7 +55,7 @@ export const catalogueApi = {
    * Get all products or filter by category
    */
   async getProducts(category: CategoryFilter = "all"): Promise<CatalogueProduct[]> {
-    let urlString = `${API_BASE_URL}/products`;
+    let urlString = `${COMMERCE_API_URL}/products`;
     if (category !== "all") {
       urlString += `?categoryName=${category}`;
     }
@@ -74,7 +74,7 @@ export const catalogueApi = {
    */
   async getProductById(id: string): Promise<CatalogueProduct | null> {
     try {
-      const urlString = `${API_BASE_URL}/products/${id}`;
+      const urlString = `${COMMERCE_API_URL}/products/${id}`;
       const res = await fetch(urlString, fetchOptions({ cache: "no-store" }));
       if (!res.ok) return null;
 

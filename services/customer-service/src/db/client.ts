@@ -1,13 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@novarium/customer-prisma";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { env } from "../config/env.js";
 
-// For local development, inject the URL into process.env before PrismaClient initializes
-if (!process.env.DATABASE_URL && process.env.ADMIN_DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.ADMIN_DATABASE_URL;
-}
-
-const connectionString = process.env.DATABASE_URL;
+const connectionString = env.DATABASE_URL;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 

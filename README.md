@@ -1,4 +1,4 @@
-# Novure Headless Microservices Ecosystem
+# Novarium Headless Microservices Ecosystem
 
 Arsitektur headless e-commerce yang modular, terukur, dan terisolasi.
 
@@ -53,9 +53,9 @@ Gunakan manifes di folder `k8s/` untuk deployment skala besar:
 kubectl apply -f k8s/namespace.yaml
 
 # 2. Setup Secrets (Contoh)
-kubectl create secret generic novure-secrets \
+kubectl create secret generic novarium-secrets \
   --from-literal=core-database-url="YOUR_NEON_URL" \
-  --namespace=novure-ecosystem
+  --namespace=novarium-ecosystem
 
 # 3. Apply Deployments
 kubectl apply -f k8s/

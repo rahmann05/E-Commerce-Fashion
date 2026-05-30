@@ -1,4 +1,4 @@
-import { API_BASE_URL, INTERNAL_API_URL, PUBLIC_API_URL } from '@lib/api/config';
+import { COMMERCE_API_URL, ORDER_API_URL, ADMIN_API_URL } from '@lib/api/config';
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 
@@ -9,8 +9,8 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 
   try {
     const [orderRes, carriersRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/orders/${params.id}`),
-      fetch(`${INTERNAL_API_URL}/shipping/carriers`)
+      fetch(`${ORDER_API_URL}/orders/${params.id}`),
+      fetch(`${ORDER_API_URL}/shipping/carriers`)
     ]);
     
     if (orderRes.ok) orderData = await orderRes.json();
@@ -39,7 +39,7 @@ export const actions: Actions = {
     try {
       const data = await request.formData();
       const status = data.get('status');
-      const res = await fetch(`${API_BASE_URL}/orders/${params.id}`, {
+      const res = await fetch(`${ORDER_API_URL}/orders/${params.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
@@ -56,7 +56,7 @@ export const actions: Actions = {
       const carrierId = data.get('carrierId');
       const trackingNumber = data.get('trackingNumber');
       
-      const res = await fetch(`${INTERNAL_API_URL}/shipping/tracking/create`, {
+      const res = await fetch(`${ORDER_API_URL}/shipping/tracking/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId: params.id, carrierId, trackingNumber })
@@ -76,7 +76,7 @@ export const actions: Actions = {
       const location = data.get('location');
       const description = data.get('description');
 
-      const res = await fetch(`${INTERNAL_API_URL}/shipping/tracking/update`, {
+      const res = await fetch(`${ORDER_API_URL}/shipping/tracking/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trackingNumber, status, location, description })

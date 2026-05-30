@@ -1,5 +1,5 @@
 {
-  "name": "novure-ecommerce",
+  "name": "novarium-ecommerce",
   "private": true,
   "workspaces": [
     "apps/*",

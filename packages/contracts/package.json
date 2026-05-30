@@ -1,5 +1,5 @@
 {
-  "name": "@novure/contracts",
+  "name": "@novarium/contracts",
   "version": "1.0.0",
   "type": "module",
   "main": "src/index.ts",

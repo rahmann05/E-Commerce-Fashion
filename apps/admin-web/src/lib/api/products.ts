@@ -3,7 +3,7 @@
  * API client for Catalog and Product management.
  */
 
-import { API_BASE_URL } from "./config";
+import { COMMERCE_API_URL } from "./config";
 
 export const productsApi = {
   /**
@@ -11,7 +11,7 @@ export const productsApi = {
    */
   async getProducts(fetch: any, query = '', category = '') {
     try {
-      let url = `${API_BASE_URL}/products?q=${query}`;
+      let url = `${COMMERCE_API_URL}/products?q=${query}`;
       if (category) url += `&category=${category}`;
       
       const res = await fetch(url);
@@ -28,7 +28,7 @@ export const productsApi = {
    */
   async getProductById(fetch: any, id: string) {
     try {
-      const res = await fetch(`${API_BASE_URL}/products/${id}`);
+      const res = await fetch(`${COMMERCE_API_URL}/products/${id}`);
       if (!res.ok) return { data: null };
       return await res.json();
     } catch (e: any) {
@@ -42,7 +42,7 @@ export const productsApi = {
    */
   async getCategories(fetch: any) {
     try {
-      const res = await fetch(`${API_BASE_URL}/categories`);
+      const res = await fetch(`${COMMERCE_API_URL}/categories`);
       if (!res.ok) return { data: [] };
       return await res.json();
     } catch (e: any) {

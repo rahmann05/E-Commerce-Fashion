@@ -30,7 +30,7 @@ export default function LoginPage({ redirectTo }: LoginPageProps) {
     <main className="login-page">
       {/* Top-left back link */}
       <Link href="/" className="login-back-link">
-        ← Novure
+        ← Novarium
       </Link>
 
       {/* Centered form */}
@@ -39,7 +39,7 @@ export default function LoginPage({ redirectTo }: LoginPageProps) {
       {/* Bottom anchors — editorial section label + brand */}
       <div className="login-footer">
         <span className="login-footer-label">/01 — Login</span>
-        <span className="login-footer-brand">Novure ®</span>
+        <span className="login-footer-brand">Novarium ®</span>
       </div>
     </main>
   );

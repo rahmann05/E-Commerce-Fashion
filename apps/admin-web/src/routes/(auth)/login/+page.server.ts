@@ -1,5 +1,5 @@
 import { fail, redirect, isRedirect } from '@sveltejs/kit';
-import { INTERNAL_API_URL } from '@lib/api/config';
+import { COMMERCE_API_URL, ORDER_API_URL, ADMIN_API_URL } from '@lib/api/config';
 
 export const actions = {
     login: async ({ request, cookies }) => {
@@ -13,8 +13,8 @@ export const actions = {
         }
 
         try {
-            console.log(`[LoginAction] Fetching from ${INTERNAL_API_URL}/auth/login`);
-            const res = await fetch(`${INTERNAL_API_URL}/auth/login`, {
+            console.log(`[LoginAction] Fetching from ${ADMIN_API_URL}/auth/login`);
+            const res = await fetch(`${ADMIN_API_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -24,7 +24,7 @@ export const actions = {
 
             if (res.ok) {
                 console.log(`[LoginAction] Success for ${email}`);
-                cookies.set('novure_jwt', data.token, {
+                cookies.set('novarium_jwt', data.token, {
                     path: '/',
                     httpOnly: true,
                     secure: false,
@@ -43,7 +43,7 @@ export const actions = {
         }
     },
     logout: async ({ cookies }) => {
-        cookies.delete('novure_jwt', { path: '/' });
+        cookies.delete('novarium_jwt', { path: '/' });
         throw redirect(303, '/login');
     }
 };

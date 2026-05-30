@@ -1,5 +1,5 @@
 {
-  "name": "@novure/database",
+  "name": "@novarium/database",
   "version": "1.0.0",
   "main": "src/index.ts",
   "dependencies": {

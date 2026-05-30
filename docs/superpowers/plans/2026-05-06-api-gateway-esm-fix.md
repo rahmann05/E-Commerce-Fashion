@@ -4,7 +4,7 @@
 
 **Goal:** Fix ESM compatibility issues in API Gateway and Contracts package, and standardize environment variable loading in the Gateway.
 
-**Architecture:** Add `type: module` and `exports` to `@novure/contracts`, update API Gateway start script to use `tsx`, and align environment variable names with project standards.
+**Architecture:** Add `type: module` and `exports` to `@novarium/contracts`, update API Gateway start script to use `tsx`, and align environment variable names with project standards.
 
 **Tech Stack:** Node.js, ESM, tsx, npm workspaces.
 
@@ -19,7 +19,7 @@
 
 ```json
 {
-  "name": "@novure/contracts",
+  "name": "@novarium/contracts",
   "version": "1.0.0",
   "type": "module",
   "main": "src/index.ts",
@@ -51,8 +51,8 @@ dotenv.config();
 
 export const env = {
   PORT: process.env.PORT || 8000,
-  JWT_SECRET: process.env.JWT_SECRET || 'novure-super-secret-key-2026',
-  INTERNAL_SERVICE_KEY: process.env.INTERNAL_SERVICE_KEY || 'novure-internal-mesh-key-2026',
+  JWT_SECRET: process.env.JWT_SECRET || 'novarium-super-secret-key-2026',
+  INTERNAL_SERVICE_KEY: process.env.INTERNAL_SERVICE_KEY || 'novarium-internal-mesh-key-2026',
   COMMERCE_SERVICE_URL: process.env.COMMERCE_SERVICE_URL || 'http://commerce-service:3001',
   ADMIN_SERVICE_URL: process.env.ADMIN_SERVICE_URL || 'http://admin-service:4001',
   CUSTOMER_SERVICE_URL: process.env.CUSTOMER_SERVICE_URL || 'http://customer-service:4002',
@@ -87,7 +87,7 @@ export const env = {
     "build": "tsc"
   },
   "dependencies": {
-    "@novure/contracts": "*",
+    "@novarium/contracts": "*",
     "cookie": "^1.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -114,7 +114,7 @@ export const env = {
 
 - [ ] **Step 1: Run type check in api-gateway**
 Run: `cd services/api-gateway && npx tsc --noEmit`
-Expected: No errors related to `@novure/contracts` imports.
+Expected: No errors related to `@novarium/contracts` imports.
 
 - [ ] **Step 2: Check start command**
 Run: `cd services/api-gateway && npm run start -- --help` (or similar to check if it boots)

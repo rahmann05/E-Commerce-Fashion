@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/@novarium/admin-prisma"
 }
 
 datasource db {
@@ -10,16 +11,6 @@ enum AdminRole {
   SUPER_ADMIN
   MANAGER
   STAFF
-}
-
-enum OrderStatus {
-  AWAITING_PAYMENT
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  RETURNED
-  REFUNDED
 }
 
 model AdminUser {
@@ -116,163 +107,4 @@ model FinancialTransaction {
   referenceId   String
   description   String?
   createdAt     DateTime @default(now())
-}
-
-model Customer {
-  id             String                 @id @default(cuid())
-  name           String?
-  email          String                 @unique
-  password       String
-  image          String?
-  phone          String?
-  createdAt      DateTime               @default(now())
-  updatedAt      DateTime               @updatedAt
-
-  orders         Order[]
-  addresses      Address[]
-  cart           Cart?
-  notifications  CustomerNotification[]
-  vouchers       CustomerVoucher[]
-  paymentMethods SavedPaymentMethod[]
-}
-
-model Address {
-  id         String   @id @default(cuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
-  isPrimary  Boolean  @default(false)
-  label      String?  @default("Rumah")
-  recipient  String?
-  phone      String?
-  line1      String
-  district   String?
-  city       String
-  province   String
-  postalCode String?
-  latitude   Float?
-  longitude  Float?
-  orders     Order[]
-}
-
-model Order {
-  id             String            @id @default(cuid())
-  customerId     String
-  customer       Customer          @relation(fields: [customerId], references: [id])
-  addressId      String?
-  address        Address?          @relation(fields: [addressId], references: [id])
-  totalAmount    Decimal           @db.Decimal(10, 2)
-  shippingAmount Decimal?          @db.Decimal(10, 2)
-  status         OrderStatus       @default(AWAITING_PAYMENT)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  items          OrderItem[]
-  returnRequest  ReturnRequest?
-  tracking       ShippingTracking?
-}
-
-model OrderItem {
-  id               String  @id @default(cuid())
-  orderId          String
-  order            Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId        String  // Reference to Supabase Product ID
-  productVariantId String? // Reference to Supabase ProductVariant ID
-  size             String?
-  quantity         Int
-  price            Decimal @db.Decimal(10, 2)
-}
-
-model ReturnRequest {
-  id          String   @id @default(cuid())
-  orderId     String   @unique
-  order       Order    @relation(fields: [orderId], references: [id])
-  reason      String
-  status      String   @default("PENDING")
-  images      String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Cart {
-  id         String     @id @default(cuid())
-  customerId String     @unique
-  customer   Customer   @relation(fields: [customerId], references: [id])
-  items      CartItem[]
-}
-
-model CartItem {
-  id               String         @id @default(cuid())
-  cartId           String
-  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productId        String         // Reference to Supabase Product ID
-  productVariantId String         // Reference to Supabase ProductVariant ID
-  quantity         Int
-
-  @@unique([cartId, productVariantId])
-}
-
-model CustomerNotification {
-  id         String   @id @default(cuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  title      String
-  message    String
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
-}
-
-model CustomerVoucher {
-  id         String   @id @default(cuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  voucherId  String   // Reference to Supabase Voucher ID
-  isUsed     Boolean  @default(false)
-  claimedAt  DateTime @default(now())
-
-  @@unique([customerId, voucherId])
-}
-
-model SavedPaymentMethod {
-  id            String   @id @default(cuid())
-  customerId    String
-  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  provider      String
-  cardMask      String?
-  token         String
-  accountNumber String?
-  accountName   String?
-  isPrimary     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-}
-
-model ShippingCarrier {
-  id        String             @id @default(cuid())
-  name      String
-  code      String             @unique
-  isActive  Boolean            @default(true)
-  trackings ShippingTracking[]
-}
-
-model ShippingTracking {
-  id               String          @id @default(cuid())
-  orderId          String          @unique
-  order            Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  carrierId        String
-  carrier          ShippingCarrier @relation(fields: [carrierId], references: [id])
-  trackingNumber   String
-  estimatedArrival DateTime?
-  currentStatus    String          @default("PICKED_UP")
-  lastLocation     String?
-  logs             ShippingLog[]
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-}
-
-model ShippingLog {
-  id          String           @id @default(cuid())
-  trackingId  String
-  tracking    ShippingTracking @relation(fields: [trackingId], references: [id], onDelete: Cascade)
-  status      String
-  location    String?
-  description String?
-  timestamp   DateTime         @default(now())
 }

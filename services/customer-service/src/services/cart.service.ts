@@ -1,30 +1,22 @@
-import { prisma } from '../db/client';
+import { prisma } from '../db/client.js';
+import { createServiceClient } from '@novarium/shared';
+import { env } from '../config/env.js';
 
-const GATEWAY_URL = process.env.INTERNAL_API_URL || 'http://api-gateway:8000/api/storefront';
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY;
+const commerceClient = createServiceClient(env.COMMERCE_SERVICE_URL, env.INTERNAL_SERVICE_KEY);
 
 export class CartService {
   private static async fetchProducts(productIds: string[]) {
     if (productIds.length === 0) return [];
     try {
       const idsParam = productIds.join(',');
-      const res = await fetch(`${GATEWAY_URL}/products?ids=${idsParam}`, {
-        headers: {
-          'x-internal-key': INTERNAL_KEY || ''
-        }
-      });
-      if (!res.ok) {
-        console.error(`[CartService] fetchProducts failed: ${res.status}`);
-        return [];
-      }
-      const json = await res.json() as { success: boolean, data: any[] };
+      const json = await commerceClient.get(`/api/commerce/products?ids=${idsParam}`) as { success: boolean, data: any[] };
       const data = json.data || [];
       return data.map((d: any) => ({
         ...d,
         price: Number(d.price)
       }));
     } catch (err: any) {
-      console.error(`[CartService] Error fetching products via Gateway:`, err.message);
+      console.error(`[CartService] Error fetching products via direct call:`, err.message);
       return [];
     }
   }

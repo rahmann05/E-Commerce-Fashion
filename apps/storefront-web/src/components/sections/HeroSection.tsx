@@ -121,7 +121,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, delay: 1, ease: [0.16, 1, 0.3, 1] }}
         >
-          Novure
+          Novarium
         </motion.h1>
 
         {/* Progress bar */}

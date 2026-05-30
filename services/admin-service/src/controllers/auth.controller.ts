@@ -1,8 +1,6 @@
-import { prisma } from '../db/client';
-import { verifyPassword } from '../utils/password';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'novure-super-secret-key-2026';
+import { prisma } from '../db/client.js';
+import { verifyPassword, generateToken } from '@novarium/shared';
+import { env } from '../config/env.js';
 
 export class AdminAuthController {
   static async login(params: { email: string, password: any }) {
@@ -13,9 +11,7 @@ export class AdminAuthController {
       throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ id: admin.id, role: admin.role }, JWT_SECRET, {
-      expiresIn: '7d'
-    });
+    const token = generateToken(admin.id, admin.role, env.JWT_SECRET, '7d');
 
     return {
       token,
@@ -23,24 +19,9 @@ export class AdminAuthController {
     };
   }
 
-  static async getMe(token: string) {
-    if (!token) throw new Error('Unauthorized');
-
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-      const admin = await prisma.adminUser.findUnique({ where: { id: decoded.id } });
-
-      if (!admin) throw new Error('Unauthorized');
-
-      return { id: admin.id, email: admin.email, role: admin.role, name: admin.name };
-    } catch (err) {
-      throw new Error('Invalid token');
-    }
-  }
-
-  static async logout(cookies: any) {
-    cookies.delete('novure_jwt', { path: '/' });
-    cookies.delete('admin_session', { path: '/' });
-    return { success: true };
+  static async getMe(adminId: string) {
+    const admin = await prisma.adminUser.findUnique({ where: { id: adminId } });
+    if (!admin) throw new Error('Admin not found');
+    return { id: admin.id, email: admin.email, role: admin.role, name: admin.name };
   }
 }

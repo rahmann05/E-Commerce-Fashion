@@ -1,9 +1,9 @@
-import { API_BASE_URL } from '@lib/api/config';
+import { COMMERCE_API_URL, ORDER_API_URL, ADMIN_API_URL } from '@lib/api/config';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
-	const res = await fetch(`${API_BASE_URL}/categories`);
+	const res = await fetch(`${COMMERCE_API_URL}/categories`);
 	const result = await res.json();
 	return {
 		categories: result.data || []
@@ -24,7 +24,7 @@ export const actions: Actions = {
 		const totalStock = sizeStocks.reduce((acc, curr) => acc + curr, 0);
 		const slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
-		const res = await fetch(`${API_BASE_URL}/products`, {
+		const res = await fetch(`${COMMERCE_API_URL}/products`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({

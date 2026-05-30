@@ -3,7 +3,7 @@
  * API client for product reviews.
  */
 
-import { API_BASE_URL, fetchOptions } from "./config";
+import { COMMERCE_API_URL, fetchOptions } from "./config";
 
 export interface ReviewUser {
   name: string | null;
@@ -37,7 +37,7 @@ export interface SubmitReviewResponse {
 
 export const reviewsApi = {
   async getProductReviews(productId: string): Promise<ReviewsResponse> {
-    const res = await fetch(`${API_BASE_URL}/products/${productId}/reviews`, fetchOptions({
+    const res = await fetch(`${COMMERCE_API_URL}/products/${productId}/reviews`, fetchOptions({
       method: "GET",
       cache: "no-store",
     }));
@@ -45,7 +45,7 @@ export const reviewsApi = {
   },
 
   async submitReview(params: { productId: string; orderId: string; rating: number; comment?: string }): Promise<SubmitReviewResponse> {
-    const res = await fetch(`${API_BASE_URL}/reviews`, fetchOptions({
+    const res = await fetch(`${COMMERCE_API_URL}/reviews`, fetchOptions({
       method: "POST",
       body: JSON.stringify(params),
     }));

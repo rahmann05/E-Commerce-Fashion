@@ -80,7 +80,7 @@ export default function AboutStory({ studioModel1 }: AboutStoryProps) {
             transition={{ delay: 0.8, duration: 0.8 }}
             style={{ fontSize: "1.15rem", lineHeight: 1.7, color: "#666", fontWeight: 400, maxWidth: "480px" }}
           >
-            Novure was born in a small studio with a big vision: to create garments 
+            Novarium was born in a small studio with a big vision: to create garments 
              that adapt to your life, not the other way around. We combine technical 
              fabrics with tailored silhouettes to deliver essentials that feel 
              as good as they look.

@@ -8,8 +8,8 @@ import "@/styles/auth.css";
 import LoginPage from "../../features/auth/login/LoginPage";
 
 export const metadata: Metadata = {
-  title: "Masuk | Novure",
-  description: "Login ke akun Novure untuk mulai berbelanja.",
+  title: "Masuk | Novarium",
+  description: "Login ke akun Novarium untuk mulai berbelanja.",
 };
 
 interface Props {

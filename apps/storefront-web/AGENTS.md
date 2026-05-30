@@ -21,7 +21,7 @@ Dokumen ini adalah spesifikasi arsitektur tingkat rendah untuk semua agen AI dan
   - **Image Optimization**: Gunakan komponen `<Image />` Next.js dengan properti `priority` untuk elemen LCP (Largest Contentful Paint) seperti Hero Image.
 
 ### Keamanan & State
-- **Cookie-Based Auth**: Jangan gunakan `localStorage`. Pastikan semua pemanggilan API menggunakan `credentials: "include"` untuk menyertakan `novure_jwt` otomatis.
+- **Cookie-Based Auth**: Jangan gunakan `localStorage`. Pastikan semua pemanggilan API menggunakan `credentials: "include"` untuk menyertakan `novarium_jwt` otomatis.
 - **Form Validation**: Lakukan validasi sisi klien (Client-side) sebelum mengirim data ke Gateway untuk meningkatkan UX, namun tetap percayakan validasi final pada Joi di level Gateway.
 
 ---

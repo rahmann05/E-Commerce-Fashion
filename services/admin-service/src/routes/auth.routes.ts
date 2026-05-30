@@ -1,44 +1,45 @@
 import { Router } from "express";
-import { AdminAuthController } from "../controllers/auth.controller";
+import { AdminAuthController } from "../controllers/auth.controller.js";
+import { createAuthMiddleware } from "@novarium/shared";
+import { env } from "../config/env.js";
+import cookie from 'cookie';
 
 const router = Router();
+const auth = createAuthMiddleware(env.JWT_SECRET, env.INTERNAL_SERVICE_KEY);
 
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const result = await AdminAuthController.login({ email, password });
     
-    // Set cookie if needed, but Gateway usually handles this.
-    // However, for the service itself, we just return the result.
-    res.json(result);
+    // Set cookie
+    res.cookie('novarium_jwt', result.token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    res.json({ success: true, data: { user: result.user, token: result.token } });
   } catch (error: any) {
-    res.status(401).json({ success: false, message: error.message });
+    res.status(401).json({ success: false, error: error.message });
   }
 });
 
-router.get("/me", async (req, res) => {
+router.get("/me", auth, async (req: any, res) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1] || "";
-    const result = await AdminAuthController.getMe(token);
-    res.json(result);
+    // Middleware `auth` already decoded the user into req.user
+    const result = await AdminAuthController.getMe(req.user.id);
+    res.json({ success: true, data: result });
   } catch (error: any) {
-    res.status(401).json({ success: false, message: error.message });
+    res.status(401).json({ success: false, error: error.message });
   }
 });
 
 router.post("/logout", async (req, res) => {
-  try {
-    // Adapter for the controller's expectation of a cookies object with delete method
-    const cookiesAdapter = {
-      delete: (name: string, options: any) => {
-        res.clearCookie(name, options);
-      }
-    };
-    const result = await AdminAuthController.logout(cookiesAdapter);
-    res.json(result);
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  res.clearCookie('novarium_jwt', { path: '/' });
+  res.clearCookie('admin_session', { path: '/' });
+  res.json({ success: true, data: null });
 });
 
 export default router;

@@ -79,7 +79,7 @@ export default function Footer({ noAnimation = false }: FooterProps) {
               marginBottom: "1rem",
             }}
           >
-            Novure
+            Novarium
           </div>
           <p style={{ lineHeight: 1.7, maxWidth: 220 }}>
             Essentialized daily wear for the modern man. Designed with purpose.
@@ -149,7 +149,7 @@ export default function Footer({ noAnimation = false }: FooterProps) {
         }}
       />
 
-      <p>© 2026 Novure. All rights reserved.</p>
+      <p>© 2026 Novarium. All rights reserved.</p>
     </motion.footer>
   );
 }

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./config";
+import { COMMERCE_API_URL } from "./config";
 
 export interface UploadResponse {
   success: boolean;
@@ -13,7 +13,7 @@ export async function uploadImage(params: {
   base64: string;
   contentType: string;
 }): Promise<UploadResponse> {
-  const res = await fetch(`${API_BASE_URL}/uploads`, {
+  const res = await fetch(`${COMMERCE_API_URL}/uploads`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),

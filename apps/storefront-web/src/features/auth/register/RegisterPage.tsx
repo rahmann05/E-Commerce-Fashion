@@ -26,7 +26,7 @@ export default function RegisterPage() {
 
       <div className="login-footer">
         <span className="login-footer-label">/02 — Register</span>
-        <span className="login-footer-brand">Novure ®</span>
+        <span className="login-footer-brand">Novarium ®</span>
       </div>
     </main>
   );

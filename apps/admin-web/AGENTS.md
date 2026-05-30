@@ -18,7 +18,7 @@ Dokumen ini merupakan mandat arsitektural untuk pengembangan `admin-web`. Aplika
 ### Panduan UI/UX (Admin Standard)
 - **Data Density**: Gunakan tabel (`OrderTable`) dan grid metrik (`DashboardMetrics`) untuk menyajikan informasi operasional secara padat.
 - **A11y & Semantics**: Svelte compiler akan memberikan peringatan keras untuk pelanggaran aksesibilitas. Pastikan setiap elemen interaktif memiliki label dan *keyboard handler*.
-- **Editorial Dashboards**: Meskipun ini aplikasi admin, tetap gunakan elemen desain premium (whitespace luas di header, font Inter tebal) agar selaras dengan brand Novure.
+- **Editorial Dashboards**: Meskipun ini aplikasi admin, tetap gunakan elemen desain premium (whitespace luas di header, font Inter tebal) agar selaras dengan brand Novarium.
 
 ---
 

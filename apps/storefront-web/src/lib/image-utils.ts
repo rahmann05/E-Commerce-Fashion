@@ -3,11 +3,8 @@
  * Utility for handling image URLs, especially for Supabase Storage.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-// Derive Asset Base from API Gateway URL
-// Example: http://localhost:8000/api/storefront -> http://localhost:8000/api/assets/supabase
-const ASSET_BASE = API_URL ? API_URL.replace('/storefront', '/assets/supabase') : '';
+// Use relative path for Next.js rewrite proxy
+const ASSET_BASE = '/api/assets/supabase';
 
 const BUCKET_NAME = "products";
 

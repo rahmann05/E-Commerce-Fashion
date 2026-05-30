@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Novure | Essentialized Daily Wear",
+  title: "Novarium | Essentialized Daily Wear",
   description:
     "Discover reimagined modern casual clothing for men. Premium neumorphism 3D e-commerce experience with immersive motion design.",
 };

@@ -100,7 +100,7 @@ export default function EssentializedSection() {
             <Link href="/about" style={{ color: "inherit" }}>About Us</Link>
           </div>
           <Link href="/" className="brand" style={{ color: "inherit" }}>
-            Novure
+            Novarium
           </Link>
           <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
             <Link href="/profile" style={{ color: "inherit" }}>Profile</Link>
