@@ -17,7 +17,7 @@ export const authApi = {
 
       if (!res.ok) return null;
       const result = await res.json();
-      return result.success ? result.data : null;
+      return result.success ? (result.data?.user || result.data) : null;
     } catch {
       return null;
     }
@@ -30,13 +30,13 @@ export const authApi = {
         method: "POST",
         body: JSON.stringify({ email, password }),
       }));
-      const result = await res.json() as { success: boolean; data?: SessionUser; error?: string; message?: string };
+      const result = await res.json();
       
       if (!res.ok || !result.success) {
         return { success: false, error: result.error ?? result.message ?? "Gagal login." };
       }
       
-      return { success: true, data: result.data };
+      return { success: true, data: result.data?.user || result.data };
     } catch {
       return { success: false, error: "Terjadi gangguan jaringan saat login." };
     }
@@ -50,6 +50,9 @@ export const authApi = {
         body: JSON.stringify(data),
       }));
       const result = await res.json();
+      if (result.success && result.data?.user) {
+        result.data = result.data.user;
+      }
       return result;
     } catch {
       return { success: false, error: "Terjadi gangguan jaringan saat mendaftar." };
