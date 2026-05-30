@@ -6,7 +6,13 @@ export class AuthService {
   static async login(email: string, password: any) {
     const customer = await prisma.customer.findUnique({ where: { email } });
     
-    if (!customer || !(await verifyPassword(password, customer.password))) {
+    if (!customer) {
+      const error = new Error('Pengguna tidak terdaftar') as any;
+      error.status = 404;
+      throw error;
+    }
+    
+    if (!(await verifyPassword(password, customer.password))) {
       const error = new Error('Email atau password salah') as any;
       error.status = 401;
       throw error;
