@@ -118,4 +118,53 @@ export class AccountService {
       where: { id: addressId, customerId: userId }
     });
   }
+
+  static async addPaymentMethod(userId: string, data: any) {
+    return await prisma.savedPaymentMethod.create({
+      data: {
+        provider: data.provider || data.label || 'Unknown',
+        cardMask: data.cardMask || data.accountNumber?.slice(-4) || '****',
+        token: data.token || data.accountNumber || 'dummy-token',
+        accountNumber: data.accountNumber || '',
+        accountName: data.accountName || '',
+        isPrimary: data.isPrimary || false,
+        customerId: userId
+      }
+    });
+  }
+
+  static async removePaymentMethod(userId: string, paymentMethodId: string) {
+    return await prisma.savedPaymentMethod.delete({
+      where: { id: paymentMethodId, customerId: userId }
+    });
+  }
+
+  static async createOrder(userId: string, data: any) {
+    const { items, total, addressId, shipping } = data;
+    
+    const address = await prisma.address.findUnique({
+      where: { id: addressId, customerId: userId }
+    });
+    
+    const addressSnapshot = address ? JSON.stringify(address) : null;
+
+    return await prisma.order.create({
+      data: {
+        customerId: userId,
+        addressSnapshot,
+        totalAmount: total,
+        shippingAmount: shipping || 0,
+        status: 'AWAITING_PAYMENT',
+        items: {
+          create: items.map((item: any) => ({
+            productId: item.productId,
+            productVariantId: item.productVariantId || item.variantId,
+            quantity: item.quantity,
+            price: item.product?.price || item.price || 0,
+            size: item.variant?.size || item.size || 'M'
+          }))
+        }
+      }
+    });
+  }
 }

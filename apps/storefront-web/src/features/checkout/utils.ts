@@ -22,7 +22,7 @@ export function mapPaymentMethodToMidtransKey(label: string): string {
   const text = label.toLowerCase();
   if (text.includes("bni")) return "bni_va";
   if (text.includes("bri")) return "bri_va";
-  if (text.includes("mandiri")) return "echannel";
+  if (text.includes("mandiri")) return "mandiri_va";
   if (text.includes("qris")) return "qris";
   if (text.includes("gopay")) return "gopay";
   if (text.includes("alfamart")) return "alfamart";

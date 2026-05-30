@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import type { CatalogueProduct } from "../types";
 import type { CategoryFilter } from "@/shared/api/catalogue";
 import CatalogueFilterSidebar from "./CatalogueFilterSidebar";
@@ -8,40 +7,16 @@ import CatalogueGrid from "./CatalogueGrid";
 import ProductDetailModal from "./ProductDetailModal";
 import CatalogueWaveSection from "./CatalogueWaveSection";
 
+import { useCatalogue } from "../hooks/useCatalogue";
+
 interface Props {
   initialProducts: CatalogueProduct[];
 }
 
 export default function CatalogueClient({ initialProducts }: Props) {
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "default">("default");
-  const [selectedProduct, setSelectedProduct] = useState<CatalogueProduct | null>(null);
-
-  // Filter + sort client-side (data already fetched from server)
-  const filtered = useMemo(() => {
-    let list =
-      activeCategory === "all"
-        ? initialProducts
-        : initialProducts.filter((p) => p.category === activeCategory);
-
-    if (sortOrder === "asc")  list = [...list].sort((a, b) => a.price - b.price);
-    if (sortOrder === "desc") list = [...list].sort((a, b) => b.price - a.price);
-
-    return list;
-  }, [initialProducts, activeCategory, sortOrder]);
-
-  // Category counts for sidebar badges
-  const counts = useMemo(() => {
-    const c: Record<string, number> = {
-      all:         initialProducts.length,
-      tees:        initialProducts.filter((p) => p.category === "tees").length,
-      jeans:       initialProducts.filter((p) => p.category === "jeans").length,
-      outerwear:   initialProducts.filter((p) => p.category === "outerwear").length,
-      accessories: initialProducts.filter((p) => p.category === "accessories").length,
-      editorial:   initialProducts.filter((p) => p.category === "editorial").length,
-    };
-    return c;
-  }, [initialProducts]);
+  const { state, actions } = useCatalogue(initialProducts);
+  const { activeCategory, sortOrder, selectedProduct, filtered, counts } = state;
+  const { setActiveCategory, setSortOrder, setSelectedProduct } = actions;
 
   return (
     <div className="catalogue-page">

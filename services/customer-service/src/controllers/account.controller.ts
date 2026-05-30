@@ -23,10 +23,14 @@ export class AccountController {
         result = await AccountService.updateAddress(req.user!.id, body.id, body);
       } else if (action === 'removeAddress') {
         result = await AccountService.removeAddress(req.user!.id, body.id);
+      } else if (action === 'addPaymentMethod') {
+        result = await AccountService.addPaymentMethod(req.user!.id, body);
+      } else if (action === 'removePaymentMethod') {
+        result = await AccountService.removePaymentMethod(req.user!.id, body.id);
+      } else if (action === 'createOrder') {
+        result = await AccountService.createOrder(req.user!.id, body);
       } else {
-        // Fallback to old mutateAccount logic for other actions if not yet extracted
-        // But for this refactor we assume we extracted the main ones
-        throw new Error(`Action ${action} not supported in new controller yet`);
+        throw new Error(`Action ${action} not supported`);
       }
       
       const updatedProfile = await AccountService.getProfile(req.user!.id);

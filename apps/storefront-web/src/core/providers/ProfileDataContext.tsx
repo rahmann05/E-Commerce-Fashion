@@ -31,15 +31,6 @@ export interface ProfileAddress {
   isPrimary: boolean;
 }
 
-export interface ProfilePaymentMethod {
-  id: string;
-  label: string;
-  details: string;
-  accountNumber?: string;
-  accountName?: string;
-  isPrimary: boolean;
-}
-
 export interface ProfileOrderItem {
   productId: string;
   name: string;
@@ -87,7 +78,6 @@ export interface ProfileNotification {
 interface UserProfileData {
   phone: string;
   addresses: ProfileAddress[];
-  paymentMethods: ProfilePaymentMethod[];
   orders: ProfileOrder[];
   wishlist: WishlistItem[];
   vouchers: ProfileVoucher[];
@@ -97,7 +87,6 @@ interface UserProfileData {
 interface ProfileDataContextValue {
   phone: string;
   addresses: ProfileAddress[];
-  paymentMethods: ProfilePaymentMethod[];
   orders: ProfileOrder[];
   wishlist: WishlistItem[];
   vouchers: ProfileVoucher[];
@@ -106,8 +95,6 @@ interface ProfileDataContextValue {
   addAddress: (payload: Omit<ProfileAddress, "id" | "isPrimary">) => Promise<{ success: boolean; address?: ProfileAddress; message?: string }>;
   updateAddress: (id: string, payload: Partial<Omit<ProfileAddress, "id">>) => Promise<{ success: boolean; message?: string }>;
   removeAddress: (id: string) => Promise<{ success: boolean; message?: string }>;
-  addPaymentMethod: (payload: { label: string; accountNumber: string; accountName: string }) => Promise<{ success: boolean; message?: string }>;
-  removePaymentMethod: (id: string) => Promise<{ success: boolean; message?: string }>;
   placeOrderFromCart: (payload: {
     items: CartItem[];
     shipping: number;
@@ -122,7 +109,6 @@ interface ProfileDataContextValue {
     shipping: number;
     total: number;
     addressId: string;
-    paymentMethodId: string;
     courier: string;
     notes?: string;
     promoCode?: string;
@@ -140,7 +126,6 @@ const ProfileDataContext = createContext<ProfileDataContextValue | null>(null);
 const EMPTY_DATA: UserProfileData = {
   phone: "",
   addresses: [],
-  paymentMethods: [],
   orders: [],
   wishlist: [],
   vouchers: [],
@@ -227,35 +212,16 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
     [callMutation]
   );
 
-  const addPaymentMethod = useCallback(
-    async (payload: { label: string; accountNumber: string; accountName: string }) => {
-      updateUser({ paymentPreference: payload.label });
-      const res = await callMutation("addPaymentMethod", payload);
-      return { success: !!res };
-    },
-    [updateUser, callMutation]
-  );
-
-  const removePaymentMethod = useCallback(
-    async (id: string) => {
-      const res = await callMutation("removePaymentMethod", { id });
-      return { success: !!res };
-    },
-    [callMutation]
-  );
-
   const placeOrderFromCart = useCallback(
     ({ items, shipping, total }: { items: CartItem[]; shipping: number; total: number }) => {
       if (!user || items.length === 0) return null;
       const address = data.addresses[0];
-      const paymentMethod = data.paymentMethods[0];
-      if (!address || !paymentMethod) return null;
+      if (!address) return null;
       void callMutation("createOrder", {
         items,
         shipping,
         total,
         addressId: address.id,
-        paymentMethodId: paymentMethod.id,
         courier: "JNE Regular",
       });
       return {
@@ -267,7 +233,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
         items: [],
       };
     },
-    [user, data.addresses, data.paymentMethods, callMutation]
+    [user, data.addresses, callMutation]
   );
 
   const toggleWishlistItem = useCallback(
@@ -302,7 +268,6 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       shipping: number;
       total: number;
       addressId: string;
-      paymentMethodId: string;
       courier: string;
       notes?: string;
       promoCode?: string;
@@ -343,7 +308,6 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
     () => ({
       phone: data.phone,
       addresses: data.addresses,
-      paymentMethods: data.paymentMethods,
       orders: data.orders,
       wishlist: data.wishlist,
       vouchers: data.vouchers,
@@ -352,8 +316,6 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       addAddress,
       updateAddress,
       removeAddress,
-      addPaymentMethod,
-      removePaymentMethod,
       placeOrderFromCart,
       toggleWishlistItem,
       removeWishlistItem,
@@ -369,8 +331,6 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       addAddress,
       updateAddress,
       removeAddress,
-      addPaymentMethod,
-      removePaymentMethod,
       placeOrderFromCart,
       toggleWishlistItem,
       removeWishlistItem,

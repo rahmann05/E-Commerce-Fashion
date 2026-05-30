@@ -93,3 +93,38 @@ model SavedPaymentMethod {
   isPrimary     Boolean  @default(false)
   createdAt     DateTime @default(now())
 }
+
+enum OrderStatus {
+  AWAITING_PAYMENT
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+model Order {
+  id             String            @id @default(cuid())
+  customerId     String            // Reference ke customer-service (by ID)
+  addressSnapshot String?          // JSON snapshot alamat saat checkout
+  totalAmount    Decimal           @db.Decimal(10, 2)
+  shippingAmount Decimal?          @db.Decimal(10, 2)
+  status         OrderStatus       @default(AWAITING_PAYMENT)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  
+  items          OrderItem[]
+}
+
+model OrderItem {
+  id               String  @id @default(cuid())
+  orderId          String
+  order            Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String  // Reference to Supabase Product ID
+  productVariantId String? // Reference to Supabase ProductVariant ID
+  size             String?
+  quantity         Int
+  price            Decimal @db.Decimal(10, 2)
+}
+

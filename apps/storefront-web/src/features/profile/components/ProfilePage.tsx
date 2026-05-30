@@ -1,9 +1,5 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useCallback, useMemo } from "react";
-import { useAuth } from "@/core/providers/AuthContext";
-import { useProfileData, type ProfileAddress } from "@/core/providers/ProfileDataContext";
 import ProfileHero from "./ProfileHero";
 import ProfileInfoCard from "./ProfileInfoCard";
 import ProfileOrderHistory from "./ProfileOrderHistory";
@@ -11,55 +7,17 @@ import ProfileLogoutButton from "./ProfileLogoutButton";
 import { AddressManager } from "./AddressManager";
 import { 
   ProfileWishlistView,
-  ProfilePaymentView, 
   ProfileVoucherView,
   ProfileNotificationView,
   ProfileSecurityView, 
   ProfileEmptyView 
 } from "./ProfileViews";
-
-type TabId = "overview" | "orders" | "wishlist" | "reviews" | "address" | "payment" | "vouchers" | "security" | "notifications";
-
-function toTab(value: string | null): TabId {
-  const allowed: TabId[] = [
-    "overview", "orders", "wishlist", "reviews", "address", "payment", "vouchers", "security", "notifications"
-  ];
-  return allowed.includes(value as TabId) ? (value as TabId) : "overview";
-}
+import { useProfilePage } from "../hooks/useProfilePage";
 
 export default function ProfilePage() {
-  const { user, isLoading, updateUser } = useAuth();
-  const {
-    addresses,
-    paymentMethods,
-    orders,
-    wishlist,
-    vouchers,
-    notifications,
-    addAddress,
-    removeAddress,
-    addPaymentMethod,
-    removePaymentMethod,
-    removeWishlistItem,
-    markNotificationRead,
-    updatePassword,
-  } = useProfileData();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  const activeTab = useMemo(() => toTab(searchParams.get("tab")), [searchParams]);
-
-  const setActiveTab = useCallback((tab: TabId) => {
-    const params = new URLSearchParams(window.location.search);
-    params.set("tab", tab);
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, [router]);
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login?redirect=/profile");
-    }
-  }, [isLoading, user, router]);
+  const { state, actions } = useProfilePage();
+  const { user, isLoading, orders, wishlist, vouchers, notifications, activeTab } = state;
+  const { setActiveTab, removeWishlistItem, markNotificationRead, handleSavePassword } = actions;
 
   if (isLoading || !user) {
     return (
@@ -69,35 +27,13 @@ export default function ProfilePage() {
     );
   }
 
-  const handleSavePayment = async (payload: { label: string; accountNumber: string; accountName: string }) => {
-    const result = await addPaymentMethod(payload);
-    updateUser({ paymentPreference: payload.label });
-    return result;
-  };
-
-  const handleSavePassword = (payload: { currentPassword: string; newPassword: string }) => {
-    const result = updatePassword({
-      currentPassword: payload.currentPassword,
-      newPassword: payload.newPassword,
-      confirmPassword: payload.newPassword,
-    });
-    return result.success;
-  };
-
   const renderContent = () => {
     switch (activeTab) {
       case "overview": return <ProfileInfoCard key={user?.id} />;
       case "orders": return <ProfileOrderHistory orders={orders} />;
       case "address":
         return <AddressManager />;
-      case "payment":
-        return (
-          <ProfilePaymentView
-            paymentMethods={paymentMethods}
-            onSavePayment={handleSavePayment}
-            onRemovePayment={removePaymentMethod}
-          />
-        );
+
       case "security": return <ProfileSecurityView onSavePassword={handleSavePassword} />;
       case "wishlist":
         return (
@@ -128,7 +64,6 @@ export default function ProfilePage() {
           <nav className="profile-sidebar-nav mb-8">
             <button className={`profile-tab ${activeTab === "overview" ? "active" : ""}`} onClick={() => setActiveTab("overview")}>Profil Saya</button>
             <button className={`profile-tab ${activeTab === "address" ? "active" : ""}`} onClick={() => setActiveTab("address")}>Alamat Pengiriman</button>
-            <button className={`profile-tab ${activeTab === "payment" ? "active" : ""}`} onClick={() => setActiveTab("payment")}>Metode Pembayaran</button>
             <button className={`profile-tab ${activeTab === "security" ? "active" : ""}`} onClick={() => setActiveTab("security")}>Keamanan</button>
           </nav>
 

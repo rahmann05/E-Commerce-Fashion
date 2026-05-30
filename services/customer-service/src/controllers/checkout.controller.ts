@@ -7,12 +7,17 @@ export class CheckoutController {
     try {
       const { orderId } = req.query;
       if (!orderId) {
-        const error = new Error('Order ID required') as any;
-        error.status = 400;
-        throw error;
+        return res.status(400).json({ success: false, error: 'Order ID required' });
       }
-      const result = await CheckoutService.getMidtransStatus(orderId as string);
-      res.json({ success: true, ...result });
+      try {
+        const result = await CheckoutService.getMidtransStatus(orderId as string);
+        res.json({ success: true, data: result });
+      } catch (err: any) {
+        if (err.message && (err.message.includes('404') || err.message.toLowerCase().includes('not found') || err.statusCode === 404)) {
+          return res.json({ success: false, notFound: true, error: 'Transaction not found in Midtrans' });
+        }
+        throw err;
+      }
     } catch (err) {
       next(err);
     }

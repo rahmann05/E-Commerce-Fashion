@@ -49,6 +49,9 @@ services:
       - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-novarium-internal-mesh-key-2026}
       - COMMERCE_SERVICE_URL=http://commerce-service:3001
       - ORDER_SERVICE_URL=http://order-service:4003
+      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
+      - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}
+
 
   order-service:
     container_name: order-service

@@ -3,138 +3,14 @@
 import { useState, type FormEvent } from "react";
 import type {
   ProfileNotification,
-  ProfilePaymentMethod,
   ProfileVoucher,
   WishlistItem,
 } from "@/core/providers/ProfileDataContext";
+import { useProfileSecurity } from "../hooks/useProfileSecurity";
 
 function formatPrice(price: number): string {
   const finalPrice = price < 10000 ? price * 1000 : price;
   return finalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-export function ProfilePaymentView({
-  paymentMethods,
-  onSavePayment,
-  onRemovePayment,
-}: {
-  paymentMethods: ProfilePaymentMethod[];
-  onSavePayment: (payload: { label: string; accountNumber: string; accountName: string }) => Promise<{ success: boolean; message?: string }>;
-  onRemovePayment: (id: string) => void;
-}) {
-  const [formData, setFormData] = useState({
-    label: "BCA",
-    accountNumber: "",
-    accountName: "",
-  });
-  const [showForm, setShowForm] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const handleAdd = async () => {
-    if (!formData.accountNumber || !formData.accountName) {
-      setErrorMsg("Mohon lengkapi nomor rekening dan nama pemilik.");
-      return;
-    }
-    setErrorMsg(null);
-    setIsSaving(true);
-    try {
-      await onSavePayment(formData);
-      setShowForm(false);
-      setFormData({ label: "BCA", accountNumber: "", accountName: "" });
-    } catch {
-      setErrorMsg("Gagal menyimpan metode pembayaran.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return (
-    <section>
-      <div className="pv-section-header">
-        <p className="profile-section-title pv-title-inline">Metode Pembayaran</p>
-        <button 
-          className="pill-btn pv-btn-primary"
-          onClick={() => {
-            setShowForm(!showForm);
-            setErrorMsg(null);
-          }}
-        >
-          {showForm ? "Batal" : "Tambah Rekening"}
-        </button>
-      </div>
-
-      <div className="pv-content-600">
-        {showForm && (
-          <div className="pv-form-panel">
-            <div className="auth-input-wrapper">
-              <label htmlFor="payment-bank" className="auth-input-label">Pilih Bank</label>
-              <select id="payment-bank" className="auth-input" value={formData.label} onChange={e => setFormData({...formData, label: e.target.value})}>
-                <option value="BCA">BCA (Bank Central Asia)</option>
-                <option value="Mandiri">Mandiri</option>
-                <option value="BNI">BNI (Bank Negara Indonesia)</option>
-                <option value="BRI">BRI (Bank Rakyat Indonesia)</option>
-                <option value="SeaBank">SeaBank</option>
-                <option value="DANA">DANA (E-Wallet)</option>
-              </select>
-            </div>
-            
-            <div className="auth-input-wrapper">
-              <label htmlFor="payment-account" className="auth-input-label">Nomor Rekening / HP</label>
-              <input id="payment-account" className="auth-input" value={formData.accountNumber} onChange={e => setFormData({...formData, accountNumber: e.target.value})} placeholder="Masukkan nomor..." />
-            </div>
-
-            <div className="auth-input-wrapper">
-              <label htmlFor="payment-name" className="auth-input-label">Nama Lengkap Pemilik</label>
-              <input id="payment-name" className="auth-input" value={formData.accountName} onChange={e => setFormData({...formData, accountName: e.target.value})} placeholder="Sesuai buku tabungan" />
-            </div>
-
-            {errorMsg && (
-              <div className="pv-form-message error mb-4">
-                {errorMsg}
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="pill-btn pv-btn-primary pv-btn-block pv-mt-16"
-              disabled={isSaving}
-              onClick={handleAdd}
-            >
-              {isSaving ? "Menyimpan..." : "Simpan Rekening"}
-            </button>
-          </div>
-        )}
-
-        <div className="payment-list">
-          {paymentMethods.map((method) => (
-            <div
-              key={method.id}
-              className="pv-item-card pv-item-card-center"
-            >
-              <div className="pv-payment-meta">
-                <div className="pv-payment-head">
-                  {method.label} {method.isPrimary && <span className="pv-badge-payment-primary">UTAMA</span>}
-                </div>
-                <div className="pv-payment-number">{method.accountNumber}</div>
-                <div className="pv-payment-owner">an. {method.accountName}</div>
-              </div>
-              <button
-                type="button"
-                className="pill-btn pv-btn-xs"
-                onClick={() => onRemovePayment(method.id)}
-              >
-                Hapus
-              </button>
-            </div>
-          ))}
-          {paymentMethods.length === 0 && !showForm && (
-            <div className="pv-empty-line">Belum ada metode pembayaran.</div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
 }
 
 export function ProfileSecurityView({
@@ -142,30 +18,9 @@ export function ProfileSecurityView({
 }: {
   onSavePassword: (payload: { currentPassword: string; newPassword: string }) => boolean;
 }) {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-
-  const handleSave = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      setMessage("Konfirmasi password tidak cocok.");
-      return;
-    }
-
-    const success = onSavePassword({ currentPassword, newPassword });
-    setMessage(
-      success
-        ? "Password berhasil diperbarui (simulasi frontend)."
-        : "Password saat ini tidak valid."
-    );
-    if (success) {
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    }
-  };
+  const { state, actions } = useProfileSecurity(onSavePassword);
+  const { currentPassword, newPassword, confirmPassword, message } = state;
+  const { setCurrentPassword, setNewPassword, setConfirmPassword, handleSave } = actions;
 
   return (
     <section>
