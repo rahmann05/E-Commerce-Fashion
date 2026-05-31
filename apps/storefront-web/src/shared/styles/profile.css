@@ -209,6 +209,14 @@
   box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
 }
 
+.profile-desktop-logout {
+  display: block;
+}
+
+.profile-mobile-logout {
+  display: none;
+}
+
 /* Custom button specifically for the "Keluar" button in the sidebar */
 .profile-logout-wrap {
   margin-top: 2rem;
@@ -257,6 +265,14 @@
   transform: rotate(-10deg);
 }
 
+.profile-mobile-menu {
+  display: none;
+}
+
+.profile-back-button {
+  display: none;
+}
+
 /* ================================================================
    PROFILE — MOBILE RESPONSIVE
    ================================================================ */
@@ -294,70 +310,156 @@
 
   /* ── Sidebar → horizontal scrollable tab bar ── */
   .profile-sidebar {
-    position: static;
-    flex: none;
+    display: none !important;
+  }
+
+  .profile-mobile-menu {
+    display: block;
     width: 100%;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    padding-bottom: 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-mobile-menu-section {
     margin-bottom: 2rem;
-    top: auto;
+  }
+
+  .profile-mobile-section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.8rem;
+    padding-left: 0.5rem;
+  }
+
+  .profile-mobile-menu-card {
+    background: #fff;
+    border-radius: 1.2rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  }
+
+  .profile-mobile-menu-item {
+    width: 100%;
     display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 0.6rem;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .profile-sidebar::-webkit-scrollbar {
-    display: none;
-  }
-
-  .profile-section-title {
-    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.4rem;
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease;
   }
 
-  .profile-sidebar-nav {
-    display: contents;
+  .profile-mobile-menu-item:last-child {
+    border-bottom: none;
   }
 
-  .profile-tab {
-    white-space: nowrap;
+  .profile-mobile-menu-item:active {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .profile-mobile-menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .profile-menu-icon {
+    color: #555;
     flex-shrink: 0;
-    padding: 0.65rem 1.2rem;
-    font-size: 0.82rem;
-    border-radius: 2rem;
-    margin: 0;
   }
 
-  .profile-tab.active {
+  .profile-menu-chevron {
+    color: #bbb;
+    flex-shrink: 0;
+  }
+
+  .profile-back-button {
+    display: flex !important;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.4rem;
+    background: #fff;
+    color: #111;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    width: fit-content;
+  }
+
+  .profile-back-button:active {
     background: #111;
     color: #fff;
-    border-color: transparent;
+    border-color: #111;
   }
 
-  .profile-logout-wrap {
-    display: contents;
+  .profile-content.mobile-hidden {
+    display: none !important;
   }
 
-  /* Make the container in ProfilePage also display contents */
-  .profile-sidebar > div.mt-12 {
-    display: contents;
+  .profile-content.mobile-visible {
+    display: block !important;
+    padding-top: 1rem;
   }
 
-  .profile-logout-btn {
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 0.65rem 1.2rem;
-    font-size: 0.82rem;
-    border-radius: 2rem;
-    border: 1px solid rgba(255, 59, 48, 0.4) !important;
+  .profile-desktop-logout {
+    display: none !important;
+  }
+
+  .profile-mobile-logout {
+    display: block !important;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .profile-mobile-logout .profile-logout-wrap {
+    display: block;
+    margin-top: 0;
+    padding-top: 0;
+    border: none;
+  }
+
+  .profile-mobile-logout .profile-logout-btn {
+    width: 100% !important;
+    justify-content: center;
     background: transparent !important;
-    width: auto;
+    color: #ff3b30 !important;
+    border: 1.5px solid rgba(255, 59, 48, 0.3) !important;
+    border-radius: 2rem !important;
+    padding: 0.9rem 2rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.05);
   }
 
-  .profile-logout-icon {
-    display: none;
+  .profile-mobile-logout .profile-logout-icon {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 59, 48, 0.08);
+    border-radius: 50%;
   }
 
   /* ── Content area ── */

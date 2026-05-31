@@ -1,5 +1,17 @@
 "use client";
 
+import { useSearchParams, useRouter } from "next/navigation";
+import { 
+  User, 
+  MapPin, 
+  ShieldCheck, 
+  ShoppingBag, 
+  Heart, 
+  Ticket, 
+  Bell, 
+  ChevronRight, 
+  ArrowLeft 
+} from "lucide-react";
 import ProfileHero from "./ProfileHero";
 import ProfileInfoCard from "./ProfileInfoCard";
 import ProfileOrderHistory from "./ProfileOrderHistory";
@@ -18,6 +30,11 @@ export default function ProfilePage() {
   const { state, actions } = useProfilePage();
   const { user, isLoading, orders, wishlist, vouchers, notifications, activeTab } = state;
   const { setActiveTab, removeWishlistItem, markNotificationRead, handleSavePassword } = actions;
+  
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const activeTabParam = searchParams.get("tab");
+  const hasActiveTab = !!activeTabParam;
 
   if (isLoading || !user) {
     return (
@@ -79,14 +96,100 @@ export default function ProfilePage() {
             <button className={`profile-tab ${activeTab === "notifications" ? "active" : ""}`} onClick={() => setActiveTab("notifications")}>Notifikasi</button>
           </nav>
 
-          <div className="mt-12">
+          <div className="profile-desktop-logout mt-12">
             <ProfileLogoutButton />
           </div>
         </aside>
 
-        <div className="profile-content">
+        {/* Mobile Vertical Settings-like Menu (visible when no tab is selected) */}
+        {!hasActiveTab && (
+          <div className="profile-mobile-menu">
+            <div className="profile-mobile-menu-section">
+              <h3 className="profile-mobile-section-title">Akun</h3>
+              <div className="profile-mobile-menu-card">
+                <button className="profile-mobile-menu-item" onClick={() => setActiveTab("overview")}>
+                  <div className="profile-mobile-menu-item-left">
+                    <User size={18} className="profile-menu-icon" />
+                    <span>Profil Saya</span>
+                  </div>
+                  <ChevronRight size={16} className="profile-menu-chevron" />
+                </button>
+                <button className="profile-mobile-menu-item" onClick={() => setActiveTab("address")}>
+                  <div className="profile-mobile-menu-item-left">
+                    <MapPin size={18} className="profile-menu-icon" />
+                    <span>Alamat Pengiriman</span>
+                  </div>
+                  <ChevronRight size={16} className="profile-menu-chevron" />
+                </button>
+                <button className="profile-mobile-menu-item" onClick={() => setActiveTab("security")}>
+                  <div className="profile-mobile-menu-item-left">
+                    <ShieldCheck size={18} className="profile-menu-icon" />
+                    <span>Keamanan</span>
+                  </div>
+                  <ChevronRight size={16} className="profile-menu-chevron" />
+                </button>
+              </div>
+            </div>
+
+            <div className="profile-mobile-menu-section">
+              <h3 className="profile-mobile-section-title">Aktivitas</h3>
+              <div className="profile-mobile-menu-card">
+                <button className="profile-mobile-menu-item" onClick={() => setActiveTab("orders")}>
+                  <div className="profile-mobile-menu-item-left">
+                    <ShoppingBag size={18} className="profile-menu-icon" />
+                    <span>Pesanan Saya</span>
+                  </div>
+                  <ChevronRight size={16} className="profile-menu-chevron" />
+                </button>
+                <button className="profile-mobile-menu-item" onClick={() => setActiveTab("wishlist")}>
+                  <div className="profile-mobile-menu-item-left">
+                    <Heart size={18} className="profile-menu-icon" />
+                    <span>Daftar Keinginan</span>
+                  </div>
+                  <ChevronRight size={16} className="profile-menu-chevron" />
+                </button>
+              </div>
+            </div>
+
+            <div className="profile-mobile-menu-section">
+              <h3 className="profile-mobile-section-title">Promo & Info</h3>
+              <div className="profile-mobile-menu-card">
+                <button className="profile-mobile-menu-item" onClick={() => setActiveTab("vouchers")}>
+                  <div className="profile-mobile-menu-item-left">
+                    <Ticket size={18} className="profile-menu-icon" />
+                    <span>Voucher Saya</span>
+                  </div>
+                  <ChevronRight size={16} className="profile-menu-chevron" />
+                </button>
+                <button className="profile-mobile-menu-item" onClick={() => setActiveTab("notifications")}>
+                  <div className="profile-mobile-menu-item-left">
+                    <Bell size={18} className="profile-menu-icon" />
+                    <span>Notifikasi</span>
+                  </div>
+                  <ChevronRight size={16} className="profile-menu-chevron" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content area: active tab content (on mobile, visible only when a tab is selected) */}
+        <div className={`profile-content ${hasActiveTab ? "mobile-visible" : "mobile-hidden"}`}>
+          {hasActiveTab && (
+            <button className="profile-back-button" onClick={() => router.push("/profile")}>
+              <ArrowLeft size={16} />
+              <span>Kembali ke Menu Utama</span>
+            </button>
+          )}
           {renderContent()}
         </div>
+
+        {/* Mobile Logout Button: visible only on the main menu screen */}
+        {!hasActiveTab && (
+          <div className="profile-mobile-logout">
+            <ProfileLogoutButton />
+          </div>
+        )}
       </div>
     </main>
   );

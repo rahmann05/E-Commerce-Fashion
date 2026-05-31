@@ -13,8 +13,8 @@ export default function Footer({ noAnimation = false }: FooterProps) {
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // Do not render footer on profile pages
-  if (pathname && pathname.startsWith("/profile")) {
+  // Do not render footer on profile or cart/checkout pages
+  if (pathname && (pathname.startsWith("/profile") || pathname.startsWith("/catalogue/cart"))) {
     return null;
   }
 

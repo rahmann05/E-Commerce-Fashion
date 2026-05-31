@@ -141,7 +141,8 @@
   .brand {
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
     text-align: center;
     font-size: 1.2rem;
     pointer-events: auto;
@@ -163,5 +164,9 @@
 @media (max-width: 768px) {
   .mobileActions {
     display: flex;
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }

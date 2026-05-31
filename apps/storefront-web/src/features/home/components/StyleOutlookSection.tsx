@@ -99,24 +99,6 @@ export default function StyleOutlookSection() {
           </div>
         </motion.div>
       </div>
-
-      {/* Navigation Pills */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-        className="pill-nav-container"
-      >
-        {STYLE_PILLS.map((pill: string) => (
-          <PillButton
-            key={pill}
-            label={pill}
-            active={activePill === pill}
-            onClick={() => setActivePill(pill)}
-          />
-        ))}
-      </motion.div>
     </section>
   );
 }

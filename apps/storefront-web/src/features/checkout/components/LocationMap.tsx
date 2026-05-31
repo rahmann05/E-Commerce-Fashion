@@ -77,13 +77,14 @@ export default function LocationMap({ onLocationSelect, centerLat, centerLng }: 
       if (mapRef.current) {
         try {
           mapRef.current.off();
-          mapRef.current.stop();
           mapRef.current.remove();
         } catch (err) {
-          console.warn("Leaflet cleanup warning:", err);
-        } finally {
-          mapRef.current = null;
+          // ignore cleanup errors
         }
+        mapRef.current = null;
+      }
+      if (mapContainerRef.current) {
+        mapContainerRef.current.innerHTML = '';
       }
     };
   }, [onLocationSelect, centerLat, centerLng]);

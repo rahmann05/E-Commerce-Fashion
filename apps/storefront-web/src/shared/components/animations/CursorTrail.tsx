@@ -73,11 +73,11 @@ export default function CursorTrail({ containerRef }: CursorTrailProps) {
       if (!start) start = timestamp;
       const elapsed = timestamp - start;
 
-      // Create a slow figure-8 pattern
+      // Create an active, elegant figure-8 pattern sweeping across the viewport
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
-      const x = cx + Math.sin(elapsed / 1500) * (window.innerWidth * 0.35); // Slow wide horizontal
-      const y = cy + Math.sin(elapsed / 3000) * (window.innerHeight * 0.25) - 50; // Slower vertical
+      const x = cx + Math.sin(elapsed / 450) * (window.innerWidth * 0.38); 
+      const y = cy + Math.cos(elapsed / 900) * (window.innerHeight * 0.22) - 50; 
 
       // Call handleMouseMove synthetically
       handleMouseMove({ clientX: x, clientY: y } as unknown as React.MouseEvent);

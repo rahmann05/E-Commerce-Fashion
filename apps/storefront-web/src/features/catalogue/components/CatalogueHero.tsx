@@ -20,7 +20,7 @@ export default function CatalogueHero() {
   const opacity = useSpring(rawOpacity, { stiffness: 80, damping: 20 });
 
   return (
-    <div ref={containerRef} className="catalogue-hero">
+    <div ref={containerRef} className="catalogue-hero" style={{ overflow: "hidden" }}>
       {/* Radial dot grid — same as hero section */}
       <div className="catalogue-hero-radial-grid" />
 

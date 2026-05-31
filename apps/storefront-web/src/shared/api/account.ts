@@ -17,7 +17,7 @@ export const accountApi = {
    * Get full account profile data
    */
   async getProfile(): Promise<AccountResponse | null> {
-    const res = await fetch(`${CUSTOMER_API_URL}/account/profile`, fetchOptions());
+    const res = await fetch(`${CUSTOMER_API_URL}/account`, fetchOptions());
     if (!res.ok) return null;
     return await res.json();
   },

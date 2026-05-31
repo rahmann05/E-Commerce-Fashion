@@ -16,7 +16,7 @@ export function useCheckout() {
   const router = useRouter();
   const { items, isLoading: cartLoading, clearCart } = useCart();
   const { user } = useAuth();
-  const { addresses, submitCheckout, addAddress } = useProfileData();
+  const { addresses, submitCheckout, addAddress, refreshAccountData } = useProfileData();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [selectedPaymentId, setSelectedPaymentId] = useState<string>("");
@@ -47,6 +47,12 @@ export function useCheckout() {
       router.replace("/login?redirect=/catalogue/cart/pembayaran");
     }
   }, [router, user]);
+
+  useEffect(() => {
+    if (user) {
+      void refreshAccountData();
+    }
+  }, [user, refreshAccountData]);
 
   const effectiveAddressId = useMemo(() => {
     if (selectedAddressId) return selectedAddressId;
