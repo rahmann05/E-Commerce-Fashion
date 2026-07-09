@@ -20,13 +20,13 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", service: "commerce-service" });
 });
 
-// For storefront BFF (via Gateway)
+// For storefront BFF
 app.use("/api/commerce/products", productRoutes);
 app.use("/api/commerce/categories", categoryRoutes);
 app.use("/api/commerce/reviews", reviewRoutes);
 app.use("/api/commerce/shipping", shippingRoutes);
 
-// For admin BFF (via Gateway)
+// For admin BFF
 app.use("/api/commerce/admin/products", productAdminRoutes);
 app.use("/api/commerce/admin/categories", categoryAdminRoutes);
 app.use("/api/commerce/admin/analytics", analyticsRoutes);

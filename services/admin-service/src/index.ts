@@ -1,6 +1,7 @@
 import { env } from './config/env.js';
 import app from './app.js';
 
-app.listen(env.PORT, () => {
-  console.log(`Admin Service listening on port ${env.PORT}`);
+const port = process.env.PORT || env.PORT;
+app.listen(port as number, "0.0.0.0", () => {
+  console.log(`Admin Service listening on port ${port}`);
 });

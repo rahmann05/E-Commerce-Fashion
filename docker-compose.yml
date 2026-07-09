@@ -119,8 +119,10 @@ services:
       - PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY}
       - PUBLIC_COMMERCE_API_URL=http://localhost:3001/api/commerce/admin
       - PUBLIC_ADMIN_API_URL=http://localhost:4001/api/admin
+      - PUBLIC_ORDER_API_URL=http://localhost:4003/api/orders/admin
       - INTERNAL_COMMERCE_API_URL=http://commerce-service:3001/api/commerce/admin
       - INTERNAL_ADMIN_API_URL=http://admin-service:4001/api/admin
+      - INTERNAL_ORDER_API_URL=http://order-service:4003/api/orders/admin
     depends_on:
       - commerce-service
       - admin-service

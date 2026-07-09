@@ -1,5 +1,5 @@
 const getApiBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8000";
+  return process.env.NEXT_PUBLIC_COMMERCE_API_URL?.replace('/api/commerce', '') || "http://localhost:3001";
 };
 const BASE_URL = `${getApiBaseUrl()}/api/geography`;
 

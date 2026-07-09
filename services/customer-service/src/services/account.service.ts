@@ -1,6 +1,6 @@
 import { prisma } from '../db/client.js';
 
-const GATEWAY_URL = process.env.INTERNAL_COMMERCE_API_URL || process.env.COMMERCE_SERVICE_URL || 'http://commerce-service:3001/api/commerce';
+const COMMERCE_API_URL = process.env.INTERNAL_COMMERCE_API_URL || process.env.COMMERCE_SERVICE_URL || 'http://commerce-service:3001/api/commerce';
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY;
 
 export class AccountService {
@@ -8,7 +8,7 @@ export class AccountService {
     if (productIds.length === 0) return [];
     try {
       const idsParam = productIds.join(',');
-      const res = await fetch(`${GATEWAY_URL}/products?ids=${idsParam}`, {
+      const res = await fetch(`${COMMERCE_API_URL}/products?ids=${idsParam}`, {
         headers: { 'x-internal-key': INTERNAL_KEY || '' }
       });
       if (!res.ok) return [];
