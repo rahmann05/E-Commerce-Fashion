@@ -10,14 +10,21 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 
 	if (!productRes.ok) throw error(404, 'Product not found');
 
-	const [product, categories] = await Promise.all([
-		productRes.json(),
-		categoriesRes.json()
-	]);
+	let product = null;
+	let categories = { data: [] };
+
+	try {
+		product = await productRes.json();
+		if (categoriesRes.ok) {
+			categories = await categoriesRes.json();
+		}
+	} catch (e) {
+		console.error("Error parsing product/categories data", e);
+	}
 
 	return {
 		product,
-		categories
+		categories: categories.data || []
 	};
 };
 

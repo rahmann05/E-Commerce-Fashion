@@ -59,8 +59,12 @@
 
       {#if data.order.status === 'AWAITING_PAYMENT'}
         <div class="logistics-awaiting-payment">Awaiting payment completion before shipping.</div>
+        <form method="POST" action="?/cancelOrder" use:enhance class="mt-4">
+          <button type="submit" class="btn-studio logistics-btn-submit" style="background: #ef4444; color: white;">Cancel Order</button>
+        </form>
       
       {:else if data.order.status === 'PROCESSING'}
+        <div class="logistics-awaiting-payment" style="margin-bottom: 1rem; color: #666;">Order paid. Select a carrier to dispatch.</div>
         <form method="POST" action="?/initTracking" use:enhance class="logistics-form">
           <div>
             <label for="carrier-select" class="input-label logistics-form-label">Select Carrier</label>
@@ -74,7 +78,10 @@
             <label for="tracking-input" class="input-label" style="font-size: 0.75rem; font-weight: 700; color: #aaa; text-transform: uppercase;">Tracking Number (Resi)</label>
             <input id="tracking-input" type="text" name="trackingNumber" required placeholder="e.g. JP1234567890" class="input-control logistics-input" />
           </div>
-          <button type="submit" class="btn-studio logistics-btn-submit">Initialize Shipping</button>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="submit" class="btn-studio logistics-btn-submit">Initialize Shipping</button>
+            <button type="submit" formaction="?/cancelOrder" class="btn-studio logistics-btn-submit" style="background: transparent; color: #ef4444; border: 1px solid #ef4444;">Cancel Order</button>
+          </div>
         </form>
 
       {:else if data.tracking}

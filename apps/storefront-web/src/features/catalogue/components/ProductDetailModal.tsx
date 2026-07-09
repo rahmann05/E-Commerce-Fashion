@@ -112,8 +112,8 @@ export default function ProductDetailModal({ product, onClose }: Props) {
                 src={product.images?.[0] || product.image || "/images/about/model1.png"}
                 alt={product.name}
                 fill
-                className="object-contain p-6"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 42vw"
                 priority
               />
 

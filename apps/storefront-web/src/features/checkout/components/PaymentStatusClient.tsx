@@ -121,6 +121,19 @@ export function PaymentStatusClient() {
               <div className="payment-products-list" style={{ marginBottom: "2rem" }}>
                 {localOrder.items.map((item) => {
                   const productImg = getImageUrl(item.imageUrl || item.product?.imageUrl || item.product?.image?.[0] || item.product?.images?.[0]) || '/images/about/model1.png';
+                  
+                  // Helper to map hex codes to readable color names
+                  const formatColor = (color: string) => {
+                    if (!color) return color;
+                    if (!color.startsWith('#')) return color;
+                    const c = color.toLowerCase();
+                    if (c === '#fafafa' || c === '#ffffff' || c === '#fff') return 'White';
+                    if (c === '#111111' || c === '#000000' || c === '#000' || c === '#111') return 'Black';
+                    if (c === '#4b5563') return 'Gray';
+                    if (c === '#3b82f6') return 'Blue';
+                    return color;
+                  };
+                  
                   return (
                     <div key={item.productId} style={{ display: "flex", gap: "1rem", padding: "0.75rem 0", borderBottom: "1px solid #f9f9f9" }}>
                       <div style={{ width: 48, height: 56, borderRadius: 4, overflow: "hidden", position: "relative", backgroundColor: "#f5f5f5" }}>
@@ -132,7 +145,7 @@ export function PaymentStatusClient() {
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.2rem" }}>{item.name}</p>
-                        <p style={{ fontSize: "0.75rem", color: "#666" }}>{[item.size, item.color, `${item.quantity}x`].filter(Boolean).join(' · ')}</p>
+                        <p style={{ fontSize: "0.75rem", color: "#666" }}>{[item.size, formatColor(item.color), `${item.quantity}x`].filter(Boolean).join(' · ')}</p>
                       </div>
                       <div style={{ fontSize: "0.85rem", fontWeight: 600 }}>
                         {formatPrice(item.unitPrice * item.quantity)}
@@ -145,7 +158,7 @@ export function PaymentStatusClient() {
               <h3>Alamat Pengiriman</h3>
               <div className="payment-address-card">
                 <div style={{ fontWeight: "700", marginBottom: "0.4rem" }}>
-                  {user?.name} | {user?.phone || "-"}
+                  {localOrder.address?.recipient || user?.name} | {localOrder.address?.phone || user?.phone || "-"}
                 </div>
                 <div style={{ fontSize: "0.85rem", color: "#444", lineHeight: 1.5 }}>
                    {localOrder.address?.line1 || "No address provided"}

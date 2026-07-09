@@ -32,10 +32,12 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
     const fetchReviews = async () => {
       try {
-        const data = await reviewsApi.getProductReviews(productId);
-        if (data.success) {
-          setReviews(data.reviews);
-          setSummary(data.summary);
+        const res = await reviewsApi.getProductReviews(productId);
+
+        const payload = (res as any).data ?? res;
+        if (res.success) {
+          setReviews(payload.reviews ?? []);
+          setSummary(payload.summary ?? { total: 0, average: 0 });
         }
       } catch (err) {
         console.error("Failed to fetch reviews:", err);
@@ -75,29 +77,20 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         {reviews.map((review) => (
           <div key={review.id} className="review-card">
             <div className="review-user-info">
-              <div className="review-avatar">
-                {review.user.image ? (
-                  <Image src={review.user.image} alt={review.user.name || "User"} width={40} height={40} />
-                ) : (
-                  <span>{(review.user.name || "U").charAt(0).toUpperCase()}</span>
-                )}
-              </div>
+              <div className="review-avatar">{review.user.image ? <Image src={review.user.image} alt={review.user.name || "User"} width={40} height={40} /> : <span>{(review.user.name || "U").charAt(0).toUpperCase()}</span>}</div>
               <div>
                 <div className="review-user-name">{review.user.name || "Pengguna Anonim"}</div>
                 <div className="review-date">
                   {new Date(review.createdAt).toLocaleDateString("id-ID", {
-                    day: "numeric", month: "short", year: "numeric"
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
                   })}
                 </div>
               </div>
               <div className="review-stars-small">
                 {Array.from({ length: 5 }, (_, i) => (
-                  <Star
-                    key={i}
-                    size={12}
-                    fill={i < review.rating ? "#f59e0b" : "#e5e7eb"}
-                    color={i < review.rating ? "#f59e0b" : "#e5e7eb"}
-                  />
+                  <Star key={i} size={12} fill={i < review.rating ? "#f59e0b" : "#e5e7eb"} color={i < review.rating ? "#f59e0b" : "#e5e7eb"} />
                 ))}
               </div>
             </div>

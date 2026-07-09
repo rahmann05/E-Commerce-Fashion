@@ -27,6 +27,19 @@ export default function ProfileOrderHistory({ orders }: ProfileOrderHistoryProps
         {orders.length > 0 ? (
           orders.map((order) => {
             const primaryItem = order.items[0];
+            
+            // Helper to map hex codes to readable color names
+            const formatColor = (color: string) => {
+              if (!color) return color;
+              if (!color.startsWith('#')) return color;
+              const c = color.toLowerCase();
+              if (c === '#fafafa' || c === '#ffffff' || c === '#fff') return 'White';
+              if (c === '#111111' || c === '#000000' || c === '#000' || c === '#111') return 'Black';
+              if (c === '#4b5563') return 'Gray';
+              if (c === '#3b82f6') return 'Blue';
+              return color;
+            };
+
             const displayOrder = {
               id: order.id,
               date: new Date(order.createdAt).toLocaleDateString("id-ID", {
@@ -36,7 +49,7 @@ export default function ProfileOrderHistory({ orders }: ProfileOrderHistoryProps
               }),
               productName: primaryItem?.name ?? "Pesanan",
               details: primaryItem
-                ? `Size: ${primaryItem.size || "All Size"} · Color: ${primaryItem.color || "Default"} · Qty: ${primaryItem.quantity}`
+                ? `Size: ${primaryItem.size || "All Size"} · Color: ${formatColor(primaryItem.color) || "Default"} · Qty: ${primaryItem.quantity}`
                 : "Rincian produk tidak tersedia",
               imageUrl: getImageUrl(primaryItem?.imageUrl) || "/images/about/model1.png",
               total: formatPrice(order.total),

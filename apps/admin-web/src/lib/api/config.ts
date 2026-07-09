@@ -29,3 +29,12 @@ export const ADMIN_API_URL = browser
 export const ORDER_API_URL = browser 
     ? (publicEnv.PUBLIC_ORDER_API_URL || 'http://localhost:4003/api/orders/admin')
     : (process.env.INTERNAL_ORDER_API_URL || 'http://order-service:4003/api/orders/admin');
+
+export function getInternalHeaders(): Record<string, string> {
+    if (browser) {
+        return {};
+    }
+    return {
+        'x-internal-key': process.env.INTERNAL_SERVICE_KEY || 'novarium-internal-secret-2026'
+    };
+}

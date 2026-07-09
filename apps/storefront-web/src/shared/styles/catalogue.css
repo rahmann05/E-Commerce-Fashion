@@ -242,11 +242,12 @@
   background: #f5f5f3;
   border-radius: 2rem 2rem 0 0;
   width: 100%;
-  max-width: 1100px;
-  max-height: 92vh;
-  overflow-y: auto;
+  max-width: 1200px;
+  height: 90vh;
+  max-height: 90vh;
+  overflow: hidden;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 5fr 7fr;
   box-shadow: 0 30px 100px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.4);
 }
@@ -254,23 +255,44 @@
 @media (min-width: 768px) {
   .modal-sheet {
     border-radius: 2rem;
+    height: 88vh;
     max-height: 88vh;
   }
 }
 
 .modal-image-col {
   position: relative;
-  min-height: 400px;
-  background: #ffffff;
+  background: #eaeae8;
   border-radius: 2rem 0 0 2rem;
   overflow: hidden;
+  height: 100%;
+}
+
+/* Make image fill the entire column with cover */
+.modal-image-col img {
+  object-fit: cover !important;
 }
 
 .modal-detail-col {
-  padding: 3rem 2.5rem;
+  padding: 2.8rem 2.8rem 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+
+.modal-detail-col::-webkit-scrollbar {
+  width: 5px;
+}
+
+.modal-detail-col::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-detail-col::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 10px;
 }
 
 .modal-close-btn {
@@ -303,11 +325,11 @@
 }
 
 .modal-product-name {
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.1;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   color: #111;
 }
 
@@ -317,14 +339,14 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #aaa;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.8rem;
 }
 
 .modal-product-desc {
-  font-size: 0.95rem;
-  line-height: 1.75;
+  font-size: 0.9rem;
+  line-height: 1.7;
   color: #777;
-  margin-bottom: 2rem;
+  margin-bottom: 1.8rem;
 }
 
 .modal-product-price {
@@ -785,6 +807,7 @@
   .modal-sheet {
     grid-template-columns: 1fr;
     border-radius: 1.5rem 1.5rem 0 0;
+    height: auto;
     max-height: 92svh;
     max-height: 92vh;
     overflow-y: auto;
@@ -792,12 +815,14 @@
 
   .modal-image-col {
     border-radius: 1.5rem 1.5rem 0 0;
-    min-height: 52vw;
+    height: 50vw;
+    min-height: 240px;
     max-height: 48vh;
   }
 
   .modal-detail-col {
     padding: 1.5rem 1.2rem 3rem;
+    overflow-y: visible;
   }
 
   .modal-product-name {

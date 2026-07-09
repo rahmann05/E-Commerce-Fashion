@@ -113,6 +113,7 @@ interface ProfileDataContextValue {
     notes?: string;
     promoCode?: string;
   }) => Promise<{ success: boolean; orderId?: string; message?: string }>;
+  cancelOrder: (orderId: string) => Promise<{ success: boolean; message?: string }>;
   refreshAccountData: () => Promise<void>;
   updatePassword: (payload: {
     currentPassword: string;
@@ -280,6 +281,15 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
     [user, callMutation]
   );
 
+  const cancelOrder = useCallback(
+    async (orderId: string) => {
+      const res = await callMutation("cancelOrder", { orderId });
+      if (!res) return { success: false, message: "Gagal membatalkan pesanan." };
+      return { success: true, message: "Pesanan berhasil dibatalkan." };
+    },
+    [callMutation]
+  );
+
   const updatePassword = useCallback(
     ({
       currentPassword,
@@ -322,6 +332,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       isWishlisted,
       markNotificationRead,
       submitCheckout,
+      cancelOrder,
       refreshAccountData,
       updatePassword,
     }),
@@ -337,6 +348,7 @@ export function ProfileDataProvider({ children }: { children: ReactNode }) {
       isWishlisted,
       markNotificationRead,
       submitCheckout,
+      cancelOrder,
       refreshAccountData,
       updatePassword,
     ]

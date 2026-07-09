@@ -7,7 +7,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CreditCard } from "lucide-react";
+import { CreditCard, X } from "lucide-react";
+import { useState } from "react";
+import ReviewModal from "@/features/catalogue/components/ReviewModal";
+import { useProfileData } from "@/core/providers/ProfileDataContext";
 
 export interface MockOrder {
   id: string;
@@ -40,13 +43,26 @@ interface ProfileOrderCardProps {
   delay?: number;
 }
 
-import { useState } from "react";
-import ReviewModal from "@/features/catalogue/components/ReviewModal";
-
 export default function ProfileOrderCard({ order }: ProfileOrderCardProps) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const { cancelOrder, refreshAccountData } = useProfileData();
 
-  const isPaid = ["processing", "shipped", "delivered", "PROCESSING", "SHIPPED", "DELIVERED"].includes(order.status);
+  const isDelivered = ["delivered", "DELIVERED"].includes(order.status);
+  const isAwaitingPayment = ["awaiting_payment", "AWAITING_PAYMENT"].includes(order.status);
+
+  const handleCancel = async () => {
+    if (!confirm("Apakah Anda yakin ingin membatalkan pesanan ini?")) return;
+    setIsCancelling(true);
+    const result = await cancelOrder(order.id);
+    if (result.success) {
+      alert("Pesanan berhasil dibatalkan.");
+      void refreshAccountData();
+    } else {
+      alert(result.message || "Gagal membatalkan pesanan.");
+    }
+    setIsCancelling(false);
+  };
 
   return (
     <>
@@ -117,57 +133,58 @@ export default function ProfileOrderCard({ order }: ProfileOrderCardProps) {
         <span className={`profile-order-status status-${order.status}`}>
           {STATUS_LABELS[order.status] || order.status}
         </span>
-        {order.status === "AWAITING_PAYMENT" && (
-          <Link 
-            href={`/catalogue/cart/pembayaran/status/${order.id}`}
-            className="repay-btn"
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            style={{
-              marginTop: "0.5rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              color: "#fff",
-              background: "#111",
-              padding: "0.5rem 1rem",
-              borderRadius: "999px",
-              textDecoration: "none",
-              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
-            }}
-          >
-            <CreditCard size={14} />
-            Bayar Sekarang
-          </Link>
+        {isAwaitingPayment && (
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+            <button
+              onClick={handleCancel}
+              disabled={isCancelling}
+              className="repay-btn"
+              onMouseEnter={(e) => { if (!isCancelling) e.currentTarget.style.transform = "scale(1.05)"; }}
+              onMouseLeave={(e) => { if (!isCancelling) e.currentTarget.style.transform = "scale(1)"; }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: "#ef4444",
+                background: "transparent",
+                border: "1px solid #ef4444",
+                padding: "0.4rem 0.8rem",
+                borderRadius: "999px",
+                cursor: isCancelling ? "not-allowed" : "pointer",
+                opacity: isCancelling ? 0.6 : 1,
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
+              }}
+            >
+              <X size={12} />
+              {isCancelling ? "Memproses..." : "Batalkan"}
+            </button>
+            <Link 
+              href={`/catalogue/cart/pembayaran/status/${order.id}`}
+              className="repay-btn"
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                color: "#fff",
+                background: "#111",
+                padding: "0.5rem 1rem",
+                borderRadius: "999px",
+                textDecoration: "none",
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
+              }}
+            >
+              <CreditCard size={14} />
+              Bayar Sekarang
+            </Link>
+          </div>
         )}
-        {order.status === "awaiting_payment" && (
-          <Link 
-            href={`/catalogue/cart/pembayaran/status/${order.id}`}
-            className="repay-btn"
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            style={{
-              marginTop: "0.5rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              color: "#fff",
-              background: "#111",
-              padding: "0.5rem 1rem",
-              borderRadius: "999px",
-              textDecoration: "none",
-              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
-            }}
-          >
-            <CreditCard size={14} />
-            Bayar Sekarang
-          </Link>
-        )}
-        {isPaid && order.productId && (
+        {isDelivered && order.productId && (
           <button 
             onClick={() => setIsReviewOpen(true)}
             className="repay-btn"

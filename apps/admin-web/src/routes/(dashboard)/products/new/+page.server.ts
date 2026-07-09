@@ -3,11 +3,18 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
-	const res = await fetch(`${COMMERCE_API_URL}/categories`);
-	const result = await res.json();
-	return {
-		categories: result.data || []
-	};
+	try {
+		const res = await fetch(`${COMMERCE_API_URL}/categories`);
+		if (!res.ok) {
+			return { categories: [] };
+		}
+		const result = await res.json();
+		return {
+			categories: result.data || []
+		};
+	} catch (e) {
+		return { categories: [] };
+	}
 };
 
 export const actions: Actions = {

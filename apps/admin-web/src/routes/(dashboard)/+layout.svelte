@@ -15,7 +15,6 @@
     <a href="/products" class="nav-link" class:active={$page.url.pathname.startsWith('/products')}>Products</a>
   </div>
   <div class="nav-env">
-    <span class="env-label">ENV: <span class="env-badge">{mode.toUpperCase()}</span></span>
     <a href="/logout" class="logout-btn" data-sveltekit-preload-data="off">Logout</a>
   </div>
 </nav>

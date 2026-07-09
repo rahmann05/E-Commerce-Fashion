@@ -27,9 +27,11 @@ export function useProfilePage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   
-  const activeTab = useMemo(() => toTab(searchParams.get("tab")), [searchParams]);
+  const [localTab, setLocalTab] = useState<TabId | null>(null);
+  const activeTab = localTab ?? toTab(searchParams.get("tab"));
 
   const setActiveTab = useCallback((tab: TabId) => {
+    setLocalTab(tab);
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
@@ -50,6 +52,8 @@ export function useProfilePage() {
     return result.success;
   };
 
+  const hasActiveTab = !!localTab || !!searchParams.get("tab");
+
   return {
     state: {
       user,
@@ -58,7 +62,8 @@ export function useProfilePage() {
       wishlist,
       vouchers,
       notifications,
-      activeTab
+      activeTab,
+      hasActiveTab
     },
     actions: {
       setActiveTab,

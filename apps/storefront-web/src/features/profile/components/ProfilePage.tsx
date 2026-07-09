@@ -28,13 +28,10 @@ import { useProfilePage } from "../hooks/useProfilePage";
 
 export default function ProfilePage() {
   const { state, actions } = useProfilePage();
-  const { user, isLoading, orders, wishlist, vouchers, notifications, activeTab } = state;
+  const { user, isLoading, orders, wishlist, vouchers, notifications, activeTab, hasActiveTab } = state;
   const { setActiveTab, removeWishlistItem, markNotificationRead, handleSavePassword } = actions;
   
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const activeTabParam = searchParams.get("tab");
-  const hasActiveTab = !!activeTabParam;
 
   if (isLoading || !user) {
     return (
