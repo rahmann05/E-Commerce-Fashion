@@ -26,6 +26,7 @@ RUN npm run build
 FROM node:20-alpine AS runner
 
 WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl
 
 # Set NODE_ENV to production
 ENV NODE_ENV=production
