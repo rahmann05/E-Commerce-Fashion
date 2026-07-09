@@ -35,6 +35,6 @@ export function getInternalHeaders(): Record<string, string> {
         return {};
     }
     return {
-        'x-internal-key': process.env.INTERNAL_SERVICE_KEY || 'novarium-internal-secret-2026'
+        'x-internal-key': process.env.INTERNAL_SERVICE_KEY || 'novarium-internal-mesh-key-2026'
     };
 }
