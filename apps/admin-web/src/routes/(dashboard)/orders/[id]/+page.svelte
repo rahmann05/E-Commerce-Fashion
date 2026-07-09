@@ -1,6 +1,7 @@
 <script lang="ts">
   let { data, form } = $props();
   import { enhance } from '$app/forms';
+  import { Printer, MapPin } from '@lucide/svelte';
 
   function formatCurrency(amount: number) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -21,7 +22,14 @@
       <div class="order-detail-hero-label">Transaction Detail</div>
       <h1 class="editorial-title order-detail-title">#{data.order.id.slice(-8).toUpperCase()}</h1>
     </div>
-    <span class="status-pill {getStatusClass(data.order.status)} order-detail-status-pill">{data.order.status.replace('_', ' ')}</span>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      {#if ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(data.order.status)}
+        <a href="/orders/{data.order.id}/label" target="_blank" class="btn-studio" style="display: flex; align-items: center; gap: 0.5rem; background: transparent; color: #000; border: 1px solid #000; text-decoration: none; padding: 0.5rem 1rem;">
+          <Printer size={16} /> Print Label
+        </a>
+      {/if}
+      <span class="status-pill {getStatusClass(data.order.status)} order-detail-status-pill">{data.order.status.replace('_', ' ')}</span>
+    </div>
   </div>
 
   <div class="order-detail-layout">
@@ -74,10 +82,7 @@
               {/each}
             </select>
           </div>
-          <div>
-            <label for="tracking-input" class="input-label" style="font-size: 0.75rem; font-weight: 700; color: #aaa; text-transform: uppercase;">Tracking Number (Resi)</label>
-            <input id="tracking-input" type="text" name="trackingNumber" required placeholder="e.g. JP1234567890" class="input-control logistics-input" />
-          </div>
+
           <div style="display: flex; gap: 1rem; margin-top: 1rem;">
             <button type="submit" class="btn-studio logistics-btn-submit">Initialize Shipping</button>
             <button type="submit" formaction="?/cancelOrder" class="btn-studio logistics-btn-submit" style="background: transparent; color: #ef4444; border: 1px solid #ef4444;">Cancel Order</button>
@@ -115,7 +120,9 @@
               <div class="timeline-dot" class:delivered={log.status === "DELIVERED"} class:pending={log.status !== "DELIVERED"}></div>
               <div class="timeline-status">{log.status.replace(/_/g, ' ')}</div>
               {#if log.location}
-                <div class="timeline-location">📍 {log.location}</div>
+                <div class="timeline-location" style="display: flex; align-items: center; gap: 0.25rem;">
+                  <MapPin size={14} /> {log.location}
+                </div>
               {/if}
               <div class="timeline-time">{new Date(log.timestamp).toLocaleString()}</div>
             </div>

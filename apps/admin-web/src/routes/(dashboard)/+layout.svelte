@@ -13,6 +13,7 @@
     <a href="/" class="nav-link" class:active={$page.url.pathname === '/'}>Overview</a>
     <a href="/orders" class="nav-link" class:active={$page.url.pathname.startsWith('/orders')}>Transactions</a>
     <a href="/products" class="nav-link" class:active={$page.url.pathname.startsWith('/products')}>Products</a>
+    <a href="/returns" class="nav-link" class:active={$page.url.pathname.startsWith('/returns')}>Returns</a>
   </div>
   <div class="nav-env">
     <a href="/logout" class="logout-btn" data-sveltekit-preload-data="off">Logout</a>

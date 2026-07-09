@@ -78,4 +78,14 @@ export class ProductController {
       next(err);
     }
   }
+
+  static async deductStock(req: Request, res: Response, next: NextFunction) {
+    try {
+      const items = req.body.items;
+      const data = await ProductService.deductStock(items);
+      res.json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  }
 }

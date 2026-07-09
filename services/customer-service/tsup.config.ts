@@ -6,7 +6,7 @@ export default defineConfig({
   clean: true,
   platform: 'node',
   external: [
-    '@prisma/client', '@prisma/adapter-pg', '@prisma/config', '@prisma/client-runtime-utils', '@novarium/customer-prisma'
+    '@prisma/client', '@prisma/adapter-pg', '@prisma/config', '@prisma/client-runtime-utils', '@novarium/customer-prisma', 'pg'
   ],
   noExternal: ['@novarium/contracts', '@novarium/shared'],
 });

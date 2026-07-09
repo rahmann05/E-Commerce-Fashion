@@ -44,17 +44,38 @@ export class OrderService {
   }
 
   static async getAdminOrders() {
-    return prisma.order.findMany({
+    const orders = await prisma.order.findMany({
       orderBy: { createdAt: 'desc' },
       include: { items: true }
+    });
+    return orders.map(order => {
+      let customer = { name: 'Guest', phone: '' };
+      if (order.addressSnapshot) {
+        try {
+          const addr = typeof order.addressSnapshot === 'string' ? JSON.parse(order.addressSnapshot) : order.addressSnapshot;
+          if (addr.recipient) customer.name = addr.recipient;
+          if (addr.phone) customer.phone = addr.phone;
+        } catch(e) {}
+      }
+      return { ...order, customer };
     });
   }
 
   static async getAdminOrderDetails(id: string) {
-    return prisma.order.findUnique({
+    const order = await prisma.order.findUnique({
       where: { id },
       include: { items: true, tracking: true }
     });
+    if (!order) return null;
+    let customer = { name: 'Guest', email: '', phone: '' };
+    if (order.addressSnapshot) {
+      try {
+        const addr = typeof order.addressSnapshot === 'string' ? JSON.parse(order.addressSnapshot) : order.addressSnapshot;
+        if (addr.recipient) customer.name = addr.recipient;
+        if (addr.phone) customer.phone = addr.phone;
+      } catch(e) {}
+    }
+    return { ...order, customer };
   }
 
   static async updateAdminOrderStatus(id: string, status: any) {
@@ -62,5 +83,39 @@ export class OrderService {
       where: { id },
       data: { status }
     });
+  }
+
+  static async getAdminReturns() {
+    return prisma.returnRequest.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        order: {
+          include: { items: true }
+        }
+      }
+    });
+  }
+
+  static async updateAdminReturnStatus(id: string, status: string) {
+    const returnRequest = await prisma.returnRequest.update({
+      where: { id },
+      data: { status }
+    });
+
+    if (status === 'APPROVED') {
+      await prisma.order.update({
+        where: { id: returnRequest.orderId },
+        data: { status: 'RETURNED' }
+      });
+      // Optionally sync with commerce-service to restock here later
+    } else if (status === 'REJECTED') {
+      // Revert order status to delivered
+      await prisma.order.update({
+        where: { id: returnRequest.orderId },
+        data: { status: 'DELIVERED' }
+      });
+    }
+
+    return returnRequest;
   }
 }

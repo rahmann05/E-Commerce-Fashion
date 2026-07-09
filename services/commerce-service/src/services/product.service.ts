@@ -133,4 +133,21 @@ export class ProductService {
     await prisma.product.delete({ where: { id } });
     return { id };
   }
+
+  static async deductStock(items: { productId: string, productVariantId?: string, quantity: number, size?: string }[]) {
+    for (const item of items) {
+      if (item.productVariantId) {
+        await prisma.productVariant.update({
+          where: { id: item.productVariantId },
+          data: { stock: { decrement: item.quantity } }
+        }).catch(e => console.error("Failed to deduct variant stock:", e));
+      }
+      // Always deduct main product stock as well
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: { stock: { decrement: item.quantity } }
+      }).catch(e => console.error("Failed to deduct product stock:", e));
+    }
+    return { success: true };
+  }
 }

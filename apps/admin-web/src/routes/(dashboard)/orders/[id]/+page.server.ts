@@ -67,7 +67,8 @@ export const actions: Actions = {
     try {
       const data = await request.formData();
       const carrierId = data.get('carrierId');
-      const trackingNumber = data.get('trackingNumber');
+      // Automatically generate a tracking number (mocking logistics API response)
+      const trackingNumber = `NVR-${Math.floor(Math.random() * 100000000)}`;
       
       const res = await fetch(`${ORDER_API_URL}/shipping/tracking/create`, {
         method: 'POST',

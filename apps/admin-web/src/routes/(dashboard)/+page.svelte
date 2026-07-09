@@ -10,7 +10,6 @@
     <h1 class="editorial-title">Business Overview</h1>
     <p class="editorial-subtitle">Real-time transaction and settlement metrics.</p>
   </div>
-  <button class="btn-studio">Download Report</button>
 </div>
 
 <DashboardMetrics analytics={data.analytics} />

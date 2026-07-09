@@ -56,6 +56,17 @@ export const orderApi = {
       console.error(`[orderApi] Error:`, e.message);
       return { success: false, error: e.message };
     }
+  },
+
+  async getReturns(fetch: any) {
+    try {
+      const res = await fetch(`${ORDER_API_URL}/returns/all`, { headers: { ...getInternalHeaders() } });
+      if (!res.ok) return { data: [] };
+      return await res.json();
+    } catch (e: any) {
+      console.error(`[orderApi] Error fetching returns:`, e.message);
+      return { data: [] };
+    }
   }
 };
 

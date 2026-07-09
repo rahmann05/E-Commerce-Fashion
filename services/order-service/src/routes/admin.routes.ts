@@ -21,5 +21,8 @@ router.get('/shipping/carriers', auth as any, ShippingController.getCarriers);
 router.get('/shipping/track/:orderId', auth as any, ShippingController.getTracking);
 router.post('/shipping/tracking/create', auth as any, ShippingController.createTracking);
 router.post('/shipping/tracking/update', auth as any, ShippingController.addLog);
+// Return Management
+router.get('/returns/all', auth as any, OrderController.getAdminReturns);
+router.patch('/returns/:id', auth as any, OrderController.updateAdminReturnStatus);
 
 export default router;

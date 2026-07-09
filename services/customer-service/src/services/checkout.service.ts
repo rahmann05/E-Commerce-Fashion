@@ -97,6 +97,24 @@ export class CheckoutService {
         where: { id: order_id, status: 'AWAITING_PAYMENT' },
         data: { status: orderStatus }
       });
+      
+      // Sync Inventory if Paid
+      if (orderStatus === 'PROCESSING') {
+        const orderData = await prisma.order.findUnique({
+          where: { id: order_id },
+          include: { items: true }
+        });
+        if (orderData && orderData.items.length > 0) {
+          const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || 'novarium-internal-mesh-key-2026';
+          const COMMERCE_URL = process.env.COMMERCE_SERVICE_URL || 'http://commerce-service:3001';
+          
+          await fetch(`${COMMERCE_URL}/api/commerce/products/internal/deduct-stock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-internal-key': INTERNAL_KEY },
+            body: JSON.stringify({ items: orderData.items })
+          }).catch(e => console.error("Failed to sync inventory to commerce-service", e));
+        }
+      }
     }
 
     return { success: true };
@@ -120,6 +138,24 @@ export class CheckoutService {
           where: { id: orderId, status: 'AWAITING_PAYMENT' },
           data: { status: orderStatus }
         });
+
+        // Sync Inventory if Paid
+        if (orderStatus === 'PROCESSING') {
+          const orderData = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: { items: true }
+          });
+          if (orderData && orderData.items.length > 0) {
+            const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || 'novarium-internal-mesh-key-2026';
+            const COMMERCE_URL = process.env.COMMERCE_SERVICE_URL || 'http://commerce-service:3001';
+            
+            await fetch(`${COMMERCE_URL}/api/commerce/products/internal/deduct-stock`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-internal-key': INTERNAL_KEY },
+              body: JSON.stringify({ items: orderData.items })
+            }).catch(e => console.error("Failed to sync inventory to commerce-service", e));
+          }
+        }
       }
     }
     
