@@ -64,8 +64,6 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/services/customer-service/node_modules/@novarium/customer-prisma ./node_modules/@novarium/customer-prisma
 
 USER customerjs
-EXPOSE 4002
-ENV PORT=4002
 
 # Run with node (Memory limited for Railway Free Tier)
 CMD ["node", "--max-old-space-size=256", "dist/index.js"]

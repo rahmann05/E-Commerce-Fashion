@@ -64,8 +64,6 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/services/admin-service/node_modules/@novarium/admin-prisma ./node_modules/@novarium/admin-prisma
 
 USER adminjs
-EXPOSE 4001
-ENV PORT=4001
 
 # Run with node (Memory limited for Railway Free Tier)
 CMD ["node", "--max-old-space-size=256", "dist/index.js"]

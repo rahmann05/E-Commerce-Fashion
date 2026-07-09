@@ -40,7 +40,5 @@ COPY --from=builder /app/services/order-service/prisma ./services/order-service/
 
 WORKDIR /app/services/order-service
 
-EXPOSE 4003
-
 # Run with node (Memory limited for Railway Free Tier)
 CMD ["node", "--max-old-space-size=256", "dist/index.js"]
