@@ -1,21 +1,19 @@
 import { prisma } from '../db/client.js';
 
-const COMMERCE_API_URL = process.env.INTERNAL_COMMERCE_API_URL || process.env.COMMERCE_SERVICE_URL || 'http://commerce-service:3001/api/commerce';
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY;
+import { createServiceClient } from '@novarium/shared';
+import { env } from '../config/env.js';
+
+const commerceClient = createServiceClient(env.COMMERCE_SERVICE_URL, env.INTERNAL_SERVICE_KEY);
 
 export class AccountService {
   private static async fetchProducts(productIds: string[]) {
     if (productIds.length === 0) return [];
     try {
       const idsParam = productIds.join(',');
-      const res = await fetch(`${COMMERCE_API_URL}/products?ids=${idsParam}`, {
-        headers: { 'x-internal-key': INTERNAL_KEY || '' }
-      });
-      if (!res.ok) return [];
-      const json = await res.json() as any;
+      const json = await commerceClient.get(`/api/commerce/products?ids=${idsParam}`) as { success: boolean, data: any[] };
       return json.data || [];
-    } catch (err) {
-      console.error(`[AccountService] Error fetching products:`, err);
+    } catch (err: any) {
+      console.error(`[AccountService] Error fetching products:`, err.message);
       return [];
     }
   }
