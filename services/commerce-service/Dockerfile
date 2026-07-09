@@ -57,6 +57,8 @@ RUN adduser --system --uid 1001 expressjs
 COPY --from=builder /app/services/commerce-service/dist ./dist
 COPY --from=builder /app/services/commerce-service/package.json ./package.json
 COPY --from=builder /app/services/commerce-service/prisma ./prisma
+# Copy the built shared packages so monorepo symlinks in node_modules can resolve
+COPY --from=builder /app/packages ./packages
 # Copy production node_modules
 COPY --from=prod-deps /app/node_modules ./node_modules
 # Copy the generated Prisma client from builder (not generated during prod-deps)

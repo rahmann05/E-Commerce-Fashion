@@ -31,6 +31,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Copy built artifacts and dependencies
+COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/services/order-service/node_modules ./services/order-service/node_modules
 COPY --from=builder /app/services/order-service/dist ./services/order-service/dist

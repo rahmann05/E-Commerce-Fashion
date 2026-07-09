@@ -56,6 +56,8 @@ RUN adduser --system --uid 1001 adminjs
 # Copy folder dist and package.json
 COPY --from=builder /app/services/admin-service/dist ./dist
 COPY --from=builder /app/services/admin-service/package.json ./package.json
+# Copy the built shared packages so monorepo symlinks in node_modules can resolve
+COPY --from=builder /app/packages ./packages
 # Copy production node_modules
 COPY --from=prod-deps /app/node_modules ./node_modules
 # Copy the generated Prisma client from builder (not generated during prod-deps)
